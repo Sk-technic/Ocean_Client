@@ -1,0 +1,32 @@
+.custom-scrollbar {
+  /* REMOVE SMOOTH SCROLLING – IT CAUSES FAST JUMPS */
+  scroll-behavior: auto;
+
+  /* REMOVE iOS momentum – it boosts speed */
+  -webkit-overflow-scrolling: auto;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Keep scrollbar stable */
+  scrollbar-gutter: stable;
+}
+
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 100, 100, 0.5) transparent;
+}
+
+/* Chrome/Safari/Edge */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.5);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(70, 70, 70, 0.8);
+}

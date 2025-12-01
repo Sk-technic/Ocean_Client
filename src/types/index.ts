@@ -12,12 +12,12 @@ export interface User {
     followersCount?: number;
     followingCount?: number;
     postCount?: number;
-    isPrivate?:boolean;
+    isPrivate:boolean;
     reelsCount?: number;
     videosCount?: number;
     token?: string;
-    isVerified?: boolean;
-    status?: "active" | "banned" | "suspended";
+    isVerified: boolean;
+    status: "active" | "banned" | "suspended";
     createdAt?: string;
     updatedAt?: string;
     subscribersCount?: number;

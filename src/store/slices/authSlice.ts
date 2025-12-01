@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type {User}  from "../../types";
+import type { User } from "../../types";
 
 interface AuthState {
   user: User | null;
@@ -51,8 +51,17 @@ const authSlice = createSlice({
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
     },
+    updateAccountPrivacy: (state, action: PayloadAction<{ userId: string; key: boolean }>) => {
+      console.log("id:",action.payload.userId,action.payload.key);
+      
+      const payloadId = String(action.payload.userId)
+      if (state.user?._id === payloadId) {
+        state.user.isPrivate = action.payload.key;
+      }
+    }
+
   },
 });
 
-export const { setUser, logout,updateAccessToken } = authSlice.actions;
+export const { setUser, logout, updateAccessToken,updateAccountPrivacy } = authSlice.actions;
 export default authSlice.reducer;

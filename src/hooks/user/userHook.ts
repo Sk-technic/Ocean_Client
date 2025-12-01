@@ -1,13 +1,11 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { UserApi } from "../../api/services";
-import { setUser } from "../../store/slices/authSlice"; // assuming you have this
+import { setUser, updateAccountPrivacy } from "../../store/slices/authSlice"; // assuming you have this
 import { toast } from "react-toastify";
+import { store } from "../../store";
+import { useAppDispatch } from "../../store/hooks";
 
-/**
- * Hook: useUpdateCoverImage
- * Handles uploading and updating user's cover image.
- */
 const useUpdateCoverImage = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -33,10 +31,6 @@ const useUpdateCoverImage = () => {
   });
 };
 
-/**
- * Hook: useUpdateProfileImage
- * Handles uploading and updating user's Profile image.
- */
 const useUpdateProfileImage = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -64,10 +58,6 @@ const useUpdateProfileImage = () => {
   });
 };
 
-/**
- * Hook: useDeleteProfileImage
- * Handles delete user's Profile image.
- */
 export const useDeleteProfileImage = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -92,10 +82,6 @@ export const useDeleteProfileImage = () => {
   });
 };
 
-/**
- * Hook: useDeleteCoverImage
- * Handles delete user's Cover image.
- */
 export const useDeleteCoverImage = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -120,10 +106,6 @@ export const useDeleteCoverImage = () => {
   });
 };
 
-/**
- * Hook: useUpdateProfile
- * Handles Edit user's profile detail's.
- */
 export const useUpdateProfile = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -178,6 +160,26 @@ export const useGetUser = (roomId: string) => {
   });
 };
 
+export const useAccountPrivacy = () => {
+  const dispatch = useAppDispatch()
+  return useMutation({
+    mutationFn: async ({ userId, key }: { userId: string; key: string }) => {
+      try {
+        const result =  await UserApi.updatePrivacy(userId, key);
+        console.log(result);
+        
+        dispatch(updateAccountPrivacy({userId:result?.data?._id,key:result?.data?.isPrivate}))
+      } catch (error: any) {
+        const message =
+          error?.message ||
+          error?.response?.data?.message ||
+          "Failed to update privacy.";
+        throw new Error(message);
+      }
+    },
+  });
+};
+
 export const userHooks = {
   useUpdateCoverImage,
   useUpdateProfileImage,
@@ -185,5 +187,6 @@ export const userHooks = {
   useDeleteCoverImage,
   useUpdateProfile,
   useFindUser,
-  useGetUser
+  useGetUser,
+  useAccountPrivacy
 };

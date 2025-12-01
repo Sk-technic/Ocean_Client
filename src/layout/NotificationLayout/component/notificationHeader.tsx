@@ -2,14 +2,17 @@ import React from "react";
 import { ChevronLeft, Settings } from "lucide-react";
 import { useAppSelector } from "../../../store/hooks";
 import { optimizeUrl } from "../../../utils/imageOptimize";
+import { useNavigate } from "react-router-dom";
 
 const NotificationHeader: React.FC = () => {
-    const {user:loggedInUser} = useAppSelector((state)=>state.auth)
-
+  const { user: loggedInUser } = useAppSelector((state) => state.auth)
+  const Navigate = useNavigate()
   return (
     <header
       className="
-        w-full max-w-8xl px-4 py-3 
+        w-full max-w-8xl px-4 py-2
+        border theme-border
+        shadow-lg
         flex items-center justify-between
         theme-bg-card  
         sticky top-0 z-50 
@@ -22,19 +25,26 @@ const NotificationHeader: React.FC = () => {
       <div className="flex items-center gap-3">
 
         {/* USER DETAILS */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 hover:cursor-pointer"
+          onClick={() => Navigate("/dashboard")}
+        >
           {/* Profile Pic with Gradient Ring */}
-          <div className="relative">
+          <div className="relative
+            bg-[var(--text-muted)]
+            rounded-full
+            p-[1.5px]
+          ">
             <div
               className="
-                p-[2px] rounded-full 
-                bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-secondary)]
+              p-[2px]
+              rounded-full 
+              theme-bg-secondary
               "
             >
               <img
-                src={optimizeUrl(loggedInUser?.profilePic!,400) || './profile.png'}
+                src={optimizeUrl(loggedInUser?.profilePic!, 400) || './profile.png'}
                 alt={loggedInUser?.username}
-                className="w-10 h-10 rounded-full object-cover theme-bg-secondary"
+                className="w-12 h-12 rounded-full object-cover theme-bg-secondary"
               />
             </div>
           </div>

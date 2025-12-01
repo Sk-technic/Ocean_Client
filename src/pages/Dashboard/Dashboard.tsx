@@ -4,7 +4,7 @@ import './Dashboard.css'; // add this CSS file
 
 const Dashboard: React.FC = () => {
   return (
-    <main className="relative h-full theme-bg-primary flex gap-5">
+    <main className="relative h-full bg-transparent flex gap-5">
       {/* Main content with custom scrollbar */}
       <section className="flex-1 p-5 overflow-y-auto custom-scrollbar">
         <Outlet />

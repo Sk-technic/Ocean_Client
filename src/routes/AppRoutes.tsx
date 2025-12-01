@@ -6,10 +6,11 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../store";
 import NotFound from "../pages/NotFound/Notfound";
 import ChatPage from "../pages/Chat/ChatPage";
+import { AccountPrivary } from "../layout/settings/components/AccountPrivary";
 const LoginPage = lazy(() => import("../pages/Login/Login"));
 const SignupPage = lazy(() => import("../pages/Signup/Signup"));
 const HomePage = lazy(() => import("../pages/Home/Home"));
-const Settings = lazy(() => import("../pages/Settings/Settings"));
+const SettingsLayout = lazy(()=>import("../layout/settings/SettingsLayout"))
 const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
 const ContentSection = lazy(() => import("../pages/Content/Content"));
 const ProfilePage = lazy(() => import("../layout/ProfileLayout/ProfileLayout"));
@@ -51,10 +52,9 @@ const AppRoutes = () => {
           <Route element={<ProtectedRoute />}>
             <Route index element={<HomePage />} />
             <Route path="/" element={<HomePage />} />
-            <Route path="settings" element={<Settings />} />
             <Route path="browse" element={<ExplorePage />} />
             <Route path="notification" element={<NotificationPage />} />
-            
+
 
             {/* Nested Dashboard */}
             <Route path="dashboard" element={<Dashboard />}>
@@ -65,9 +65,13 @@ const AppRoutes = () => {
 
             {/* Other Protected Routes */}
             <Route path="/:username" element={<UserProfilePage />} />
-            <Route path="message" element={<ChatPage/>}/>
-              <Route path="/message/:roomId" element={<ChatPage/>}></Route>
+            <Route path="message" element={<ChatPage />} />
+            <Route path="/message/:roomId" element={<ChatPage />}></Route>
             {/* </Route> */}
+          </Route>
+
+          <Route path="settings" element={<SettingsLayout />}>
+            <Route path="account_privacy" element={<AccountPrivary/>}/>
           </Route>
           {/* Protected Routes */}
 

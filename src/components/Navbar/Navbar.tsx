@@ -19,6 +19,7 @@ import {
 import SearchLayout from "../../layout/SearchLayout/SearchLayout";
 import "./Navbar.css";
 import { useAppSelector } from "../../store/hooks";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 
 
 const Sidebar: React.FC<{
@@ -31,7 +32,7 @@ const Sidebar: React.FC<{
   const [showSearchBox, setShowSearchBox] = useState(false);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const searchWrapperRef = useRef<HTMLDivElement | null>(null); 
+  const searchWrapperRef = useRef<HTMLDivElement | null>(null);
 
   /* ─────── Click-outside: Close menu & search only if outside ─────── */
   useEffect(() => {
@@ -50,25 +51,25 @@ const Sidebar: React.FC<{
 
   /* ─────── Toggle Search (stable with useCallback) ─────── */
   const toggleSearchBox = useCallback(() => {
-    setShowSearchBox((prev)=>prev ? false :true);
+    setShowSearchBox((prev) => prev ? false : true);
   }, []); // ← No dependencies
 
   /* ─────── Nav Items ─────── */
   const navItems = [
     { key: "Dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
-    { key: "Explore",   label: "Explore",   icon: Compass,      to: "/browse" },
-    { key: "shorts",     label: "shorts",     icon: SquareSlash,  to: "/shorts" },
-    { key: "Create",    label: "Create",    icon: Plus,         to: "/create" },
-    { key: "Search",    label: "Search",    icon: Search,       onClick: {toggleSearchBox} },
-    { key: "Messages",  label: "Messages",  icon: MessageSquareText, to: "/message" },
+    { key: "Explore", label: "Explore", icon: Compass, to: "/browse" },
+    { key: "shorts", label: "shorts", icon: SquareSlash, to: "/shorts" },
+    { key: "Create", label: "Create", icon: Plus, to: "/create" },
+    { key: "Search", label: "Search", icon: Search, onClick: { toggleSearchBox } },
+    { key: "Messages", label: "Messages", icon: MessageSquareText, to: "/message" },
     { key: "Notifications", label: "Notifications", icon: Bell, to: "/notification" },
   ];
 
   const sidebarWidth = collapsed ? "4rem" : "13rem";
 
-  const {unreadCount} = useAppSelector((state)=>state.notification)
+  const { unreadCount } = useAppSelector((state) => state.notification)
   console.log(unreadCount);
-  
+
 
   return (
     <aside
@@ -85,8 +86,8 @@ const Sidebar: React.FC<{
         className={`
           absolute z-100 flex flex-col rounded-3xl overflow-hidden shadow-xl
           transition-all duration-500 ease-out
-          ${showSearchBox 
-            ? "opacity-100 translate-x-[8px]" 
+          ${showSearchBox
+            ? "opacity-100 translate-x-[8px]"
             : "opacity-0 translate-x-full pointer-events-none"
           }
         `}
@@ -106,36 +107,38 @@ const Sidebar: React.FC<{
       </div>
 
       {/* ─────── Top Section ─────── */}
-      <div className="flex flex-col p">
+      <div className="flex flex-col gap-2">
         <div
-          className={`flex items-center justify-center mb-8 ${
-            collapsed ? "space-x-0" : "space-x-10"
-          }`}
+          className={`flex items-center justify-center ${collapsed ? 'flex-col':''}`}
         >
-          {!collapsed && (
-            <h1
-              onClick={() => navigate("/home")}
-              className="text-2xl font-bold cursor-pointer whitespace-nowrap"
-              style={{ color: "var(--accent-primary)" }}
-            >
-              Ocean
-            </h1>
-          )}
+          
+            <div className="flex items-end justify-center w-full">
+              <img
+                src={'/Ocean_logo.png'}
+                loading="lazy"
+                className="w-10 h-10 hover:cursor-pointer"
+              />
+              {(!collapsed) && <h1
+                onClick={() => navigate("/home")}
+                className="text-2xl font-bold cursor-pointer text-white whitespace-nowrap"
+              >
+                Ocean
+              </h1>}
+            </div>
+          
 
           <button
             onClick={() => setCollapsed((p) => !p)}
-            className="p-3 rounded-xl transition theme-hover-effect"
-            // style={{ backgroundColor: "var(--accent-secondary-hover)" }}
+            className="p-3 rounded-xl transition hover:scale-125 duration-500 hover:cursor-pointer"
           >
-            {<FiSidebar/>}
+            {<FiSidebar size={18}/>}
           </button>
         </div>
 
         {/* ─────── Nav Buttons ─────── */}
         <div
-          className={`flex flex-col justify-center ${
-            collapsed ? "items-center" : "items-start px-3"
-          } gap-3`}
+          className={`flex flex-col justify-center ${collapsed ? "items-center" : "items-start px-3"
+            } gap-3`}
         >
           {navItems.map((item) => {
             const isRouteActive = item.to ? location.pathname === item.to : false;
@@ -155,7 +158,7 @@ const Sidebar: React.FC<{
               />
             );
           })}
-          
+
         </div>
       </div>
 
@@ -166,11 +169,10 @@ const Sidebar: React.FC<{
       >
         <div ref={menuRef} className="relative">
           <button
-          onClick={()=>setmenu((p)=> !p)}
+            onClick={() => setmenu((p) => !p)}
             // onClick={() => setMenuOpen((p) => !p)}
-            className={`flex items-center ${
-              collapsed ? "justify-center" : "justify-start gap-3 pl-3"
-            } py-2 rounded-xl w-full transition-all`}
+            className={`flex items-center ${collapsed ? "justify-center" : "justify-start gap-3 pl-3"
+              } py-2 rounded-xl w-full transition-all`}
             style={{ backgroundColor: "transparent" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = "var(--accent-secondary-hover)")

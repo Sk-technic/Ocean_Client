@@ -87,6 +87,18 @@ const GetUser = async (roomId:string)=>{
     throw error.response?.data || error
   }
 }
+
+const updatePrivacy = async (userId: string, key: string) => {
+  try {
+    const response = await api.post(`user/privacy/${userId}`, null, {
+      params: { key }
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+};
 export const UserApi = {
   updateCoverImage,
   UpdateProfileImage,
@@ -94,5 +106,6 @@ export const UserApi = {
   deleteCoverImage,
   updateProfile,
   findUser,
-  GetUser
+  GetUser,
+  updatePrivacy
 };

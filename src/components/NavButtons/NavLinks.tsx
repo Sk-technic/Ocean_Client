@@ -38,7 +38,7 @@ const NavButton: React.FC<NavButtonProps> = ({
     <button
       onClick={handleClick}
       className={`
-        flex items-center rounded-xl font-medium relative 
+        flex items-center hover:cursor-pointer rounded-xl font-medium relative 
         transition-all duration-200 ease-in-out select-none
         group
         ${collapsed ? "justify-center w-10 h-10" : "justify-start w-full gap-2 h-10 pl-4"}

@@ -2,22 +2,19 @@ import React from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { FiCheck, FiX } from "react-icons/fi";
 import { Bell } from "lucide-react";
-import { useAcceptRequest } from "../../../hooks/follow/followHook";
+import { useAcceptRequest, useRejectRequest } from "../../../hooks/follow/followHook";
 import { optimizeUrl } from "../../../utils/imageOptimize";
-import { updateNotification } from "../../../store/slices/notification/notificationSlice";
+import { removeNotification, updateNotification } from "../../../store/slices/notification/notificationSlice";
 const NotificationInbox: React.FC = () => {
   const { notifications, unreadCount } = useAppSelector(
     (state) => state.notification
   );
-console.log("check: ",notifications);
-
   const {mutate:acceptrequest} = useAcceptRequest()
+  const {mutateAsync:rejectRequest} = useRejectRequest()
 
   const dispatch = useAppDispatch()
   const handleacceptRequest = (data: any) => {
     if (!data) return;
-
-    console.log();
     
     acceptrequest({ userId: data?.fromUser?._id, notificationId: data?._id }, {
       onSuccess: () => {
@@ -27,6 +24,14 @@ console.log("check: ",notifications);
     })
   }
 
+  const handleRejectRequest = (data:any) =>{
+    if(!data)return;
+      rejectRequest({userId:data?.fromUser?._id,notificationId:data?._id},{
+        onSuccess:()=>{
+          dispatch(removeNotification({notificationId:data?._id}))
+        }
+      })
+  }
 
 
 
@@ -94,10 +99,11 @@ console.log("check: ",notifications);
               <div className="flex gap-3 items-center justify-center text-xs">
                 <button
                   className="
-                    px-3 py-2 rounded-xl bg-purple-500 
-                    text-white hover:bg-green-700 
+                    px-3 py-2 rounded-xl bg-gradient-to-r from-blue-400 to-purple-500 
+                    text-white 
                     transition-all duration-200
                     shadow-lg
+                    hover:cursor-pointer
                   "
                   aria-label="confirm"
                   onClick={() => handleacceptRequest(n)}
@@ -106,14 +112,37 @@ console.log("check: ",notifications);
                 </button>
 
                 <button
+                onClick={()=>handleRejectRequest(n)}
                   className="
-                    px-3 py-2 rounded-xl theme-bg-secondary border shadow-lg theme-border 
-                    text-white hover:bg-red-600 
-                    transition-all duration-200
+                    px-3 py-2 rounded-xl theme-bg-secondary shadow-md
+                    text-zinc-50/60 
+                    hover:cursor-pointer
+                    border border-transparent
+                    hover:border-zinc-300/30
+                    hover:text-white
+                    duration-300
                   "
                   aria-label="reject"
                 >
                   rejected
+                </button>
+                {/* border-red-500/40 */}
+                <button
+                  className="
+                  px-3 py-2 rounded-xl theme-bg-secondary  shadow-lg 
+                  text-red-500/50  
+                  hover:cursor-pointer
+                  border
+                  border-transparent
+                   hover:border-red-500/30
+
+                    duration-300
+                    hover:text-red-500/80
+                    shadow-md 
+                  "
+                  aria-label="reject"
+                >
+                  block
                 </button>
               </div>
             )}

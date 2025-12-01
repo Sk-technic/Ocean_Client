@@ -23,7 +23,7 @@ const NotificationSlice = createSlice({
             state.isLoading = false;
         },
 
-        updateNotification: (state, action) => {
+        updateNotification: (state, action: PayloadAction<{ id: string, type: string }>) => {
             const index = state.notifications.findIndex(
                 n => n._id === action.payload.id.toString()
             );
@@ -62,10 +62,10 @@ const NotificationSlice = createSlice({
         },
         removeNotification: (
             state,
-            action: PayloadAction<{ createdAt: string }>
+            action: PayloadAction<{ notificationId: string }>
         ) => {
             state.notifications = state.notifications.filter(
-                (noti) => noti.createdAt !== action.payload.createdAt
+                (noti) => noti._id !== action.payload.notificationId
             );
         },
         clearNotifications: (state) => {

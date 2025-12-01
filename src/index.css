@@ -1,0 +1,195 @@
+@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@font-face {
+  font-family: "Ocean";
+  src: url("/font/Comfortaa/static/Comfortaa-Regular.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+/* Apply the font globally */
+@layer base {
+  html {
+    font-family: "Ocean", sans-serif !important;
+  }
+}
+
+:root {
+  /* Brand gradient colors (unchanged) */
+  --color-primary: #7b2ff7;
+  --color-secondary: #f107a3;
+  --brand-gradient: linear-gradient(135deg, #b38af5f4, #f79dd9);
+
+  /* =============================
+     🌞 LIGHT THEME (Premium Zinc)
+     ============================= */
+  --bg-primary: #fafafa;       /* zinc-50 */
+  --bg-secondary: #f4f4f5;     /* zinc-100 */
+  --bg-card: #ffffff;          /* classic card */
+  --bg-sidebar: #e4e4e7;       /* zinc-200 */
+
+  --text-primary: #18181b;     /* zinc-900 */
+  --text-secondary: #3f3f46;   /* zinc-700 */
+  --text-muted: #71717a;       /* zinc-500 */
+  --text-disabled: #a1a1aa;    /* zinc-400 */
+
+  --border-primary: rgba(0, 0, 0, 0.08); /* soft border */
+  --border-secondary: rgba(0, 0, 0, 0.04);
+
+  /* Accent colors (unchanged) */
+  --accent-primary: #7b2ff7;
+  --accent-primary-hover: #6d28d9;
+  --accent-secondary: #f3e8ff;
+  --accent-secondary-hover: #e9d5ff;
+
+  /* Input fields */
+  --input-bg: #ffffff;
+  --input-border: rgba(0, 0, 0, 0.1);
+  --input-text: #18181b;
+
+  /* State colors (same) */
+  --success: #22c55e;
+  --warning: #eab308;
+  --error: #ef4444;
+
+  /* Shadows (same) */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+  --story-ring: linear-gradient(135deg, #7b2ff7, #f107a3);
+}
+
+/* ================================================
+   🌚 DARK THEME — Premium Zinc Shades
+   ================================================ */
+[data-theme="dark"] {
+  --color-primary: #7b2ff7;
+  --color-secondary: #f107a3;
+  --brand-gradient: linear-gradient(135deg, #b38af5f4, #f79dd9);
+  --story-ring: linear-gradient(135deg, #7b2ff7, #f107a3);
+
+  /* DARK ZINC SET */
+  --bg-primary: #18181b;     /* zinc-900 */
+  --bg-secondary: #27272a;   /* zinc-800 */
+  --bg-card: #1f1f23;        /* custom: a bit smoother than zinc-900 */
+  --bg-sidebar: #27272a;     /* zinc-800 */
+
+  --text-primary: #fafafa;   /* zinc-50 */
+  --text-secondary: #e4e4e7; /* zinc-200 */
+  --text-muted: #a1a1aa;     /* zinc-400 */
+  --text-disabled: #71717a;  /* zinc-500 */
+
+  --border-primary: rgba(255, 255, 255, 0.08);
+  --border-secondary: rgba(255, 255, 255, 0.05);
+
+  /* Accents remain same */
+  --accent-primary: #a855f7;
+  --accent-primary-hover: #c084fc;
+  --accent-secondary: #3f3f46;    /* zinc-700 base for subtle panels */
+  --accent-secondary-hover: #52525b; /* zinc-600 */
+
+  /* Inputs */
+  --input-bg: rgba(255,255,255,0.02); /* soft glass */
+  --input-border: rgba(255, 255, 255, 0.15);
+  --input-text: #fafafa;
+}
+
+
+/* =========================================================
+   ✨ BASE + UTILITY CLASSES
+   ========================================================= */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.theme-bg-primary { background-color: var(--bg-primary); }
+.theme-bg-secondary { background-color: var(--bg-secondary); }
+.theme-bg-card { background-color: var(--bg-card); }
+
+.theme-text-primary { color: var(--text-primary); }
+.theme-text-secondary { color: var(--text-secondary); }
+.theme-text-muted { color: var(--text-muted); }
+.text-disable { color: var(--text-disabled); }
+
+.theme-border { border-color: var(--border-primary); }
+.theme-border-secondary { border-color: var(--border-secondary); }
+
+.theme-shadow { box-shadow: var(--shadow-md); }
+.theme-shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* =========================================================
+   🌈 NAV & BUTTON EFFECTS
+   ========================================================= */
+.theme-hover-light {
+  background: radial-gradient(circle at center, var(--accent-primary-hover) 0%, transparent 70%);
+  opacity: 0.1;
+  transition: opacity 0.3s ease;
+}
+
+.theme-hover-effect:hover {
+  background-color: var(--accent-secondary-hover);
+}
+
+.active-theme-button {
+  background: var(--brand-gradient);
+  color: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+  transform: scale(0.98);
+  transition: all 0.2s ease-in-out;
+}
+
+.gradient {
+  background: linear-gradient(135deg, #7b2ff7, #f107a3);
+}
+
+.active-theme-button:hover {
+  filter: brightness(1.1);
+}
+
+/* =========================================================
+   ⚙️ ANIMATIONS
+   ========================================================= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes smoothFade {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slowMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-slowMove {
+  background-size: 250% 250%;
+  animation: slowMove 25s ease-in-out infinite;
+}
+
+
+@keyframes typingWave {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.3;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.dot {
+  animation: typingWave 1.3s infinite ease-in-out;
+}

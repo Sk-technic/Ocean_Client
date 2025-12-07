@@ -123,7 +123,6 @@ const MessageList: React.FC<MessageListProps> = ({
 useEffect(()=>{
   if(!socket)return;
    const handleseenMessages = (message: any) => {
-      console.log("message: ", message);
     dispatch(updateSeen(message))
     }
       socket?.on("message:seen:success", handleseenMessages);

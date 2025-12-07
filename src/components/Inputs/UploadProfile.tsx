@@ -54,53 +54,26 @@ export const UploadProfile: React.FC<UploadImageInputProps> = ({
 
   return (
     <div className={clsx("w-full flex flex-col items-center gap-2", className)}>
-      {label && (
-        <label
-          htmlFor={name}
-          className="text-sm font-medium tracking-wide text-[var(--text-secondary)]"
-        >
-          {label}
-          {required && <span className="text-[var(--error)] ml-0.5">*</span>}
-        </label>
-      )}
 
       {/* === Circular Upload Container === */}
       <div
         onClick={() => inputRef.current?.click()}
         className={clsx(
-          "relative w-25 h-25 flex items-center justify-center rounded-full cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]",
-          "border-2 border-dashed backdrop-blur-xl overflow-hidden group",
-          error
-            ? "border-[var(--error)]"
-            : theme === "dark"
-            ? "border-[#5a4b8a]/60 hover:border-[#a855f7]/80 bg-[#1b1230]/40"
-            : "border-gray-300 hover:border-indigo-400 bg-white/50",
-          "shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),0_4px_10px_rgba(0,0,0,0.08)]"
+          "relative w-18 h-18 flex items-center justify-center rounded-full cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]",
+          "border-2 border-zinc-500 border-dashed backdrop-blur-lg group",
+          error && "border-[var(--error)]",
+          "bg-zinc-800/40 "
         )}
       >
         {/* --- When no image --- */}
         {!preview ? (
           <>
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center ">
               <ImagePlus
                 size={22}
-                className={clsx(
-                  "transition-colors duration-300",
-                  theme === "dark"
-                    ? "text-[#a78bfa] group-hover:text-[#c4b5fd]"
-                    : "text-gray-500 group-hover:text-indigo-500"
-                )}
-              />
-              <p
-                className={clsx(
-                  "text-[10px] mt-2 font-Lucero",
-                  theme === "dark"
-                    ? "text-gray-400 group-hover:text-gray-300"
-                    : "text-gray-500 group-hover:text-gray-700"
-                )}
-              >
-                Upload Photo
-              </p>
+               
+                />
+              
             </div>
 
             <input
@@ -112,7 +85,7 @@ export const UploadProfile: React.FC<UploadImageInputProps> = ({
               className="hidden"
               onChange={handleFileChange}
               required={required}
-            />
+              />
           </>
         ) : (
           /* --- When image selected --- */
@@ -128,15 +101,12 @@ export const UploadProfile: React.FC<UploadImageInputProps> = ({
                 e.stopPropagation();
                 handleRemove();
               }}
-              className={clsx(
-                "absolute top-2 right-2 p-1 rounded-full shadow-md transition-all duration-200",
-                theme === "dark"
-                  ? "bg-[#241a36] hover:bg-[#2e1c4f]"
-                  : "bg-white hover:bg-gray-100"
-              )}
+              className={`absolute -bottom-1 -right-1 p-[1px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 
+                dark:bg-white dark:hover:bg-[#2e1c4f] light:bg-black light:hover:bg-gray-100
+              `}
             >
               <X
-                size={14}
+                size={12}
                 className={clsx(
                   theme === "dark"
                     ? "text-gray-300 hover:text-gray-100"
@@ -147,6 +117,15 @@ export const UploadProfile: React.FC<UploadImageInputProps> = ({
           </div>
         )}
       </div>
+      {label && (
+        <label
+          htmlFor={name}
+          className="text-[10px] font-medium tracking-wide text-[var(--text-secondary)]"
+        >
+          {label}
+          {required && <span className="text-[var(--error)] ml-0.5">*</span>}
+        </label>
+      )}
 
       {/* === Error Message === */}
       {error && (

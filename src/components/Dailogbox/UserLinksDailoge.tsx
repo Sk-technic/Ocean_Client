@@ -1,5 +1,5 @@
 import React, { type ReactElement } from "react";
-import { RxCopy } from "react-icons/rx";
+import { RxCopy, RxCross2 } from "react-icons/rx";
 import { FiExternalLink } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { useTheme } from "../../hooks/theme/usetheme";
@@ -12,6 +12,7 @@ import {
   FaTelegram,
 } from "react-icons/fa";
 import { SiThreads } from "react-icons/si";
+import { TbArrowsCross, TbCross } from "react-icons/tb";
 
 interface UserLinksDialogProps {
   open: boolean;
@@ -20,13 +21,13 @@ interface UserLinksDialogProps {
 }
 
 const platformIcons: Record<string, ReactElement> = {
-  instagram: <span className="text-pink-500"><FaInstagram/></span>,
-  facebook: <span className="text-blue-600"><FaFacebook/></span>,
-  discord: <span className="text-indigo-500"><FaDiscord/></span>,
-  twitter: <span className="text-sky-400"><FaTwitter/></span>,
-  youtube: <span className="text-red-600"><FaYoutube/></span>,
-  threads: <span className="text-zinc-600"><SiThreads/></span>,
-  telegram: <span className="text-blue-400"><FaTelegram/></span>,
+  instagram: <span className="theme-text-primary"><FaInstagram/></span>,
+  facebook: <span className="theme-text-primary"><FaFacebook/></span>,
+  discord: <span className="theme-text-primary"><FaDiscord/></span>,
+  twitter: <span className="theme-text-primary"><FaTwitter/></span>,
+  youtube: <span className="theme-text-primary"><FaYoutube/></span>,
+  threads: <span className="theme-text-primary"><SiThreads/></span>,
+  telegram: <span className="theme-text-primary"><FaTelegram/></span>,
 };
 
 const UserLinksDialog: React.FC<UserLinksDialogProps> = ({
@@ -43,48 +44,52 @@ const UserLinksDialog: React.FC<UserLinksDialogProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
+      className={` fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
         open ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
       onClick={onClose}
     >
       {/* Blurred background */}
       <div
-        className={`absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
 
       {/* Dialog content */}
       <div
-        className={`relative w-[90%] max-w-md bg-[var(--bg-card)] p-5 rounded-2xl shadow-lg transform transition-all duration-300 ${
+        className={`relative w-[90%] max-w-md theme-border bg-zinc-100/40 backdrop-blur-xl border p-2 rounded-2xl shadow-lg transform transition-all duration-300 ${
           open ? "scale-100 opacity-100" : "scale-90 opacity-0"
         } ${theme === "dark" ? "text-white" : "text-gray-800"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-semibold mb-4">Social Links</h2>
+        <button
+          onClick={onClose}
+          className="absolute theme-bg-primary rounded-full p-[1px] hover:cursor-pointer -top-3 -right-3"
+        >
+          <RxCross2 size={13} color="theme-text-primary"/>
+        </button>
+        <h2 className="text-sm font-semibold mb-1 theme-text-primary">Social Links</h2>
 
-        <div className="flex flex-col gap-3 max-h-96 overflow-y-auto">
+        <div className="flex flex-col gap-3 max-h-96 shadow-lg overflow-y-auto">
           {Object.entries(socialLinks).map(([key, url]) => (
             <div
               key={key}
-              className="flex items-center justify-between px-3 py-2 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--bg-secondary-hover)] transition"
+              className="flex items-center justify-between px-3 py-2 rounded-lg theme-bg-primary theme-border border theme-hover-effect  transition"
             >
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 flex items-center justify-center">
                   {platformIcons[key] || "🔗"}
                 </span>
-                <span className="truncate max-w-xs">
+                <span className="theme-text-muted text-xs truncate max-w-xs">
                   {url.replace(/^https?:\/\/(www\.)?/, "")}
                 </span>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => handleCopy(url)}
-                  className="hover:text-[var(--accent-primary)] transition"
-                  title="Copy link"
                 >
-                  <RxCopy />
+                  <RxCopy className="theme-text-primary"/>
                 </button>
                 <a
                   href={url}
@@ -93,19 +98,13 @@ const UserLinksDialog: React.FC<UserLinksDialogProps> = ({
                   className="hover:text-[var(--accent-primary)] transition"
                   title="Open link"
                 >
-                  <FiExternalLink />
+                  <FiExternalLink color="blue"/>
                 </a>
               </div>
             </div>
           ))}
         </div>
 
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-[var(--accent-primary)] hover:opacity-80"
-        >
-          ✖
-        </button>
       </div>
     </div>
   );

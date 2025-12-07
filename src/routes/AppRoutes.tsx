@@ -7,6 +7,7 @@ import type { RootState } from "../store";
 import NotFound from "../pages/NotFound/Notfound";
 import ChatPage from "../pages/Chat/ChatPage";
 import { AccountPrivary } from "../layout/settings/components/AccountPrivary";
+import VerifyOtp from "../components/ui/auth/verifyOtp/VerifyOtp";
 const LoginPage = lazy(() => import("../pages/Login/Login"));
 const SignupPage = lazy(() => import("../pages/Signup/Signup"));
 const HomePage = lazy(() => import("../pages/Home/Home"));
@@ -17,6 +18,7 @@ const ProfilePage = lazy(() => import("../layout/ProfileLayout/ProfileLayout"));
 const UserProfilePage = lazy(() => import("../pages/userProfile/userProfile"));
 const ExplorePage = lazy(() => import("../pages/ExplorePage/ExplorePage"));
 const NotificationPage = lazy(() => import("../pages/Notification/Notification"));
+const AuthSuccess = lazy(()=>import("../layout/AuthSuccess/AuthSuccess"))
 
 const AppRoutes = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -47,6 +49,9 @@ const AppRoutes = () => {
           {/* Public Routes */}
           {!isAuthenticated && <Route index element={<LoginPage />} />}
           {!isAuthenticated && <Route path="signup" element={<SignupPage />} />}
+          {!isAuthenticated && <Route path="verify-otp/:i" element={<VerifyOtp />} />}
+          {!isAuthenticated && <Route path="auth/success" element={<AuthSuccess/>}/>}
+
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
@@ -54,7 +59,6 @@ const AppRoutes = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="browse" element={<ExplorePage />} />
             <Route path="notification" element={<NotificationPage />} />
-
 
             {/* Nested Dashboard */}
             <Route path="dashboard" element={<Dashboard />}>

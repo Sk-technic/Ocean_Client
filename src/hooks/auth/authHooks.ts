@@ -1,31 +1,43 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { ApiError, ILogin, ILoginResponse, IsignupData, User } from "../../types";
+import type { ApiError, ILogin } from "../../types";
 import { logout, setUser } from "../../store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { authAPI } from "../../api/services";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { updateStatus } from "../../store/slices/userSlice";
 import { getSocket } from "../../api/config/socketClient";
 import { clearChatList } from "../../store/slices/chatList";
-export const useSignup = () =>
-  useMutation<any, ApiError, FormData>({
-    mutationFn: async (data:FormData) => await authAPI.signup(data),
-    onSuccess: () => alert("Signup successful! 🎉"),
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../store/hooks";
+
+export const useSignup = () =>{
+  const navigate = useNavigate()
+  return useMutation<any, ApiError, FormData>({
+    mutationFn: async (data: FormData) =>{ 
+      const response = await authAPI.signup(data)
+    return response
+    },
+    onSuccess: (data:any) =>{
+      console.log("data: ",data);
+      
+      navigate(`/verify-otp/${data.data}`)
+    },
     onError: (error) => {
       console.error("❌ Signup failed:", error);
       alert(error?.message || "Signup failed. Please try again.");
     },
-  });
+  })
+};
 
 export const useLogin = () => {
   const dispatch = useDispatch();
+  const Navigate = useNavigate()
 
   return useMutation({
-    mutationFn:async (data:ILogin) =>await authAPI.login(data),
+    mutationFn: async (data: ILogin) => await authAPI.login(data),
 
-    onSuccess: (res:any) => {
-      const user = res.data.loggedIn; // ✅ not res.data.loggedIn
+    onSuccess: (res: any) => {
+      const user = res.data.loggedIn;
       toast.success(`Welcome, ${user?.fullName?.split(' ')[0]}! 🎉`)
       const accessToken = res.data.accessToken;
       const refreshToken = res.data.refreshToken;
@@ -36,10 +48,10 @@ export const useLogin = () => {
           refreshToken,
         })
       );
-
+      Navigate('/dashboard')
     },
 
-    onError: (error:ApiError) => {      
+    onError: (error: ApiError) => {
       toast.error(error?.message);
     },
   });
@@ -56,7 +68,7 @@ export const useLogout = () => {
         console.log("🧹 Socket disconnected before logout");
       }
 
-      await authAPI.logout(); 
+      await authAPI.logout();
     },
 
     onSuccess: () => {
@@ -79,8 +91,6 @@ export const useLogout = () => {
     },
   });
 };
-
-
 
 export const useAuthInit = () => {
   const dispatch = useDispatch();
@@ -133,6 +143,61 @@ export const useAuthInit = () => {
   return { isLoading, isSuccess, data };
 };
 
+export const useGoogleAuth = () => {
+  return useMutation({
+    mutationFn: async () => {
+    return await authAPI.googleAuth()
+    },
+  });
+}
+
+export const useOTPVerify = () => {
+  return useMutation({
+    mutationFn: async ({otp,userId}:{otp:string,userId:string}) => {
+    return await authAPI.verifyOtp(otp,userId)
+    },
+    onSuccess:(data:any)=>{
+      console.log(data.data);
+      
+    }
+  });
+}
+
+export const useResendOtp = ()=>{
+  return useMutation({
+    mutationFn: async (i:string) => {
+    return await authAPI.resendOtp(i)
+    },
+    onSuccess:(data:any)=>{
+      console.log(data.data);
+      
+    }
+  });
+}
+
+export const autoLogin = () => {
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+  return useMutation({
+    mutationFn: async(id:string) => await authAPI.autoLogin(id),
+    onSuccess:(data:any)=>{
+      console.log(data);
+
+       const user = data.data.loggedIn;
+      const accessToken = data.data.accessToken;
+      const refreshToken = data.data.refreshToken;
+      dispatch(
+        setUser({
+          user,
+          accessToken,
+          refreshToken,
+        })
+      );
+      navigate("/dashboard")
+    }
+
+  })
+}
 
 export const authHooks = {
   useLogin,

@@ -11,6 +11,7 @@ import {
   FaYoutube,
   FaTelegram,
 } from "react-icons/fa";
+import { TbCopy } from "react-icons/tb";
 
 import { SiThreads } from "react-icons/si";
 import { FiClipboard } from "react-icons/fi";
@@ -43,13 +44,13 @@ const baseUrls: Record<string, string> = {
 
 // React icons for platforms
 const platformIcons: Record<string, ReactElement> = {
-  instagram: <FaInstagram className="w-5 h-5 text-pink-500" />,
-  facebook: <FaFacebook className="w-5 h-5 text-blue-600" />,
-  discord: <FaDiscord className="w-5 h-5 text-indigo-500" />,
-  twitter: <FaTwitter className="w-5 h-5 text-blue-400" />,
-  youtube: <FaYoutube className="w-5 h-5 text-red-600" />,
-  threads: <SiThreads className="w-5 h-5 text-gray-800" />,
-  telegram: <FaTelegram className="w-5 h-5 text-blue-500" />,
+  instagram: <FaInstagram size={13} className="text-zinc-400" />,
+  facebook: <FaFacebook size={13} className="text-zinc-400" />,
+  discord: <FaDiscord size={13} className="text-zinc-400" />,
+  twitter: <FaTwitter size={13} className="text-zinc-400" />,
+  youtube: <FaYoutube size={13} className="text-zinc-400" />,
+  threads: <SiThreads size={13} className="text-zinc-400" />,
+  telegram: <FaTelegram size={13} className="text-zinc-400" />,
 };
 
 const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange }) => {
@@ -79,9 +80,9 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange }) 
   return (
     <div className="flex flex-col gap-3">
       {/* Add new social link */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-end justify-center">
         <select
-          className="rounded-md px-2 py-2 w-32 bg-[var(--bg-card)] text-[var(--text-primary)]"
+          className=" py-2 rounded-sm px-1 bg-[var(--bg-card)] text-[var(--text-primary)] text-xs"
           value={currentKey}
           onChange={(e) => setCurrentKey(e.target.value)}
         >
@@ -105,7 +106,7 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange }) 
         <button
           type="button"
           onClick={handleAdd}
-          className="px-4 py-2 rounded-md bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white hover:opacity-90 transition"
+          className="border theme-border bg-gradient-to-r from-blue-500/60 to-sky-500/50 p-1 rounded-md "
         >
           Add
         </button>
@@ -126,7 +127,7 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange }) 
             )}
 
             {/* Link text */}
-            <span className="text-sm text-[var(--text-primary)] truncate max-w-xs">
+            <span className="text-[10px] text-[var(--text-primary)] truncate max-w-xs">
               {val.replace(/^https?:\/\/(www\.)?/, "")}
             </span>
 
@@ -136,16 +137,15 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange }) 
               onClick={() => handleCopy(val, key)}
               className="text-gray-500 hover:text-gray-700 flex-shrink-0"
             >
-              <FiClipboard className="w-4 h-4" />
+              <TbCopy size={15}/>
             </button>
 
             {/* Delete */}
             <button
               type="button"
               onClick={() => handleDelete(key)}
-              className="text-red-500 hover:text-red-600 flex-shrink-0"
             >
-              <RxCross1 className="w-4 h-4" />
+              <RxCross1 size={10}/>
             </button>
           </div>
         ))}

@@ -6,7 +6,7 @@ import TextArea from "../Inputs/Textarea";
 import SocialLinksInput from "../Inputs/SocialLinksInput";
 import type { IEditProfile, User } from "../../types";
 import { userHooks } from "../../hooks";
-import { toast } from "react-toastify";
+import { X } from "lucide-react";
 
 interface EditProfileFormProps {
   onClose?: () => void;
@@ -24,7 +24,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ onClose, user }) => {
   });
 
   const [errors, setErrors] = useState<{ bio?: string; phone?: string }>({});
-  const { theme } = useTheme();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -69,15 +68,15 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ onClose, user }) => {
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className={`w-full max-w-4xl mx-auto p-6 rounded-2xl
-        backdrop-blur-md shadow-lg transition-all duration-500
-        ${
-          theme === "dark"
-            ? "bg-[var(--bg-card)]/80 border-[var(--border-primary)] shadow-[0_0_20px_rgba(147,51,234,0.15)]"
-            : "bg-white border border-gray-200 shadow-md"
-        }`}
-    >
+    onSubmit={handleSubmit}
+    className={`relative w-full max-w-4xl mx-auto p-6 rounded-2xl
+      backdrop-blur-md border theme-border shadow-lg transition-all duration-500
+      dark:bg-black/70 shadow-lg dark:border-[var(--border-primary)]
+      light:bg-white light:border light:border-gray-200 light:shadow-md
+      }`}
+      >
+      
+      <span onClick={onClose} className="absolute -end-5 -top-5 p-1 dark:bg-zinc-200 hover:cursor-pointer hover:scale-90 duration-300 dark:text-black shadow-md  rounded-full"><X size={15}/></span>
       {/* Profile Info */}
       <section className="mb-6">
         <h3 className="text-lg font-semibold mb-4 border-b border-[var(--border-primary)] pb-2">
@@ -146,20 +145,11 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ onClose, user }) => {
       </section>
 
       {/* Submit Button */}
-      <div className="flex justify-center mt-6">
-        <PrimaryButton type="submit" label="Update Profile" state="update" />
+      <div className="flex justify-end mt-6">
+        <PrimaryButton type="submit" label="Update Profile" fullWidth={false} state="update" />
       </div>
 
-      {/* Back Button */}
-      <p className="text-sm text-center mt-4">
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-[var(--accent-primary)] hover:underline transition"
-        >
-          ← Back to Profile
-        </button>
-      </p>
+
     </form>
   );
 };

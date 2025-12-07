@@ -164,54 +164,54 @@ const MessageInput: React.FC<MessageInputProps> = ({
         dispatch(closeReplyMessage());
     }
 
-    const {list:Users}=useAppSelector((state)=>state.chat)
-    const AcceptMessageRequest = (userId:string,roomId:string,createdBy:string)=>{
-        if(!socket)return;
-        socket?.emit("accept:message_request",{userId,roomId,createdBy})
+    const { list: Users } = useAppSelector((state) => state.chat)
+    const AcceptMessageRequest = (userId: string, roomId: string, createdBy: string) => {
+        if (!socket) return;
+        socket?.emit("accept:message_request", { userId, roomId, createdBy })
     }
-    let RoomStatus = Users.find((r)=>r?._id==selectedRoomId)
+    let RoomStatus = Users.find((r) => r?._id == selectedRoomId)
     return (
-         (RoomStatus?.status=="request" && RoomCreater !=loggedInUser?._id) ?
+        (RoomStatus?.status == "request" && RoomCreater != loggedInUser?._id) ?
             (<div className="w-full px-6 py-6 mb-5 rounded-lg border-white/10 bg-zinc-800/70 backdrop-blur-xl shadow-[0_-10px_30px_rgba(0,0,0,0.4)] flex flex-col items-center text-center">
 
-      <h3 className="text-lg font-semibold text-gray-200 tracking-wide mb-1 flex items-center gap-2">
-        <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
-        Message Request
-      </h3>
+                <h3 className="text-lg font-semibold text-gray-200 tracking-wide mb-1 flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                    Message Request
+                </h3>
 
-      <p className="text-[13px] text-gray-400 max-w-md leading-relaxed mb-4">
-        {isSender
-          ? "Your message request is awaiting approval. The user must accept it before the chat becomes active."
-          : "This user wants to send you a message. Accept the request to start chatting or reject it to hide the conversation."}
-      </p>
+                <p className="text-[13px] text-gray-400 max-w-md leading-relaxed mb-4">
+                    {isSender
+                        ? "Your message request is awaiting approval. The user must accept it before the chat becomes active."
+                        : "This user wants to send you a message. Accept the request to start chatting or reject it to hide the conversation."}
+                </p>
 
-      {!isSender && (
-        <div className="flex items-center gap-4">
-          <button
-          onClick={()=>AcceptMessageRequest(loggedInUser?._id!,selectedRoomId,RoomCreater)}
-            className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 
+                {!isSender && (
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => AcceptMessageRequest(loggedInUser?._id!, selectedRoomId, RoomCreater)}
+                            className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 
             text-white font-medium text-[14px] shadow-[0_3px_16px_rgba(0,0,0,0.4)]
             hover:opacity-90 transition-all"
-          >
-            Accept
-          </button>
+                        >
+                            Accept
+                        </button>
 
-          <button
-            className="px-6 py-2 rounded-full border border-gray-500/40 
+                        <button
+                            className="px-6 py-2 rounded-full border border-gray-500/40 
             text-gray-300 font-medium text-[14px] hover:bg-white/5 transition-all"
-          >
-            Reject
-          </button>
-        </div>
-      )}
+                        >
+                            Reject
+                        </button>
+                    </div>
+                )}
 
-      {/* Sender message */}
-      {isSender && (
-        <span className="text-[12px] text-gray-500 italic mt-2">
-          Waiting for user to respond…
-        </span>
-      )}
-    </div>)
+                {/* Sender message */}
+                {isSender && (
+                    <span className="text-[12px] text-gray-500 italic mt-2">
+                        Waiting for user to respond…
+                    </span>
+                )}
+            </div>)
             :
             (<div className="flex items-center justify-center mt-1">
                 <form

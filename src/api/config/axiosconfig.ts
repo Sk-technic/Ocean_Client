@@ -32,7 +32,6 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // ✅ Handle 401 errors (unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -44,7 +43,6 @@ api.interceptors.response.use(
       }
 
       if (!refreshPromise) {
-        // ✅ Use refreshAxios to avoid recursion and send token in body as 'token'
         refreshPromise = refreshAxios
           .post("/auth/refreshAccessToken", { token: refreshToken }, { withCredentials: true })
           .then((response) => response)

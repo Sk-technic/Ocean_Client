@@ -5,7 +5,7 @@ import { getSocket } from "../../api/config/socketClient";
 export const usePresence = (userIds: string[] = []) => {
   const socket = useMemo(() => getSocket(), []);
   const [onlineMap, setOnlineMap] = useState<Record<string, boolean>>({});
-console.log("userIds:",userIds);
+  console.log("userIds:", userIds);
 
   // ✅ Fetch initial presence info
   useEffect(() => {

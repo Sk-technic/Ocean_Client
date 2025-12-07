@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Input from "../../../Inputs/Input";
 import { UploadProfile } from "../../../Inputs/UploadProfile";
-import { useMutation } from "@tanstack/react-query";
-import { authAPI } from "../../../../api/services";
 import type { IsignupData } from "../../../../types";
 import PrimaryButton from "../../../../components/Buttons/PrimaryButoon"; // ✅ import the new button
-import { useTheme } from "../../../../hooks/theme/usetheme";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import GoogleAuthButton from "../../../Buttons/GoogleAuthBtn";
+import { useSignup } from "../../../../hooks/auth/authHooks";
+import MetaButoon from "../../../Buttons/MetaButoon";
+import LinkedinAuthBtn from "../../../Buttons/LinkedinAuthBtn";
+
 const SignupForm: React.FC = () => {
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState<IsignupData>({
     username: "",
@@ -20,7 +20,6 @@ const SignupForm: React.FC = () => {
     phone: "",
     password: "",
   });
-const {theme} = useTheme();
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,107 +31,58 @@ const {theme} = useTheme();
     setProfilePicFile(file);
   };
 
-  const signupMutation = useMutation({
-    mutationFn: async (data: FormData) => await authAPI.signup(data),
-    onSuccess: () => {
+  const { mutateAsync: registerUser, isPending } = useSignup()
 
-      setFormData({
-        username: "",
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        password: "",
-      });
-      setProfilePicFile(null);
-
-      navigate("/");
-    },
-    onError: (error:any) => {
-      // console.log(error?.response?.data?.message);
-      toast.error(error?.response?.data?.message)
-    },
-  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-  const { username, firstName, lastName, email, password } = formData;
-  if (!username || !firstName || !lastName || !email || !password) {
-    toast.error("Please fill all required fields.");
-    return;
-  }
+    const { username, firstName, lastName, email, password } = formData;
+    if (!username || !firstName || !lastName || !email || !password) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
 
-  const submitData = new FormData();
-  Object.entries(formData).forEach(([key, value]) => {
-    if (value) submitData.append(key, value as string);
-  });
+    const submitData = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) submitData.append(key, value as string);
+    });
 
-  if (profilePicFile) submitData.append("profilePic", profilePicFile);
-  signupMutation.mutate(submitData);
-};
+    if (profilePicFile) submitData.append("profilePic", profilePicFile);
+    registerUser(submitData, {
+      onSuccess: () => {
+        setFormData({
+          username: "",
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          password: "",
+        });
+        setProfilePicFile(null);
+      }
+    })
+  };
 
   return (
-   <form
-      onSubmit={handleSubmit}
-      className={`
-        relative overflow-hidden max-w-md w-full mx-auto
-        px-8 py-10 rounded-xl backdrop-blur-2xl
-        transition-all duration-700 ease-[cubic-bezier(0.77,0,0.175,1)]
-        border border-transparent bg-clip-padding
-        ${
-          theme === "dark"
-            ? "bg-[rgba(30,20,55,0.55)] border-[rgba(168,85,247,0.25)] shadow-[0_0_10px_rgba(147,51,234,0.15)]"
-            : "bg-white/60 border-[rgba(0,0,0,0.05)] shadow-xl"
-        }
-      `}
-    >
-      {/* ✨ Static gradient depth layer */}
-      <div
-        className={`
-          absolute inset-0 -z-10 rounded-xl transition-all duration-700
-          ${
-            theme === "dark"
-              ? "bg-gradient-to-br from-[#241a36]/80 via-[#1b1230]/40 to-transparent"
-              : "bg-gradient-to-br from-white/80 via-white/50 to-transparent"
-          }
-        `}
-      />
+    <main className={`animate-fadeIn border border-purple-500/30 theme-bg-card rounded-2xl p-2`}>
+      <div className="flex w-fit items-center select-none">
+        <img src="/Ocean_logo.png" alt="" className="w-5 h-5 " />
+        <span className="text-xl font-mono">Ocean</span>
+      </div>
+      <div className="flex items-center font-bold text-md justify-center mb-3">
+        Sign up 
+      </div>
+      <form onSubmit={handleSubmit} className="">
 
-      {/* 💎 Subtle glass shine */}
-      <div
-        className={`
-          absolute inset-0 -z-5 rounded-xl opacity-70 pointer-events-none
-          ${
-            theme === "dark"
-            ? "bg-[radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.08),transparent_70%)]"
-            : "bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.25),transparent_70%)]"
-          }
-        `}
+      <UploadProfile
+        label="Profile Picture"
+        name="profilePic"
+        value={profilePicFile}
+        onChange={handleProfileChange}
+        className=""
       />
-      <h2
-        className="
-          text-3xl font-semibold text-center 
-          bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] 
-          bg-clip-text text-transparent 
-          tracking-tight drop-shadow-sm 
-          p-1
-        "
-      >
-        Create Account
-      </h2>
-      <p className="text-center text-sm mt-2 text-[var(--text-muted)]">
-        Sign up to continue your journey with us
-      </p>
-
-            <UploadProfile
-              label="Profile Picture"
-              name="profilePic"
-              value={profilePicFile}
-              onChange={handleProfileChange}
-              className="p-3"
-            />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 p-2 gap-5 w-120">
         <Input
           label="First Name"
           name="firstName"
@@ -141,23 +91,23 @@ const {theme} = useTheme();
           onChange={handleChange}
           required
         />
-          <Input
-            label="Last Name"
-            name="lastName"
-            placeholder="Doe"
-            value={formData.lastName}
-            onChange={handleChange}
-            required
-          />
-            <Input
-              label="Email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
+        <Input
+          label="Last Name"
+          name="lastName"
+          placeholder="Doe"
+          value={formData.lastName}
+          onChange={handleChange}
+
+        />
+        <Input
+          label="Email"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
         <Input
           label="Phone"
           name="phone"
@@ -187,14 +137,35 @@ const {theme} = useTheme();
 
 
       {/* ✅ Reusable Primary Button with Loader */}
-      <PrimaryButton
-        type="submit"
-        label="Sign Up"
-        loading={signupMutation.isPending}
-        state="signup"
-      />
+      <div className="w-full flex flex-col items-center justify-center px-2">
 
-      <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-3">
+        <PrimaryButton
+          type="submit"
+          label="Sign Up"
+          loading={isPending}
+          state="signup"
+          />
+
+      </div>
+          </form>
+      {/* Divider */}
+      <div className="flex items-center gap-3 mx-2 my-3">
+        <span className="h-px flex-1 bg-gray-300 dark:bg-gray-400"></span>
+        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+          or
+        </span>
+        <span className="h-px flex-1 bg-gray-300 dark:bg-gray-400"></span>
+      </div>
+      <div className="w-full gap-2 p-2 flex flex-col mt-2 items-center justify-center">
+        <h2 className="text-xs theme-text-muted">Signup using</h2>
+        <div className="w-full  flex items-center justify-center gap-3">
+          <MetaButoon />
+          <GoogleAuthButton mode="signup" />
+          <LinkedinAuthBtn />
+        </div>
+      </div>
+
+      <p className="text-[10px] mb-2 text-gray-500 dark:text-gray-400 text-center mt-3">
         Already have an account?{" "}
         <Link
           to={"/"}
@@ -203,7 +174,7 @@ const {theme} = useTheme();
           Log in
         </Link>
       </p>
-    </form>
+    </main>
   );
 };
 

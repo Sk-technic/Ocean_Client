@@ -2,7 +2,7 @@
 export interface User {
     _id: string;
     username: string;
-    fullName?: string;
+    fullName: string;
     email?: string | null;
     phone?: string | null;
     profilePic?: string;
@@ -28,23 +28,24 @@ export interface User {
 export interface queryUser {
   _id:string;
     username: string;
-    fullName?: string;
-    firstName?:string;
+    fullName: string;
+    firstName:string;
     lastName?:string;
     email?: string | null;
+    status: "active" | "banned" | "suspended";
     phone?: string | null;
     profilePic?: string;
     coverImage?: string;
     bio?: string;
     isActive?:'online'|'offline';
     language?: string;
-    isPrivate?:boolean;
+    isPrivate:boolean;
     followersCount?: number;
     followingCount?: number;
     postCount?: number;
     reelsCount?: number;
     videosCount?: number;
-    isVerified?: boolean;
+    isVerified: boolean;
     createdAt?: string;
     updatedAt?: string;
     subscribersCount?: number;

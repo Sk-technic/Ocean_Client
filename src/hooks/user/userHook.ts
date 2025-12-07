@@ -165,10 +165,10 @@ export const useAccountPrivacy = () => {
   return useMutation({
     mutationFn: async ({ userId, key }: { userId: string; key: string }) => {
       try {
-        const result =  await UserApi.updatePrivacy(userId, key);
+        const result = await UserApi.updatePrivacy(userId, key);
         console.log(result);
-        
-        dispatch(updateAccountPrivacy({userId:result?.data?._id,key:result?.data?.isPrivate}))
+
+        dispatch(updateAccountPrivacy({ userId: result?.data?._id, key: result?.data?.isPrivate }))
       } catch (error: any) {
         const message =
           error?.message ||

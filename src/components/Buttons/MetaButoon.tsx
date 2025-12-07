@@ -1,0 +1,18 @@
+import React from 'react'
+import { FaMeta } from "react-icons/fa6";
+import { useTheme } from '../../hooks/theme/usetheme';
+
+const MetaButoon = () => {
+    const {theme} = useTheme()
+  return (
+      <main className="flex flex-col items-center justify-center gap-1">
+
+          <button
+              className={`border theme-border shadow-lg p-3 hover:cursor-pointer dark:bg-blue-300/10 rounded-full`}>
+              <FaMeta size={20} className='text-blue-500' />
+          </button>
+      </main>
+  )
+}
+
+export default MetaButoon

@@ -27,9 +27,10 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
       disabled={disabled || loading}
       className={clsx(
         `
+        text-sm
         relative overflow-hidden
         flex items-center justify-center gap-2 
-        font-medium rounded-lg
+        font-medium rounded-sm
         py-2.5 px-4
         transition-all duration-300 ease-[cubic-bezier(0.77,0,0.175,1)]
         focus:outline-none focus:ring-2 focus:ring-offset-2
@@ -44,8 +45,7 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
       <span
         className="
           absolute inset-0 -z-10
-          bg-gradient-to-r 
-          bg-[var(--accent-primary)]
+          bg-gradient-to-r from-sky-400 to-violet-700
           hover:opacity-90
           transition-opacity duration-300
         "

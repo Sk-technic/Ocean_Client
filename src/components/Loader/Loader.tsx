@@ -15,7 +15,7 @@ const Loader: React.FC<LoaderProps> = ({ size, message, fullScreen = false }) =>
     </p>
   )}
 <div
-  className="text-zinc-400 animate-[spin_3s_linear_infinite]"
+  className="text-zinc-200 animate-[spin_3s_linear_infinite]"
 >
   <LucideLoader size={size} />
 </div>

@@ -226,11 +226,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       {/* Profile + Info Section */}
       <div className="relative w-full mx-auto flex justify-start">
         {/* Profile Image */}
-        <div className="relative -top-15 left-5 w-32 h-32 md:w-40 md:h-40 group rounded-[50px] p-[10px] bg-white/20 shadow-lg backdrop-blur-md">
+        <div className="relative -top-15 left-5 w-32 h-32 md:w-40 md:h-40 group rounded-[50px]  p-[10px] bg-white/20 shadow-xl backdrop-blur-md">
           <div className="w-full h-full rounded-[40px] overflow-hidden bg-[var(--bg-card)]">
             <img
               src={optimizeUrl(user?.profilePic ||'',500) || "./profile-dummy.png"}
-              alt={user.fullName || user.username}
+              referrerPolicy="no-referrer"
+              alt={user.username}
               loading="lazy"
               decoding="async"
               className="w-full h-full object-cover bg-none rounded-[40px]"

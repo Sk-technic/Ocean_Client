@@ -60,9 +60,9 @@ export const UploadProfile: React.FC<UploadImageInputProps> = ({
         onClick={() => inputRef.current?.click()}
         className={clsx(
           "relative w-18 h-18 flex items-center justify-center rounded-full cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]",
-          "border-2 border-zinc-500 border-dashed backdrop-blur-lg group",
+          "border-2 dark:border-zinc-500 border-zinc-400 border-dashed backdrop-blur-lg group",
           error && "border-[var(--error)]",
-          "bg-zinc-800/40 "
+          "dark:bg-zinc-800/40 bg-zinc-300"
         )}
       >
         {/* --- When no image --- */}

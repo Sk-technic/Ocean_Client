@@ -14,7 +14,7 @@ const ProfilePage: React.FC = () => {
         <ProfileCard
           user={{
             _id: data?.data?._id,
-            username: data?.data?.username || "irenebrooks",
+            username: data?.data?.username,
             fullName: data?.data?.firstName
               ? `${data.data.firstName} ${data.data.lastName}`
               : "Irene Brooks",
@@ -24,15 +24,18 @@ const ProfilePage: React.FC = () => {
             followingCount: data?.data?.followingCount || 0,
             videosCount: data?.data?.videosCount || 0,
             isVerified: data?.data?.isVerified || false,
+            isemailVerified: data?.data?.isemailVerified,
             language: data?.data?.language || 'en',
             subscribersCount: data?.data?.subscribedCount || 0,
             coverImage: data?.data?.coverImage || '',
-            socialLinks: data?.data?.socialLinks || null
+            socialLinks: data?.data?.socialLinks || null,
+            isPrivate:data?.data?.isPrivate,
+            status:data?.data?.status
           }}
         />
       </section>
       <section>
-        <ProfileMenu/>
+        <ProfileMenu />
       </section>
     </main>
 

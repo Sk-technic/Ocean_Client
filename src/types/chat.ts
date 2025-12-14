@@ -72,6 +72,7 @@ export interface ChatRoom {
   participants: IParticipant[];
   status:string;
   createdBy?:string;
+  blockedMe?:boolean;
 }
 
 
@@ -89,6 +90,8 @@ export interface IParticipant {
   isMuted?: boolean;
   isArchived?: boolean;
   roomId?:string;
+  isBlocked?:boolean;
+  blockedME?:boolean;
 }
 
 export interface IsendMedia {

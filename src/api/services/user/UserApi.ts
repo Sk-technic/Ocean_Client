@@ -1,9 +1,5 @@
 import api from "../../config/axiosconfig";
 
-/**
- * Uploads and updates user's cover image
- * @param formData - FormData containing the file (coverImage)
- */
 const updateCoverImage = async (formData: FormData) => {
   try {
     const response = await api.post("/user/coverImage", formData, {
@@ -19,10 +15,6 @@ const updateCoverImage = async (formData: FormData) => {
   }
 };
 
-/**
- * Uploads and updates user's Profile image
- * @param formData - FormData containing the file (ProfileImage)
- */
 const UpdateProfileImage = async (formData: FormData) => {
   try {
     const response = await api.post("/user/profileImage", formData, {
@@ -99,6 +91,35 @@ const updatePrivacy = async (userId: string, key: string) => {
     throw error.response?.data || error;
   }
 };
+
+const blockUser = async (blockedUser:string) => {
+ try {
+    const response = await api.post(`user/block_user/${blockedUser}`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+}
+
+const GetBlockedUsers = async (cursor?:string) => {
+  try {
+    const response = await api.get("user/block_user/list",{params:cursor ? {cursor} : {} });  
+    return response.data.data;
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+};
+
+const UnblockUser = async (blockedUser:string) => {
+  try {
+     const response = await api.delete(`user/Unblock_user/${blockedUser}`);   
+      return response.data; 
+    } catch (error: any) {
+      throw error.response?.data || error;
+    }
+ };
+
+
 export const UserApi = {
   updateCoverImage,
   UpdateProfileImage,
@@ -107,5 +128,8 @@ export const UserApi = {
   updateProfile,
   findUser,
   GetUser,
-  updatePrivacy
+  updatePrivacy,
+  blockUser,
+  GetBlockedUsers,
+  UnblockUser
 };

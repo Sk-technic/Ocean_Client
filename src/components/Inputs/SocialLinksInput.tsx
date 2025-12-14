@@ -1,7 +1,7 @@
 import React, { type ReactElement } from "react";
 import { useState } from "react";
 import Input from "./Input";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { RxCross1 } from "react-icons/rx";
 import {
   FaInstagram,

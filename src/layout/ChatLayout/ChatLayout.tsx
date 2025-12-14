@@ -17,12 +17,18 @@ import './chat.css'
 import { useDispatch } from "react-redux";
 import { setMessages, updateOldMessages } from "../../store/slices/messages/messages";
 import { closeReplyMessage } from "../../store/slices/messages/replyMessage";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import { optimizeUrl } from "../../utils/imageOptimize";
+import PrimaryButton from "../../components/Buttons/PrimaryButoon";
+import ToggleSwitch from "../../components/Buttons/ToggleSwitch";
+import toast from "react-hot-toast";
+import { useBlockUser } from "../../hooks/user/userHook";
+import { useClearChat } from "../../hooks/chat/chatEvents";
 const ChatLayout = () => {
   const { user: loggedInUser } = useAppSelector((state) => state.auth);
   const socket = getSocket();
   const navigate = useNavigate();
   const { roomId: newRoomUser } = useParams();
-
   const [chatUserDetails, setChatUser] = useState<IParticipant | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string>("");
   const [receiverId, setReceiverId] = useState<string>("");
@@ -30,11 +36,12 @@ const ChatLayout = () => {
   const [receiver, setReceiver] = useState<string>("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [RoomCreater, setRoomCreater] = useState<string>("");
-
+  const [blockedMe, setblockedMe] = useState<boolean>(false);
+  const [openslide, setOpenslide] = useState<boolean>(false)
   const { data: roomData, isSuccess: isRoomFetched } =
     useGetRoom(newRoomUser!, loggedInUser?._id!);
-    const { messageId: replymessageId} = useAppSelector((state) => state.replyMessage);
-  
+  const { messageId: replymessageId } = useAppSelector((state) => state.replyMessage);
+
   useEffect(() => {
     if (isRoomFetched && roomData && newRoomUser) {
       const user = roomData;
@@ -46,10 +53,10 @@ const ChatLayout = () => {
         fullName: target.fullName,
         profilePic: target.profilePic,
         _id: target._id,
-        isOnline:target.isOnline,
-        lastActive:target.lastActive,
-        roomId:newRoomUser,
-        unreadCount:target.unreadCount
+        isOnline: target.isOnline,
+        lastActive: target.lastActive,
+        roomId: newRoomUser,
+        unreadCount: target.unreadCount,
       };
 
       setChatUser(chatInfo);
@@ -62,7 +69,6 @@ const ChatLayout = () => {
   useEffect(() => {
     if (!socket || !selectedRoomId) return;
     socket.emit("chat:join", selectedRoomId);
-    // console.log("user join room:", selectedRoomId);
   }, [socket, selectedRoomId]);
 
   const {
@@ -83,7 +89,7 @@ const ChatLayout = () => {
       );
 
     // setMessagesList(allMessages);
-    dispatch(setMessages({messages:allMessages}))
+    dispatch(setMessages({ messages: allMessages }))
   }, [data]);
 
   const loadOlderMessages = async () => {
@@ -93,7 +99,7 @@ const ChatLayout = () => {
     const lastPage = result.data.pages[result.data.pages.length - 1];
     if (!lastPage?.messages) return;
 
-    dispatch(updateOldMessages({oldMessages:lastPage.messages}))
+    dispatch(updateOldMessages({ oldMessages: lastPage.messages }))
   };
 
   const { mutate: sendMedia } = useSendMedia();
@@ -113,10 +119,29 @@ const ChatLayout = () => {
   };
 
   const dispatch = useDispatch();
- 
+
+  const { activeRoom } = useAppSelector((state) => state.chat)
+
+const {mutateAsync:blockUser} = useBlockUser()
+  const handleBlockUser=()=>{ 
+    toast.promise(
+      blockUser(activeRoom?.participants.find(p=>p._id !== loggedInUser?._id)?._id!),
+      {
+        loading: 'Blocking user...',
+        success: 'User blocked successfully!',
+        error: 'Failed to block user.',
+      }
+    );
+  }
+
+  const {clearchat} = useClearChat(loggedInUser?._id!,activeRoom?._id!);
+  const handleClearChat = () => {
+      clearchat()
+      toast.success("Chat cleared successfully!");
+  }
 
   return (
-    <main className="w-full flex items-start h-full ">
+    <main className="w-full flex h-full border-l-2 theme-border">
       <ChatSidebar
         selectedRoomId={selectedRoomId}
         onSelectRoom={setSelectedRoomId}
@@ -124,14 +149,15 @@ const ChatLayout = () => {
         navigate={navigate}
         onSelectReceiver={setReceiverId}
         onSetRoomCreater={setRoomCreater}
+        onSetBlockedMe={setblockedMe}
       />
 
 
       {/* CHAT AREA */}
       {selectedRoomId ? (
-        <section className="relative w-full relative flex-1 flex flex-col justify-end h-full  p-2 overflow-hidden ">
+        <section className="relative w-full p-3 relative flex-1 flex flex-col justify-end h-full overflow-hidden ">
           <section className={`w-full z-100 rounded-xl`}>
-          <ChatHeader chatUserDetails={chatUserDetails} />
+            <ChatHeader chatUserDetails={chatUserDetails} BlockedMe={blockedMe} onSetSlide={setOpenslide} />
           </section>
 
           <MessageList
@@ -144,7 +170,7 @@ const ChatLayout = () => {
           />
 
           <MessageInput
-          RoomCreater={RoomCreater}
+            RoomCreater={RoomCreater}
             sendMessage={sendMessage}
             setSendMessage={setSendMessage}
             onSend={() =>
@@ -173,6 +199,61 @@ const ChatLayout = () => {
           </div>
         </section>
       )}
+
+
+      {<section className={`bg-transparent flex flex-col items-end justify-start backdrop-blur-3xl border-l-2 border-t-2 border-b-2 shadow-sm rounded-l-xl theme-border top-20 absolute right-0 w-90 h-[80%] ${openslide ? 'translate-x-0' : 'translate-x-100'} duration-1000`}>
+        <div className="w-full border-b-2 theme-border">
+          <h1 className="theme-text-primary text-2xl font-semibold p-3">Details</h1>
+        </div>
+        <div className="w-full border-b-2 theme-border pl-3 py-2 space-y-2 capitalize">
+          {activeRoom?.isGroup && <section className="flex items-center justify-between">
+            <span className="text-sm">change Group Name</span>
+            <PrimaryButton fullWidth={false} label="change" width="fit px-3 py-1 rounded-lg scale-75" />
+          </section>}
+          <section className="flex items-center justify-between gap-3">
+            <span className="text-sm">Mute Messages</span>
+            <ToggleSwitch value={true} onClick={() => toast.success("messages mute")} className="scale-75" />
+          </section>
+        </div>
+
+        <div className="w-full">
+          {
+            activeRoom?.participants.map((p, index) => (
+              <div key={index} className="flex items-center gap-3 px-3 py-2 overflow-y-scroll custom-scrollbar max-h-30 theme-hover-effect duration-300">
+                <LazyLoadImage
+                  src={optimizeUrl(p.profilePic || '', 50) || '/profile.png'}
+                  alt={p.username}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div className="flex flex-col items-start justify-center ">
+                  <span className={`theme-text-primary text-xs font-semibold ${loggedInUser?._id == p._id && 'text-disable'}`}>{loggedInUser?.fullName == p.fullName ? 'You' : p.fullName}</span>
+                  <span className="theme-text-muted text-[10px] font-normal">{p.username}</span>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <div className="absolute bottom-0 w-full border-t-2 theme-border">
+          {<section className="px-3 py-2  flex flex-col gap-3">
+            <div className="flex items-center justify-start">
+              <PrimaryButton label={activeRoom?.isGroup ?"Leave Chat":"Report"} fullWidth={false} width="fit px-2 py-1 rounded-md" />
+            </div>
+
+            {!activeRoom?.isGroup ? <div className="flex items-center justify-start">
+              <PrimaryButton label={'block'} onClick={()=>handleBlockUser()}  fullWidth={false} width="fit px-2 py-1 rounded-md" />
+            </div>
+          :
+          <p className="text-xs theme-text-muted">
+            You won't be able to send or receive messages unless someone adds you back to the chat. No one will be notified that you left the chat.
+          </p>  
+          }
+
+            <div className="flex items-center justify-start">
+              <PrimaryButton label="Delete Chat" fullWidth={false} width="fit px-2 py-1 rounded-md" onClick={()=>handleClearChat()}/>
+            </div>
+          </section>}
+        </div>
+      </section>}
     </main>
   );
 };

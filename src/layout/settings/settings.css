@@ -10,11 +10,12 @@
 
   /* Keep scrollbar stable */
   scrollbar-gutter: stable;
+
 }
 
 /* Firefox */
 .custom-scrollbar {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: rgba(100, 100, 100, 0.5) transparent;
 }
 
@@ -29,4 +30,28 @@
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(70, 70, 70, 0.8);
+}
+
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;     /* Firefox */
+}
+
+
+@keyframes shake-once {
+  0% { transform: translateX(0px); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-6px); }
+  60% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0px); }
+}
+
+.shake-once {
+  animation: shake-once 0.35s ease-in-out;
 }

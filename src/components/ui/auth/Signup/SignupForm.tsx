@@ -3,7 +3,7 @@ import Input from "../../../Inputs/Input";
 import { UploadProfile } from "../../../Inputs/UploadProfile";
 import type { IsignupData } from "../../../../types";
 import PrimaryButton from "../../../../components/Buttons/PrimaryButoon"; // ✅ import the new button
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import GoogleAuthButton from "../../../Buttons/GoogleAuthBtn";
 import { useSignup } from "../../../../hooks/auth/authHooks";
@@ -65,7 +65,7 @@ const SignupForm: React.FC = () => {
   };
 
   return (
-    <main className={`animate-fadeIn border border-purple-500/30 theme-bg-card rounded-2xl p-2`}>
+    <main className={`animate-fadeIn border theme-border dark:bg-black/70 bg-zinc-200 rounded-2xl p-2`}>
       <div className="flex w-fit items-center select-none">
         <img src="/Ocean_logo.png" alt="" className="w-5 h-5 " />
         <span className="text-xl font-mono">Ocean</span>
@@ -144,6 +144,7 @@ const SignupForm: React.FC = () => {
           label="Sign Up"
           loading={isPending}
           state="signup"
+          fullWidth={false}
           />
 
       </div>
@@ -159,9 +160,7 @@ const SignupForm: React.FC = () => {
       <div className="w-full gap-2 p-2 flex flex-col mt-2 items-center justify-center">
         <h2 className="text-xs theme-text-muted">Signup using</h2>
         <div className="w-full  flex items-center justify-center gap-3">
-          <MetaButoon />
           <GoogleAuthButton mode="signup" />
-          <LinkedinAuthBtn />
         </div>
       </div>
 

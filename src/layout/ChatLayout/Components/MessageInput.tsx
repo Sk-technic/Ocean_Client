@@ -14,6 +14,7 @@ import { closeReplyMessage } from "../../../store/slices/messages/replyMessage";
 import { LiaReplySolid } from "react-icons/lia";
 import { FiEdit2 } from "react-icons/fi";
 import { IoIosClose } from "react-icons/io";
+import PrimaryButton from "../../../components/Buttons/PrimaryButoon";
 
 interface MessageInputProps {
     sendMessage: string;
@@ -172,36 +173,34 @@ const MessageInput: React.FC<MessageInputProps> = ({
     let RoomStatus = Users.find((r) => r?._id == selectedRoomId)
     return (
         (RoomStatus?.status == "request" && RoomCreater != loggedInUser?._id) ?
-            (<div className="w-full px-6 py-6 mb-5 rounded-lg border-white/10 bg-zinc-800/70 backdrop-blur-xl shadow-[0_-10px_30px_rgba(0,0,0,0.4)] flex flex-col items-center text-center">
+            (<div className="w-full px-6 py-6 mb-5 backdrop-blur-xl border-t-2 theme-border flex flex-col items-center text-center">
 
-                <h3 className="text-lg font-semibold text-gray-200 tracking-wide mb-1 flex items-center gap-2">
+                <h3 className="text-lg font-semibold theme-text-primary tracking-wide mb-1 flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
                     Message Request
                 </h3>
 
                 <p className="text-[13px] text-gray-400 max-w-md leading-relaxed mb-4">
                     {isSender
-                        ? "Your message request is awaiting approval. The user must accept it before the chat becomes active."
-                        : "This user wants to send you a message. Accept the request to start chatting or reject it to hide the conversation."}
+                        ? "Your message request is awaiting approval. The user must Confirm it before the chat becomes active."
+                        : "This user wants to send you a message. Confirm the request to start chatting or Cancel it to hide the conversation."}
                 </p>
 
                 {!isSender && (
                     <div className="flex items-center gap-4">
-                        <button
+                        <PrimaryButton
                             onClick={() => AcceptMessageRequest(loggedInUser?._id!, selectedRoomId, RoomCreater)}
-                            className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 
-            text-white font-medium text-[14px] shadow-[0_3px_16px_rgba(0,0,0,0.4)]
-            hover:opacity-90 transition-all"
-                        >
-                            Accept
-                        </button>
+                           fullWidth={false}
+                           width="fit px-8 py-2"
+                            label="Confirm"
+                            
+                        />
 
-                        <button
-                            className="px-6 py-2 rounded-full border border-gray-500/40 
-            text-gray-300 font-medium text-[14px] hover:bg-white/5 transition-all"
-                        >
-                            Reject
-                        </button>
+                        <PrimaryButton 
+                        cancel
+                        fullWidth={false}
+                           width="fit px-8 py-2"
+                            label="Cancel"/>
                     </div>
                 )}
 

@@ -1,23 +1,20 @@
-export interface INotificationPayload {
-  _id: string;
-  type: string;
-  text: string;
-  isRead?: boolean;
-  postId: string | null;
-  createdAt: string;
-  fromUser: {
+export interface IActorSnapshot {
     _id: string;
-    username: string;
-    fullName: string;
+    username: string | null;
     profilePic: string | null;
-  };
+}
+
+export interface INotificationPayload {
+    _id: string;
+    type: "follow" | "follow-request" | "request-accepted" | "like" | "comment" | "mention";
+    message: string;
+    postId?: string | null;
+    isRead: boolean;
+    createdAt: string;
+    actor: IActorSnapshot; // ⭐ NEW
 }
 
 export interface INotificationState {
-  _id: string;
-  user: string;
-  notifications: INotificationPayload[];
-  unreadCount: number;
-  createdAt: string;
-  updatedAt: string;
+    notifications: INotificationPayload[];
+    unreadCount: number;
 }

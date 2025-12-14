@@ -1,6 +1,6 @@
 import { useState } from "react";
 import SearchInput from "../../components/searchHeader/SearchComponent";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useFindUser } from "../../hooks/user/userHook";
 import { useDebounce } from "../../utils/useDebounce";
 import { LazyLoadImage } from "react-lazy-load-image-component";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import type { queryUser } from "../../types";
 import { useDispatch } from "react-redux";
 import { setqueryUser } from "../../store/slices/userSlice";
+import { useTheme } from "../../hooks/theme/usetheme";
 const SearchLayout: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedValue = useDebounce(searchQuery, 1500);
@@ -30,9 +31,13 @@ const SearchLayout: React.FC = () => {
     navigate(`/${user.username}`)
   }
 
+  const {theme} = useTheme()
   return (
-    <main className="w-full max-w-full p-3 flex flex-col justify-start items-center gap-5 ">
-      <div className="w-full">
+    <main className={`w-100 max-w-full border-l-2 theme-border h-full flex flex-col justify-start items-center gap-5 hide-scrollbar ${theme=="dark"?'bg-black':"bg-stone-100"}`}>
+      <div className=" w-full px-5 pt-5 text-2xl font-bold">
+        <h1>Search</h1>
+      </div>
+      <div className="w-full px-5 ">
         <SearchInput
           label="Discover Content"
           name="search"
@@ -40,29 +45,30 @@ const SearchLayout: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           onSearch={() => handleSearch(searchQuery)}
           onClear={() => setSearchQuery('')}
+          
         />
       </div>
       {/* --- Results Section --- */}
-      <div className="max-w-5xl w-full flex flex-col gap-3 mt-4">
+      <div className="w-full  flex flex-col overflow-y-scroll hide-scrollbar">
         {isLoading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : userList.length > 0 ? (
           userList.map((user: any) => (
             <div
               key={user._id}
-              className="flex items-center justify-between p-2 hover:theme-border hover:scale-110 hover:cursor-pointer   duration-300  transition"
+              className="flex items-center duration-500 theme-hover-effect justify-between hover:cursor-pointer px-10 py-2 duration-300  transition"
             >
               {/* --- Left: Profile Info --- */}
               <div className="flex items-center gap-4" onClick={() => handleUserProfile(user)}>
                 <LazyLoadImage
-                  src={user.profilePic}
+                  src={user.profilePic || '/profile.png'}
                   alt={user.username}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover"
                   loading="lazy"
                 />
                 <div className="flex flex-col h-12   items-start justify-start">
-                  <span className="text-md font-medium theme-text-primary">{user.fullName}</span>
-                  <span className="text-xs theme-text-secondary">@{user.username}</span>
+                  <span className="text-xs font-semibold theme-text-secondary">{user.username}</span>
+                  <span className="text-[12px] theme-text-muted">{user.fullName}{}</span>
                 </div>
               </div>
             </div>

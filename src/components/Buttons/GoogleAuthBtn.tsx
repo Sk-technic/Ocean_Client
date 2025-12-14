@@ -6,12 +6,7 @@ interface GoogleAuthButtonProps {
 }
 
 const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({ mode = "login" }) => {
-  const label = mode;
-  const selectedMode = useRef<"login" | "signup">(mode);
-
-  const { mutateAsync: googleAuthenticated } = useGoogleAuth();
-
-
+const text = mode =="login"?'login with google':"signup with goog le"
   const handleClick = () => {
     window.location.href = "http://localhost:8000/api/v1/auth/google";
   };
@@ -22,9 +17,9 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({ mode = "login" }) =
 
       <button
         onClick={handleClick}
-        className={`flex items-center justify-center gap-2 border theme-border p-2 hover:cursor-pointer dark:bg-rose-200/10 shadow-lg rounded-full`}>
+        className={`flex items-center justify-center gap-2 border theme-border px-5 py-2 hover:cursor-pointer theme-bg-primary hover:scale-105 duration-500 easy-in-out  shadow-lg rounded-2xl`}>
         <FcGoogle size={22} />
-        <span className="text-md theme-text-primary">{label}</span>
+        <span className="text-sm theme-text-primary">{text}</span>
       </button>
     </main>
   );

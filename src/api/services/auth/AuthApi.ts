@@ -53,6 +53,28 @@ const resendOtp = async (id:string) =>{
   return response.data
 }
 
+const changePassword = async (oldPassword:string,newPassword:string)=>{
+  console.log(oldPassword,newPassword);
+  
+   const response = await api.patch(`/auth/change-password`,{
+      newPassword:newPassword,
+      password:oldPassword
+    })
+    return response;
+}
+
+const sendVerificationMail = async (email:string)=>{
+  return await api.post(`/auth/send-emailVerification`,{
+    email
+  })
+}
+
+const resetPassword = async (newPassword:string,userId:string)=>{
+  await api.patch(`/auth/reset-password`,{
+    newPassword,
+    userId
+  })
+}
 export const authAPI = {
   signup,
   login,
@@ -61,5 +83,8 @@ export const authAPI = {
   googleAuth,
   verifyOtp,
   autoLogin,
-  resendOtp
+  resendOtp,
+  changePassword,
+  sendVerificationMail,
+  resetPassword
 };

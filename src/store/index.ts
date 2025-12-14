@@ -8,6 +8,8 @@ import editReducer from "./slices/messages/editMessage"
 import replyReducer from "./slices/messages/replyMessage"
 import messagesReducer from "./slices/messages/messages"
 import notificationReducer from "./slices/notification/notificationSlice"
+import mutedUsers from "./slices/blockedUsers/muteUserSlice"
+import blockedUsers from "./slices/blockedUsers/blockedSlice"
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -18,17 +20,19 @@ export const store = configureStore({
     editMessage: editReducer,
     replyMessage: replyReducer,
     messages: messagesReducer,
-    notification: notificationReducer
+    notification: notificationReducer,
+    muteUser: mutedUsers,
+    blockedUser: blockedUsers,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [
           "persist/PERSIST",
-          "socket/setSocket", // 🚀 ignore the socket setter
+          "socket/setSocket", 
         ],
         ignoredPaths: [
-          "socket.socket", // 🚀 ignore non-serializable socket instance
+          "socket.socket", 
         ],
       },
     }),

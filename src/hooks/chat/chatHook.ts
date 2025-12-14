@@ -5,7 +5,7 @@ import type { ChatRoom, IsendMedia, Message } from "../../types/chat";
 import type { AxiosError } from "axios";
 import { useAppDispatch } from "../../store/hooks";
 import { useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import type { ApiError } from "../../types";
 import { getSocket } from "../../api/config/socketClient";
 import { addMessage } from "../../store/slices/messages/messages";

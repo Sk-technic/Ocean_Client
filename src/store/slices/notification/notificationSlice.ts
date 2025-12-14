@@ -1,13 +1,13 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { INotificationPayload, INotificationState } from "../../../types/notification";
 
-
-interface INotification {
+interface INotificationRootState {
     notifications: INotificationPayload[];
     isLoading: boolean;
     unreadCount: number;
 }
-const initialState: INotification = {
+
+const initialState: INotificationRootState = {
     notifications: [],
     isLoading: true,
     unreadCount: 0,
@@ -17,57 +17,67 @@ const NotificationSlice = createSlice({
     name: "notifications",
     initialState,
     reducers: {
+        // Called when page loads (fetch all notifications)
         setNotifications: (state, action: PayloadAction<INotificationState>) => {
             state.notifications = action.payload.notifications;
             state.unreadCount = action.payload.unreadCount;
             state.isLoading = false;
         },
 
-        updateNotification: (state, action: PayloadAction<{ id: string, type: string }>) => {
+        // Called when notification type changes (e.g. follow-request → request-accepted)
+        updateNotification: (
+            state,
+            action: PayloadAction<{ id: string; type: INotificationPayload["type"] }>
+        ) => {
             const index = state.notifications.findIndex(
-                n => n._id === action.payload.id.toString()
+                (n) => n._id === action.payload.id
             );
-            console.log(JSON.parse(JSON.stringify(index)));
 
             if (index !== -1) {
-                state.notifications[index] = {
-                    ...state.notifications[index],
-                    type: action.payload.type
-                };
-
-                // Force UI update
-                state.notifications = [...state.notifications];
+                state.notifications[index].type = action.payload.type;
+                state.notifications = [...state.notifications]; // force UI re-render
             }
         },
 
-        addNotification: (state, action: PayloadAction<{ singleNotification: INotificationPayload }>) => {
+        // Called when NEW notification arrives from socket
+        addNotification: (
+            state,
+            action: PayloadAction<{ singleNotification: INotificationPayload }>
+        ) => {
             state.notifications.unshift(action.payload.singleNotification);
-            if (!action.payload.singleNotification?.isRead) {
+
+            if (!action.payload.singleNotification.isRead) {
                 state.unreadCount++;
             }
         },
 
-        markAsRead: (state, action: PayloadAction<{ createdAt: string }>) => {
+        // Mark one notification as read
+        markAsRead: (state, action: PayloadAction<{ id: string }>) => {
             const noti = state.notifications.find(
-                (n) => n.createdAt === action.payload.createdAt
+                (n) => n._id === action.payload.id
             );
+
             if (noti && !noti.isRead) {
                 noti.isRead = true;
-                state.unreadCount--;
+                state.unreadCount = Math.max(0, state.unreadCount - 1);
             }
         },
+
+        // Mark all as read
         markAllAsRead: (state) => {
             state.notifications.forEach((n) => (n.isRead = true));
             state.unreadCount = 0;
         },
+
         removeNotification: (
             state,
             action: PayloadAction<{ notificationId: string }>
         ) => {
             state.notifications = state.notifications.filter(
-                (noti) => noti._id !== action.payload.notificationId
+                (n) => n._id !== action.payload.notificationId
             );
         },
+
         clearNotifications: (state) => {
             state.notifications = [];
             state.unreadCount = 0;
@@ -82,7 +92,7 @@ export const {
     markAllAsRead,
     removeNotification,
     clearNotifications,
-    updateNotification
+    updateNotification,
 } = NotificationSlice.actions;
 
 export default NotificationSlice.reducer;

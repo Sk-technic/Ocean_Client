@@ -4,7 +4,7 @@ import { logout, setUser } from "../../store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { authAPI } from "../../api/services";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { getSocket } from "../../api/config/socketClient";
 import { clearChatList } from "../../store/slices/chatList";
 import { useNavigate } from "react-router-dom";
@@ -199,7 +199,25 @@ export const autoLogin = () => {
   })
 }
 
+export const useChangePassword = ()=>{
+  return useMutation({
+    mutationFn:async({newPassword,oldPassword}:{newPassword:string,oldPassword:string})=>await authAPI.changePassword(oldPassword,newPassword)
+  })
+}
+
+export const useSendVerificationMail = ()=>{
+  return useMutation({
+    mutationFn:async(email:string)=>await authAPI.sendVerificationMail(email)
+  })
+}
+
+export const useResetPassword = ()=>{
+  return useMutation({
+    mutationFn: async(data:{newpassword:string,userId:string})=>await authAPI.resetPassword(data.newpassword,data.userId)
+  })
+}
 export const authHooks = {
   useLogin,
-  useSignup
+  useSignup,
+  useSendVerificationMail
 }

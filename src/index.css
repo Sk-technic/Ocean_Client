@@ -18,10 +18,9 @@
 
 :root {
   /* Brand gradient colors (unchanged) */
-  --color-primary: #7b2ff7;
-  --color-secondary: #f107a3;
-  --brand-gradient: linear-gradient(135deg, #b38af5f4, #f79dd9);
-
+   --color-primary: #92beff;
+  --color-secondary: #e3acff;
+  --brand-gradient: linear-gradient(135deg, #92beff, #e3acff);
   /* =============================
      🌞 LIGHT THEME (Premium Zinc)
      ============================= */
@@ -30,7 +29,7 @@
   --bg-card: #ffffff;          /* classic card */
   --bg-sidebar: #e4e4e7;       /* zinc-200 */
 
-  --text-primary: #18181b;     /* zinc-900 */
+  --text-primary: #363636;     /* zinc-900 */
   --text-secondary: #3f3f46;   /* zinc-700 */
   --text-muted: #71717a;       /* zinc-500 */
   --text-disabled: #a1a1aa;    /* zinc-400 */
@@ -42,7 +41,7 @@
   --accent-primary: #7b2ff7;
   --accent-primary-hover: #6d28d9;
   --accent-secondary: #f3e8ff;
-  --accent-secondary-hover: #e9d5ff;
+  --accent-secondary-hover: #dfe0e3;
 
   /* Input fields */
   --input-bg: #ffffff;
@@ -66,18 +65,18 @@
    🌚 DARK THEME — Premium Zinc Shades
    ================================================ */
 [data-theme="dark"] {
-  --color-primary: #7b2ff7;
-  --color-secondary: #f107a3;
-  --brand-gradient: linear-gradient(135deg, #b38af5f4, #f79dd9);
-  --story-ring: linear-gradient(135deg, #7b2ff7, #f107a3);
+   --color-primary: #92beff;
+  --color-secondary: #e3acff;
+  --brand-gradient: linear-gradient(135deg, #92beff, #e3acff);
+  --story-ring: linear-gradient(135deg, #2f9df7, #f107a3);
 
   /* DARK ZINC SET */
-  --bg-primary: #18181b;     /* zinc-900 */
+  --bg-primary: #040b0b  ;     /* zinc-900 */
   --bg-secondary: #27272a;   /* zinc-800 */
-  --bg-card: #1f1f23;        /* custom: a bit smoother than zinc-900 */
+  --bg-card: #0e1419;        /* custom: a bit smoother than zinc-900 */
   --bg-sidebar: #27272a;     /* zinc-800 */
 
-  --text-primary: #fafafa;   /* zinc-50 */
+  --text-primary: rgb(244, 244, 237);   /* zinc-50 */
   --text-secondary: #e4e4e7; /* zinc-200 */
   --text-muted: #a1a1aa;     /* zinc-400 */
   --text-disabled: #71717a;  /* zinc-500 */
@@ -95,6 +94,9 @@
   --input-bg: rgba(255,255,255,0.02); /* soft glass */
   --input-border: rgba(255, 255, 255, 0.15);
   --input-text: #fafafa;
+}
+* {
+  isolation: auto;
 }
 
 
@@ -144,16 +146,35 @@ body {
 }
 
 .gradient {
-  background: linear-gradient(135deg, #7b2ff7, #f107a3);
+  background: var(--brand-gradient);
 }
 
 .active-theme-button:hover {
   filter: brightness(1.1);
 }
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
-/* =========================================================
-   ⚙️ ANIMATIONS
-   ========================================================= */
+.hide-scrollbar {
+  scrollbar-width: none;     /* Firefox */
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  box-shadow: 0 0 0 30px transparent inset !important;
+  background-color: transparent !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: var(--input-text) !important;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -192,4 +213,19 @@ body {
 
 .dot {
   animation: typingWave 1.3s infinite ease-in-out;
+}
+
+@keyframes fadeInX {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInX {
+  animation: fadeInX 0.8s ease-in-out;
 }

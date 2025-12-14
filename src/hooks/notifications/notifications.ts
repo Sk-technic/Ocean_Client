@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { notificationApi } from "../../api/services/notifications/notificationApi";
 import { useAppDispatch } from "../../store/hooks";
-import { setNotifications } from "../../store/slices/notification/notificationSlice";
+import { markAllAsRead, setNotifications } from "../../store/slices/notification/notificationSlice";
 
 
 export const useGetNotification = (Id:string) => {
@@ -19,4 +19,14 @@ export const useGetNotification = (Id:string) => {
     refetchOnWindowFocus: false
   });
   return query
+};
+
+export const useReadAllNotification = () => {
+    const dispatch = useAppDispatch() 
+    return useMutation({
+        mutationFn:async (id:string)=>await notificationApi.readAllNotifications(id),
+        onSuccess:()=>{
+          dispatch(markAllAsRead())
+        }
+      })
 };

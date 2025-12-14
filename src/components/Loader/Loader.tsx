@@ -8,14 +8,14 @@ interface LoaderProps {
 
 const Loader: React.FC<LoaderProps> = ({ size, message, fullScreen = false }) => {
   const loaderContent = (
-<div className="flex items-center justify-center space-x-3">
+<div className="flex items-center justify-center space-x-3 ">
   {message && (
-    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+    <p className="text-sm font-medium text-gray-700 theme-text-primary animate-fadeIn">
       {message}
     </p>
   )}
 <div
-  className="text-zinc-200 animate-[spin_3s_linear_infinite]"
+  className="theme-text-primary animate-[spin_3s_linear_infinite]"
 >
   <LucideLoader size={size} />
 </div>

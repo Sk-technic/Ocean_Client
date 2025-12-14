@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HandCoins,Video,UserRoundPlus,Eye,BellRing } from 'lucide-react'
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 // Type definitions
 interface User {
     id: number;

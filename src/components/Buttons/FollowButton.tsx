@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useFollow } from "../../hooks/follow/followHook";
+import { useFollow, useUnFollow } from "../../hooks/follow/followHook";
 import { ImSpinner2 } from "react-icons/im";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 interface FollowButtonProps {
   userId: string;
@@ -25,6 +25,8 @@ const FollowButton: React.FC<FollowButtonProps> = ({
     state === "requested" || state === "accepted" ? state : "not-following"
   );
 
+  console.log(followState);
+  
   const { mutate: follow } = useFollow();
 
   const getButtonText = () => {
@@ -47,22 +49,32 @@ const FollowButton: React.FC<FollowButtonProps> = ({
         setLoading(false);
 
         const status = data?.follow?.status as FollowState;
-
         setFollowState(status);
-        setcount(true);
+        if(status == "accepted"){
+          setcount(true);
+        }
       },
       onError: () => setLoading(false),
     });
   };
 
   const handleCancelRequest = () => {
-    toast.info("Follow request cancelled");
+    toast.success("Follow request cancelled");
     // setFollowState("not-following");
   };
 
+  const {mutateAsync:unfollow} = useUnFollow()
   const handleUnfollow = () => {
-    toast.info("Unfollowed");
-    // setFollowState("not-following");
+    toast.promise(
+      unfollow(userId).then(() => {
+        setFollowState("not-following");
+      }),
+      {
+        loading: "Unfollowing...",
+        success: "Unfollowed successfully",
+        error: "Failed to unfollow",
+      }
+    );
   };
 
   const handleClick = () => {
@@ -81,7 +93,6 @@ const FollowButton: React.FC<FollowButtonProps> = ({
     }
   };
 
-  // 🔥 STYLES
   const buttonStyle: Record<FollowState, string> = {
     "not-following":
       "bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white border-none",

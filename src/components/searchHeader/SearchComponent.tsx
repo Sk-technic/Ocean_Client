@@ -9,7 +9,7 @@ interface SearchInputProps {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearch?: (query: string) => void;
-  onClear?: () => void;
+  onClear: () => void;
   error?: string;
   required?: boolean;
   className?: string;
@@ -39,7 +39,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     if (inputRef.current) {
       inputRef.current.focus();
     }
-    onClear?.();
+    onClear();
   };
 
   return (
@@ -54,8 +54,8 @@ const SearchInput: React.FC<SearchInputProps> = ({
       <form onSubmit={handleSubmit} className="relative bg-transparent">
         <div
           className={clsx(
-            "relative group overflow-hidden transition-all",
-            "rounded-xl border border-[var(--border-color,rgba(255,255,255,0.2))]",
+            "relative group  theme-bg-primary overflow-hidden transition-all",
+            "rounded-xl border theme-border shadow-md",
             "backdrop-blur-md bg-transparent" // 👈 ensures full transparency with blur effect if needed
           )}
         >

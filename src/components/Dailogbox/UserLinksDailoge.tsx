@@ -1,7 +1,7 @@
 import React, { type ReactElement } from "react";
 import { RxCopy, RxCross2 } from "react-icons/rx";
 import { FiExternalLink } from "react-icons/fi";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useTheme } from "../../hooks/theme/usetheme";
 import {
   FaInstagram,

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Lock, Users, Ban, MapPin, MessageCircle, AtSign, MessageSquare, Share2, Shield, EyeOff, SlidersHorizontal, Heart } from "lucide-react";
+import { Ban, MapPin,Lock,UserRound, MessageCircle, AtSign, MessageSquare, Share2, Shield, EyeOff, SlidersHorizontal, Heart } from "lucide-react";
 import type React from "react";
 import { RiUserLine } from "react-icons/ri";
 import { HiOutlineShieldCheck } from "react-icons/hi2";
@@ -8,11 +8,11 @@ import { LiaUserShieldSolid } from "react-icons/lia";
 // Example data
 const sections = [
   {
-    title: "Who can see your content",
+    title: "Privacy Settings",
     items: [
-      { label: "Account privacy", icon: <Lock size={18} />, to: "account_privacy" },
-      { label: "Close Friends", icon: <Users size={18} />, to: "/settings/close-friends" },
-      { label: "Blocked", icon: <Ban size={18} />, to: "/settings/blocked" },
+      { label: "Account privacy", icon: <RiUserLine size={18} />, to: "privacy_settings/account_privacy" },
+      { label: "Privacy & Security", icon: <Lock size={18} />, to: "privacy_settings/privacy_security" },
+      { label: "Blocked", icon: <Ban size={18} />, to: "privacy_settings/blocked" },
       { label: "Story and location", icon: <MapPin size={18} />, to: "/settings/story-location" },
     ],
   },
@@ -39,7 +39,7 @@ const sections = [
 
 const SettingNavigation: React.FC = () => {
   return (
-    <div className="text-white h-full overflow-y-auto custom-scrollbar ">
+    <div className="text-white h-full overflow-y-auto custom-scrollbar theme-text-primary">
         <h1 className="text-lg font-[800] py-2">Settings</h1>
         <section className="p-2 flex flex-col items-center w-full justify-start">
       <div className="border theme-border theme-bg-secondary gap-1 rounded-xl px-4 py-3 flex flex-col items-start justify-center w-full">
@@ -88,15 +88,15 @@ const SettingNavigation: React.FC = () => {
             {section.title}
           </h3>
 
-          <div className="bg-transparent space-y-2 theme-text-primary p-2 overflow-hidden ">
+          <div className="bg-transparent space-y-2 theme-text-muted p-2 overflow-hidden ">
             {section.items.map((item, idx) => (
               <Link
                 key={idx}
                 to={item.to}
-                className="flex items-center shadow-md border theme-border gap-2 p-2 rounded-xl theme-hover-effect transition cursor-pointer"
+                className="flex items-end shadow-md gap-[3px] p-2 rounded-xl border theme-border theme-hover-effect transition cursor-pointer"
               >
-                {item.icon}
-                <span className="text-base text-xs">{item.label}</span>
+                <span className="mb-[2.5px]">{item.icon}</span>
+                <span className="text-xs">{item.label}</span>
               </Link>
             ))}
           </div>

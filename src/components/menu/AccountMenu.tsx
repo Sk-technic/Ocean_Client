@@ -23,21 +23,21 @@ const MenuItem = ({
       rounded-xl transition 
     "
   >
-  
+
 
     <Icon size={18} className="theme-text-primary animate-fadeIn" />
     {label}
- 
+
 
   </button>
 );
 
-const AccountMenu: React.FC<{onSetMenu:(value:boolean)=>void}> = ({onSetMenu}) => {
+const AccountMenu: React.FC<{ onSetMenu: (value: boolean) => void }> = ({ onSetMenu }) => {
 
   const Navigate = useNavigate()
   const { mutate: logout } = useLogout()
 
-  
+
   const { theme, setTheme } = useTheme(); // ✅ FIXED
   const changeTheme = (currentTheme: string) => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
@@ -48,20 +48,18 @@ const AccountMenu: React.FC<{onSetMenu:(value:boolean)=>void}> = ({onSetMenu}) =
   return (
     <main
       className="
-        absolute left-5 bottom-20
-        w-60 rounded-2xl overflow-hidden
-        theme-bg-card theme-border border
-        shadow-md  backdrop-blur-lg z-50
-        animate-fadeIn
+        w-60 rounded-2xl border theme-border  overflow-hidden
+        theme-bg-card 
+        shadow-md  backdrop-blur-lg
       "
     >
 
       {/* TOP ITEMS */}
       <div className="p-2 space-y-1">
-        <MenuItem icon={Settings} label="Settings" onClick={() => {Navigate('/settings'); onSetMenu(false) }} />
+        <MenuItem icon={Settings} label="Settings" onClick={() => { Navigate('/settings'); onSetMenu(false) }} />
         <MenuItem icon={MessageCircle} label="Your activity" />
-        <MenuItem icon={Bookmark} label="Saved"/>
-        <MenuItem icon={theme=="dark"?BsMoon:IoSunnyOutline} label="Switch appearance" onClick={()=>changeTheme(theme)}/>
+        <MenuItem icon={Bookmark} label="Saved" />
+        <MenuItem icon={theme == "dark" ? BsMoon : IoSunnyOutline} label="Switch appearance" onClick={() => {changeTheme(theme)}} />
         <MenuItem icon={MessageCircle} label="Report a problem" />
       </div>
 
@@ -88,7 +86,7 @@ const AccountMenu: React.FC<{onSetMenu:(value:boolean)=>void}> = ({onSetMenu}) =
           theme-text-primary hover:bg-[var(--accent-secondary)]
           transition rounded-b-xl
         "
-          onClick={() => {logout(); onSetMenu(false)}}
+          onClick={() => { logout(); onSetMenu(false) }}
         >
           Log out
         </button>

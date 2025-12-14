@@ -6,19 +6,21 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../store";
 import NotFound from "../pages/NotFound/Notfound";
 import ChatPage from "../pages/Chat/ChatPage";
-import { AccountPrivary } from "../layout/settings/components/AccountPrivary";
+import { AccountPrivary } from "../layout/settings/PrivacySettings/AccountPrivary";
 import VerifyOtp from "../components/ui/auth/verifyOtp/VerifyOtp";
+import ChangePasswordFlow from "../layout/settings/components/ChangePasswordFlow.tsx";
 const LoginPage = lazy(() => import("../pages/Login/Login"));
 const SignupPage = lazy(() => import("../pages/Signup/Signup"));
 const HomePage = lazy(() => import("../pages/Home/Home"));
-const SettingsLayout = lazy(()=>import("../layout/settings/SettingsLayout"))
+const SettingsLayout = lazy(() => import("../layout/settings/SettingsLayout"))
 const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
 const ContentSection = lazy(() => import("../pages/Content/Content"));
 const ProfilePage = lazy(() => import("../layout/ProfileLayout/ProfileLayout"));
 const UserProfilePage = lazy(() => import("../pages/userProfile/userProfile"));
 const ExplorePage = lazy(() => import("../pages/ExplorePage/ExplorePage"));
 const NotificationPage = lazy(() => import("../pages/Notification/Notification"));
-const AuthSuccess = lazy(()=>import("../layout/AuthSuccess/AuthSuccess"))
+const AuthSuccess = lazy(() => import("../layout/AuthSuccess/AuthSuccess"))
+const PrivacySettings = lazy(() => import("../layout/settings/PrivacySettings/index.tsx"))
 
 const AppRoutes = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -50,15 +52,13 @@ const AppRoutes = () => {
           {!isAuthenticated && <Route index element={<LoginPage />} />}
           {!isAuthenticated && <Route path="signup" element={<SignupPage />} />}
           {!isAuthenticated && <Route path="verify-otp/:i" element={<VerifyOtp />} />}
-          {!isAuthenticated && <Route path="auth/success" element={<AuthSuccess/>}/>}
-
+          {!isAuthenticated && <Route path="auth/success" element={<AuthSuccess />} />}
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route index element={<HomePage />} />
             <Route path="/" element={<HomePage />} />
             <Route path="browse" element={<ExplorePage />} />
-            <Route path="notification" element={<NotificationPage />} />
 
             {/* Nested Dashboard */}
             <Route path="dashboard" element={<Dashboard />}>
@@ -73,10 +73,15 @@ const AppRoutes = () => {
             <Route path="/message/:roomId" element={<ChatPage />}></Route>
             {/* </Route> */}
           </Route>
-
           <Route path="settings" element={<SettingsLayout />}>
-            <Route path="account_privacy" element={<AccountPrivary/>}/>
+
+            {/* Parent page */}
+            <Route path="privacy_settings" element={<PrivacySettings />}>
+              <Route path=":section" element={<PrivacySettings />} />
+            </Route>
           </Route>
+
+
           {/* Protected Routes */}
 
           <Route path="*" element={<NotFound />} />

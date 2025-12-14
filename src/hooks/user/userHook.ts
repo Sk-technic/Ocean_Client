@@ -1,10 +1,13 @@
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery, Mutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { UserApi } from "../../api/services";
 import { setUser, updateAccountPrivacy } from "../../store/slices/authSlice"; // assuming you have this
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { store } from "../../store";
 import { useAppDispatch } from "../../store/hooks";
+import { use } from "react";
+import { set } from "zod";
+import { addBlockedUsers, removeBlockedUser, setBlockedUsers } from "../../store/slices/blockedUsers/blockedSlice";
 
 const useUpdateCoverImage = () => {
   const dispatch = useDispatch();
@@ -161,14 +164,11 @@ export const useGetUser = (roomId: string) => {
 };
 
 export const useAccountPrivacy = () => {
-  const dispatch = useAppDispatch()
   return useMutation({
     mutationFn: async ({ userId, key }: { userId: string; key: string }) => {
       try {
         const result = await UserApi.updatePrivacy(userId, key);
-        console.log(result);
-
-        dispatch(updateAccountPrivacy({ userId: result?.data?._id, key: result?.data?.isPrivate }))
+        return result.data;
       } catch (error: any) {
         const message =
           error?.message ||
@@ -180,6 +180,41 @@ export const useAccountPrivacy = () => {
   });
 };
 
+export const useBlockUser = () => {
+ return useMutation({
+    mutationFn: async (blockedUser:string) => await UserApi.blockUser(blockedUser)
+ });
+};
+
+export const useGetBlockedUsers = () => {
+  const dispatch = useAppDispatch();
+  const {mutateAsync:initialfetch,isPending:initialLoad} = useMutation({
+    mutationFn: async () => await UserApi.GetBlockedUsers(),
+    onSuccess:(data:any)=>{
+      dispatch(setBlockedUsers(data))
+    }
+  });
+
+  const {mutateAsync:loadMoreBlockUser,isPending:loadMorePending} = useMutation({
+    mutationFn: async (cursor:string) => await UserApi.GetBlockedUsers(cursor),
+    onSuccess:(data:any)=>{
+      dispatch(addBlockedUsers({data:data.data,nextCursor:data.nextCursor}))
+    }
+  })
+
+  return {loadMoreBlockUser,loadMorePending,initialfetch,initialLoad};
+};
+
+export const useUnBlockUser = () => {
+  const dispatch = useAppDispatch();
+ return useMutation({
+    mutationFn: async (blockedUser:string) => await UserApi.UnblockUser(blockedUser),
+    onSuccess:(data:any)=>{
+      dispatch(removeBlockedUser(data.data));
+    }
+ });
+}
+
 export const userHooks = {
   useUpdateCoverImage,
   useUpdateProfileImage,
@@ -188,5 +223,6 @@ export const userHooks = {
   useUpdateProfile,
   useFindUser,
   useGetUser,
-  useAccountPrivacy
+  useAccountPrivacy,
+  useUnBlockUser
 };

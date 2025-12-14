@@ -5,12 +5,14 @@ interface ChatListState {
   list: ChatRoom[];
   loading: boolean;
   error: string | null;
+  activeRoom?:ChatRoom|null;
 }
 
 const initialState: ChatListState = {
   list: [],
   loading: false,
   error: null,
+  activeRoom:null
 };
 
 const chatListSlice = createSlice({
@@ -169,6 +171,11 @@ const chatListSlice = createSlice({
       state.error = action.payload;
     },
 
+    setActiveRoom: (state, action: PayloadAction<ChatRoom>) => {
+      state.activeRoom = null;
+      state.activeRoom = action.payload;
+    },
+
     clearChatList: () => initialState,
   },
 });
@@ -183,7 +190,8 @@ export const {
   clearChatList,
   clearLastMessage,
   updateCount,
-  acceptMessageRequest
+  acceptMessageRequest,
+  setActiveRoom
 } = chatListSlice.actions;
 
 export default chatListSlice.reducer;

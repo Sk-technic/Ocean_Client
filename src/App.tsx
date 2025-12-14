@@ -13,6 +13,7 @@ import { setConnected } from "./store/slices/socketSclice";
 import { initSocketListeners } from "./hooks/socket";
 import AccountMenu from "./components/menu/AccountMenu";
 import { useGetNotification } from "./hooks/notifications/notifications";
+import { useTheme } from "./hooks/theme/usetheme";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -45,9 +46,12 @@ const App = () => {
   }, []);
 
 useEffect(() => {
-  initSocketListeners();
-}, []);
+  if (isConnected) {
+    initSocketListeners();
+  }
+}, [isConnected]);
 
+const {theme} = useTheme()
 const [menu,setmenu] = useState<boolean>(false)
   if (loading) {
     return (
@@ -63,26 +67,66 @@ const [menu,setmenu] = useState<boolean>(false)
   }
 
   return (
-    <div className="relative w-full max-w-screen flex h-screen overflow-hidden">
-      {isAuthenticated && (
-        <div className="flex justify-center items-center pl-3 pt-3 pb-3">
-          <Sidebar setmenu={setmenu}/>
-        </div>
-        
-      )}
-        { menu &&
-          <AccountMenu onSetMenu={setmenu}/>
-        }
-      <main className="flex-1 transition-all duration-300 relative">
-        <Outlet />
-        <Notify />
-        {isAuthenticated && (
-          <div className="absolute bottom-2 right-3 text-xs text-gray-400">
-            Socket: {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
-          </div>
-        )}
-      </main>
+   <div
+  className={`relative w-full flex h-screen overflow-hidden ${
+    theme === "dark" || theme === "system"
+      ? "theme-bg-primary"
+      : "bg-stone-100"
+  }`}
+>
+  {/* Account Menu */}
+  <div
+    className={`
+      fixed z-[999] transition-all duration-500 ease-in-out
+      bottom-16 left-2
+      md:bottom-14 md:left-5 
+      ${
+        menu
+          ? "opacity-100 translate-y-0 -translate-x-0"
+          : "opacity-0 translate-y-50 -translate-x-20 pointer-events-none"
+      }
+    `}
+  >
+    <AccountMenu onSetMenu={setmenu} />
+  </div>
+
+  {/* Main Layout */}
+  <main className={`flex h-screen w-full`}>
+    {/* Sidebar */}
+    {isAuthenticated && (
+      <div
+        className={`
+          fixed z-[777]
+          bottom-0 left-0 w-full h-16
+          md:top-0 md:left-0 md:h-full md:w-fit
+          ${
+            theme === "dark" || theme === "system"
+              ? "theme-bg-primary"
+              : "bg-stone-100"
+          }
+        `}
+      >
+        <Sidebar setmenu={setmenu} />
+      </div>
+    )}
+
+    {/* Page Content */}
+    <div className="flex-1 pb-16 md:pb-0 md:pl-[84px] overflow-hidden">
+      <Outlet />
     </div>
+
+    {/* Notifications */}
+    <Notify />
+
+    {/* Socket Status */}
+    {isAuthenticated && (
+      <div className="fixed bottom-2 right-3 text-xs text-gray-400 z-[1000]">
+        Socket: {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
+      </div>
+    )}
+  </main>
+</div>
+
   );
 };
 

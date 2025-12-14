@@ -17,6 +17,7 @@ export interface User {
     videosCount?: number;
     token?: string;
     isVerified: boolean;
+    isemailVerified?:boolean;
     status: "active" | "banned" | "suspended";
     createdAt?: string;
     updatedAt?: string;
@@ -46,6 +47,7 @@ export interface queryUser {
     reelsCount?: number;
     videosCount?: number;
     isVerified: boolean;
+    isemailVerified?:boolean;
     createdAt?: string;
     updatedAt?: string;
     subscribersCount?: number;

@@ -13,9 +13,20 @@ export function initNotificationListener() {
 
   console.log("🔥 Room listener initialized");
 
-  socket.on("new:notification", (notification:any) => {
-    console.log("notification",notification?.notification);
-    
-    store.dispatch(addNotification({singleNotification:notification?.notification}));
-  });
+socket.on("new:notification", (data) => {
+    console.log("🔥 SOCKET DATA:", data);
+
+    const singleNotification = data.notification;
+
+    if (!singleNotification) {
+        console.warn("⚠ No notification found in payload");
+        return;
+    }
+
+    singleNotification.createdAt = new Date(singleNotification.createdAt).toISOString();
+
+    store.dispatch(addNotification({ singleNotification }));
+});
+
+
 }

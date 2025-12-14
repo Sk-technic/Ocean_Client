@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ShieldCheckIcon,ShieldPlus } from "lucide-react";
 import type { User } from "../../types";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import Loader from "../../components/Loader/Loader";
 import { BsCardImage } from "react-icons/bs";
 import EditProfileForm from "../../components/forms/editProfile";
@@ -23,10 +23,10 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useNavigate } from "react-router-dom";
 import { getSocket } from "../../api/config/socketClient";
 import { setRoomId } from "../../store/slices/userSlice";
-import { HiOutlineAtSymbol } from "react-icons/hi2";
 import { optimizeUrl } from "../../utils/imageOptimize";
 import { addChatRoom } from "../../store/slices/chatList";
 import FollowButton from "../../components/Buttons/FollowButton";
+import { FcGoogle } from "react-icons/fc";
 
 interface ProfileHeaderProps {
   user: User;
@@ -94,12 +94,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   const triggerCoverInput = () => {
     if (!coverPending) coverInputRef.current?.click();
-    else toast.info("Please wait, updating cover image...");
+    else toast.success("Please wait, updating cover image...");
   };
 
   const triggerProfileInput = () => {
     if (!profilePending) profileInputRef.current?.click();
-    else toast.info("Please wait, updating profile image...");
+    else toast.success("Please wait, updating profile image...");
   };
 
   const deleteCover = () => {
@@ -153,7 +153,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const socialKeys = user.socialLinks ? Object.keys(user.socialLinks) : [];
 
   const [followers,setFollowers] = useState<boolean>(false)
-  console.log("user: ",user);
   
   return (
     <main className="w-fit h-fit">
@@ -294,14 +293,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <div className="h-auto w-full flex flex-col md:items-start items-center justify-between md:items-start">
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-semibold text-[var(--text-primary)] flex items-center tracking-wide">
-                    @<span>
+                    <span>
                   {user.username}
                 </span>
               </h1>
-              {user.isVerified && (
-                <span className="flex items-center gap-1 px-2 py-[2px] text-[11px] font-medium uppercase rounded-md bg-[var(--accent-secondary)] text-[var(--accent-primary)]">
-                  <ShieldCheckIcon size={14} />
-                  Verified
+              {user?.isemailVerified && (
+                <span className="border p-1 rounded-full theme-border theme-bg-card shadow-sm">
+                   <FcGoogle size={15}/> 
                 </span>
               )}
             </div>

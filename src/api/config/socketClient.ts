@@ -1,49 +1,38 @@
 import { io, Socket } from "socket.io-client";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+
 let socket: Socket | null = null;
 
 /**
- * Initialize a new socket connection
+ * Create or return existing socket instance
  */
-export const connectSocket = (token?: string, userId?: string) => {
+export const connectSocket = (token?: string, userId?: string): Socket | null => {
   if (!token) {
-    console.warn("⚠️ [Socket] Token missing — skipping connection");
+    console.warn("[Socket] Token missing, connection skipped");
     return null;
   }
 
   if (!SOCKET_URL) {
-    console.error("❌ [Socket] Missing SOCKET_URL in .env");
+    console.error("[Socket] SOCKET_URL missing");
     return null;
   }
 
   if (!socket) {
-    console.log("🔌 [Socket] Initializing new socket connection...");
-
     socket = io(SOCKET_URL, {
-      transports: ["websocket"],
+      transports: ["websocket","polling"],
       withCredentials: true,
       autoConnect: false,
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1500,
-      auth: { token, userId }, 
+      auth: { token, userId },
     });
-
-    // socket.on("connect", () =>
-    //   console.log(`🟢 [Socket] Connected: ${socket?.id}`)
-    // );
-
-    // socket.on("disconnect", (reason) =>
-    //   console.warn(`🔴 [Socket] Disconnected: ${reason}`)
-    // );
-
-    // socket.on("connect_error", (err) =>
-    //   console.error("⚠️ [Socket] Connection failed:", err.message)
-    // );
 
     socket.connect();
   }
+
+  
 
   return socket;
 };
@@ -54,51 +43,38 @@ export const connectSocket = (token?: string, userId?: string) => {
 export const getSocket = (): Socket | null => socket;
 
 /**
- * Gracefully disconnect the socket
+ * Gracefully disconnect socket (logout / app close)
  */
 export const disconnectSocket = () => {
-  if (socket) {
-    console.log("🔌 [Socket] Disconnecting...");
-    socket.removeAllListeners();
-    socket.disconnect();
-    socket = null;
-  }
+  if (!socket) return;
+
+  socket.disconnect();
+  socket = null;
 };
 
 /**
- * Reconnect socket with a new token (e.g. after refresh)
+ * Reconnect socket with new token (refresh token flow)
+ * IMPORTANT: listeners are NOT removed
  */
-export const reconnectSocket = (newToken: string, userId?: string) => {
+export const reconnectSocket = (newToken: string, userId?: string): Socket | null => {
   if (!newToken) {
-    console.warn("⚠️ [Socket] No token provided for reconnect");
-    return;
-  }
-
-  if (socket) {
-    console.log("♻️ [Socket] Reconnecting with new token...");
-
-    socket.removeAllListeners();
-
-    socket.auth = { token: newToken, userId };
-    socket.disconnect();
-
-    setTimeout(() => {
-      socket?.connect();
-    }, 300);
-
-    socket.on("connect", () =>
-      console.log(`🟢 [Socket] Reconnected: ${socket?.id}`)
-    );
-    socket.on("disconnect", (reason) =>
-      console.warn(`🔴 [Socket] Disconnected: ${reason}`)
-    );
-    socket.on("connect_error", (err) =>
-      console.error("⚠️ [Socket] Reconnection failed:", err.message)
-    );
-
+    console.warn("[Socket] Reconnect skipped, token missing");
     return socket;
   }
 
-  console.log("🔁 [Socket] No existing socket — creating new connection...");
-  return connectSocket(newToken, userId);
+  if (!socket) {
+    return connectSocket(newToken, userId);
+  }
+
+  socket.auth = { token: newToken, userId };
+
+  if (socket.connected) {
+    socket.disconnect();
+  }
+
+  setTimeout(() => {
+    socket?.connect();
+  }, 300);
+
+  return socket;
 };

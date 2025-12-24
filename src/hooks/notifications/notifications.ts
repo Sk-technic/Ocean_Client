@@ -10,9 +10,14 @@ export const useGetNotification = (Id:string) => {
     queryKey: ["getNotification", Id],
     queryFn: async () => {
       if (!Id) throw new Error("user fot found.");
-      const res = await notificationApi.GetNotifications(Id)
-      console.log("notification fetched: ",res.data);
-        dispatch(setNotifications(res.data))
+      
+     try {
+       const res = await notificationApi.GetNotifications(Id)
+       console.log("notification fetched: ",res);
+         dispatch(setNotifications(res.data))
+     } catch (error) {
+      return error
+     }
     },
     enabled: !!Id,
     staleTime: 1000 * 60 * 2,

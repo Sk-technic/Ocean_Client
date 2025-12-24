@@ -7,7 +7,7 @@ interface MediaPreviewProps {
 
 const MediaPreview: React.FC<MediaPreviewProps> = ({ files, onRemove }) => {
   return (
-    <div className="absolute -top-24 left-3 flex gap-2">
+    <div className="flex gap-2">
       {files.map((file, i) => (
         <LazyMedia key={i} file={file} index={i} onRemove={onRemove} />
       ))}
@@ -60,7 +60,7 @@ const LazyMedia: React.FC<LazyMediaProps> = ({ file, index, onRemove }) => {
   return (
     <div
       ref={ref}
-      className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-800"
+      className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-800"
     >
       {/* Skeleton shimmer while loading */}
       {!isLoaded && (

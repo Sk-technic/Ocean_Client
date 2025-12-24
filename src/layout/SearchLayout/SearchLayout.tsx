@@ -14,7 +14,8 @@ const SearchLayout: React.FC = () => {
   const debouncedValue = useDebounce(searchQuery, 1500);
 
   const { data, isLoading } = useFindUser(debouncedValue?.trim() ? debouncedValue : "");  
-  const userList = data?.data || [];
+  
+  const userList = data || [];
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
@@ -33,7 +34,7 @@ const SearchLayout: React.FC = () => {
 
   const {theme} = useTheme()
   return (
-    <main className={`w-100 max-w-full border-l-2 theme-border h-full flex flex-col justify-start items-center gap-5 hide-scrollbar ${theme=="dark"?'bg-black':"bg-stone-100"}`}>
+    <main className={`w-100 max-w-full border-l-2 theme-border h-full flex flex-col justify-start items-center gap-5 hide-scrollbar theme-bg-primary`}>
       <div className=" w-full px-5 pt-5 text-2xl font-bold">
         <h1>Search</h1>
       </div>

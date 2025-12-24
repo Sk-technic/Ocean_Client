@@ -22,7 +22,7 @@ import { SiThreads } from "react-icons/si";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useNavigate } from "react-router-dom";
 import { getSocket } from "../../api/config/socketClient";
-import { setRoomId } from "../../store/slices/userSlice";
+import { setqueryUser, setRoomId } from "../../store/slices/userSlice";
 import { optimizeUrl } from "../../utils/imageOptimize";
 import { addChatRoom } from "../../store/slices/chatList";
 import FollowButton from "../../components/Buttons/FollowButton";
@@ -136,15 +136,15 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const dispatch = useDispatch()
  const handleMessage = () => {
   if (!loggedInUser || !user?._id) return;
-
-    socket?.emit('chat:init', { userId: loggedInUser._id, toUserId: user._id });
-    socket?.once('chat:init:success',(room)=>{    
-      console.log(room);
-      
-      dispatch(setRoomId(room?._id))
-      dispatch(addChatRoom(room))
-      navigate(`/message/${room?._id}`)
-    })
+  console.log(user);
+  dispatch(setqueryUser(user))
+  // socket?.emit('chat:init', { userId: loggedInUser._id, toUserId: user._id });
+  // socket?.once('chat:init:success',(room)=>{    
+    
+    //   dispatch(setRoomId(room?._id))
+    //   dispatch(addChatRoom(room))
+    // })
+    navigate(`/message`)
 };
 
   const bio = user.bio || "";

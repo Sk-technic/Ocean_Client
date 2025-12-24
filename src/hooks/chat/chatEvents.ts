@@ -21,10 +21,10 @@ const handleTyping = () => {
 return { handleTyping };
 };
 
-export const useUnsendMessage = (roomId: string, messageId: string,userId:string) => {
+export const useUnsendMessage = (roomId: string, messageId: string,deletedBy:string) => {
   const socket = getSocket();
   const unsendMessage = () => {    
-    socket?.emit("unsend:message", { roomId, messageId,userId });
+    socket?.emit("unsend:message", { roomId, messageId,deletedBy });
   }
 
   return { unsendMessage };

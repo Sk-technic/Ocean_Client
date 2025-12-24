@@ -70,7 +70,6 @@ const AppRoutes = () => {
             {/* Other Protected Routes */}
             <Route path="/:username" element={<UserProfilePage />} />
             <Route path="message" element={<ChatPage />} />
-            <Route path="/message/:roomId" element={<ChatPage />}></Route>
             {/* </Route> */}
           </Route>
           <Route path="settings" element={<SettingsLayout />}>

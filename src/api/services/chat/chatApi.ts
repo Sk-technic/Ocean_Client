@@ -1,4 +1,4 @@
-import type { IsendMedia, Message } from "../../../types/chat";
+import type { ChatRoom, Message } from "../../../types/chat";
 import api from "../../config/axiosconfig"
 
 
@@ -34,14 +34,25 @@ export const GetMessages = async (
 
 
 
-const GetChatUsers = async (id:string)=>{
-    try {
-        const result = await api.get(`chat/users?id=${id}`);
-        return result.data
-    } catch (error: any) {
-        throw error.response?.data ||error
-    }
-}
+export const GetChatUsers = async (
+  id: string,
+  cursor?: string | null
+) => {
+  try {
+    const params = new URLSearchParams({ id });
+    if (cursor) params.append("cursor", cursor);
+
+    const result = await api.get(`chat/users?${params.toString()}`);
+    return result.data.data as {
+      data: ChatRoom[];
+      nextCursor: string | null;
+      hasNext: boolean;
+    };
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+};
+
 
 const GetRoomDetails = async (roomId:string,userId:string)=>{
     try {
@@ -54,25 +65,15 @@ const GetRoomDetails = async (roomId:string,userId:string)=>{
     }
 }
 
-const sendMediaFiles = async (data: IsendMedia) => {
+const sendMediaFiles = async (data: FormData) => {
   try {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (key === "media" && Array.isArray(value)) {
-        value.forEach((file) => formData.append("media", file));
-      } else {
-        formData.append(key, value as any);
-      }
-    });
-
-    const result = await api.post(`/chat/send_media`, formData, {
-      headers: { "Content-Type": "application/json" },
-    });
+    const result = await api.post(`/chat/send_media`, data);
     return result.data;
   } catch (error: any) {
     throw error.response?.data?.message || "Failed to send media";
   }
 };
+
 
 export const chatApi = {
     GetMessages,

@@ -14,6 +14,7 @@ interface SearchInputProps {
   required?: boolean;
   className?: string;
   autoFocus?: boolean;
+  width?:string;
 }
 
 const SearchInput: React.FC<SearchInputProps> = ({
@@ -26,6 +27,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   error,
   required,
   className,
+  width,
   autoFocus = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,24 +47,25 @@ const SearchInput: React.FC<SearchInputProps> = ({
   return (
     <div
       className={clsx(
-        "w-full flex flex-col gap-2 bg-transparent animate-fadeIn",
+        "flex flex-col gap-2 bg-transparent animate-fadeIn",
         "transition-all duration-300 ease-in-out",
-        className
+        `${width?width:'w-full'}`
       )}
     >
       {/* === Search Input Container === */}
       <form onSubmit={handleSubmit} className="relative bg-transparent">
         <div
-          className={clsx(
-            "relative group  theme-bg-primary overflow-hidden transition-all",
-            "rounded-xl border theme-border shadow-md",
-            "backdrop-blur-md bg-transparent" // 👈 ensures full transparency with blur effect if needed
-          )}
+          className={`
+            relative group  theme-bg-primary overflow-hidden transition-all
+             border  theme-border shadow-md
+            backdrop-blur-md bg-transparent
+            ${className}`
+          }
         >
           {/* === Search Icon === */}
           <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <Search
-              size={20}
+              size={18}
               className={clsx(
                 "transition-colors duration-300",
                 value
@@ -84,7 +87,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
             required={required}
             autoFocus={autoFocus}
             className={clsx(
-              "w-full px-12 py-3 text-[16px] outline-none",
+              `w-full px-10 py-2 text-[16px] outline-none`,
               "bg-transparent text-[var(--input-text)] placeholder:text-zinc-400",
               "transition-all duration-300 ease-in-out font-Lucero placeholder:font-Lucero",
               "selection:bg-transparent selection:text-inherit"

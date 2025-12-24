@@ -1,6 +1,11 @@
 import { getSocket } from "../../api/config/socketClient";
 import { store } from "../../store";
-import { updateCount, updateLastMessage } from "../../store/slices/chatList";
+import {
+  addChatRoom,
+  updateCount,
+  updateLastMessage,
+} from "../../store/slices/chatList";
+import { queryClient } from "../../api/config/queryClient";
 
 let initialized = false;
 
@@ -11,24 +16,45 @@ export function initRoomListener() {
   const socket = getSocket();
   if (!socket) return;
 
-  console.log("🔥 Room listener initialized");
+  const updateRoomWithDeleteMessage = (data: any) => {
+    store.dispatch(
+      updateLastMessage({
+        roomId: data?.roomId.toString(),
+        shouldUpdateLastMessage: data?.shouldUpdateLastMessage,
+        message: data?.message,
+        room: data?.room
+      })
+    );
+  };
 
-  socket.on("room:update", (room: any, message: any) => {
-    console.log("📩 room:update received:", room._id);
+  socket.on("chat:room_updated", updateRoomWithDeleteMessage);
 
-    // dispatch without hooks
-    store.dispatch(updateLastMessage({ roomId: room._id, message }));
+  socket.on("room:update", (data: any) => {
+    console.log(data);
 
-    // get logged in user from Redux (no hooks)
+    const room = data?.room;
+    const message = data?.message;
+    // const tempId = data?.tempId;
+
+    store.dispatch(addChatRoom(room));
+    store.dispatch(
+      updateLastMessage({
+        roomId: room?._id.toString(),
+        message,
+        room:data?.room,
+        shouldUpdateLastMessage: data?.shouldUpdateLastMessage,
+      })
+    );
+
     const loggedInUser = store.getState().auth.user;
 
-    const myState = room.participants.find(
+    const myState = room?.participants?.find(
       (p: any) => p.user === loggedInUser?._id
     );
 
     store.dispatch(
       updateCount({
-        roomId: room._id,
+        roomId: room?._id,
         userId: loggedInUser?._id || "",
         count: myState?.unreadCount ?? 0,
       })

@@ -10,9 +10,10 @@ import { useGetMuteUsers, useUnMuteFollow } from '../../../hooks/follow/followHo
 import { addMutedUsers, removeMutedUser } from '../../../store/slices/blockedUsers/muteUserSlice'
 import Loader from '../../../components/Loader/Loader'
 import { useGetBlockedUsers, useUnBlockUser } from '../../../hooks/user/userHook'
+import { updateUnBlockedUser } from '../../../store/slices/chatList'
 
 const BlockedLists: React.FC = () => {
-
+    const {user:loggedInUser} = useAppSelector((state)=>state.auth)
     const { users: mutedUsers } = useAppSelector((state) => state.muteUser)
 
     const [isActive, setIsActive] = useState<string>("mute")
@@ -34,6 +35,7 @@ const BlockedLists: React.FC = () => {
 
     const { cursor: NextCursor } = useAppSelector((state) => state.muteUser)
     const { users: blocked } = useAppSelector((state) => state.blockedUser)
+    const { activeRoom } = useAppSelector(state=>state.chat)
     const dispatch = useAppDispatch()
     const { loadMore, isLoadMoreLoading } = useGetMuteUsers()
     const handleFetchMutedUSers = () => {
@@ -53,6 +55,7 @@ const BlockedLists: React.FC = () => {
             unblockUser(blockedUser?._id,{
                 onSuccess:()=>{
                     setSelectedUser(null)
+                    dispatch(updateUnBlockedUser({roomId:activeRoom?._id!,loggedInUser:loggedInUser?._id!}))
                 }
             }),
             {

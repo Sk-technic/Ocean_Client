@@ -110,7 +110,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({ media, onMediaLoaded }) => {
       <div
         key={file._id ?? i}
         onClick={() => openViewer(idx)}
-        className={`relative rounded-xl overflow-hidden cursor-pointer bg-black/20 ${className}`}
+        className={`relative rounded-xl overflow-hidden  cursor-pointer bg-black/20 ${className}`}
         style={{ width: "200px"}}
       >
         <LazyLoadImage
@@ -173,7 +173,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({ media, onMediaLoaded }) => {
   return (
     <>
       <div
-        className="grid grid-cols-[200px_200px] gap-1"
+        className="grid grid-cols-[200px_200px] z-[8888] gap-1"
         style={{ width: "402px" }}
       >
         {/* BIG TILE (VIDEO gets priority) */}

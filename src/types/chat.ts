@@ -27,9 +27,10 @@ export interface Message {
     fullName: string;
     profilePic?: string;
   };
+  staus?:"pending"|"send"|"seen";
   content?: string;
   media?: IMedia[] | null;
-  messageType: "text" | "image" | "video" | "audio" | "file";
+  type: "text" | "image" | "video" | "audio" | "file";
   replyTo: ReplyTo | string;
   reactions?: Record<string, string[]>; // e.g. { "❤️": ["user1", "user2"] }
   readBy?: string[];
@@ -66,7 +67,8 @@ export interface ChatRoom {
   name?: string;
   description?: string;
   avatar?: string;
-  isGroup: boolean;
+  membersHash?:string;
+  type: "dm"|"group";
   groupAdmin?: string[];
   lastMessageMeta?: LastMessageMeta;
   participants: IParticipant[];
@@ -86,22 +88,11 @@ export interface IParticipant {
   isOnline: boolean;
   lastActive?: number | Date;
   unreadCount?: number;
-  lastSeenAt?: Date | null;
   isMuted?: boolean;
   isArchived?: boolean;
   roomId?:string;
   isBlocked?:boolean;
   blockedME?:boolean;
-}
-
-export interface IsendMedia {
-  receiverId?:string;
-  content?:string;
-  roomId:string;
-  messageType:string;
-  media:File[];
-  senderId:string;
-  replyTo?:string | null;
 }
 
 // types.ts

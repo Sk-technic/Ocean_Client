@@ -23,13 +23,10 @@ const createMessageSlice = createSlice({
             const filtered = old.filter(m => !existingIds.has(m._id));
             state.messages = [...filtered, ...state.messages];
         },
-        clearRoomMessages: (
-            state,
-            action: PayloadAction<{ roomId: string }>
-        ) => {
-            state.messages = state.messages.filter(
-                msg => msg.roomId !== action.payload.roomId
-            );
+        clearRoomMessages: (state) => {
+            console.log("message cleaning");
+            
+            state.messages = []
         },
         addMessage: (state, action: PayloadAction<Message>) => {
             const incoming = action.payload;
@@ -46,7 +43,7 @@ const createMessageSlice = createSlice({
             state.messages.push(incoming);
         },
 
-        updateMessage: (state, action) => {
+        updateMessage: (state, action:PayloadAction<Message>) => {
             const index = state.messages.findIndex(msg => msg._id === action.payload._id);
             if (index !== -1) {
                 state.messages[index] = action.payload;

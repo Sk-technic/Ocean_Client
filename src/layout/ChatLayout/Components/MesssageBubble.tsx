@@ -1,14 +1,11 @@
-import React, { lazy, useEffect, useState, useMemo, useCallback, useRef, type HtmlHTMLAttributes } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import type { Message } from "../../../types/chat";
-import type { User } from "../../../types";
 import { EllipsisVertical, Smile } from "lucide-react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { renderWithEmoji } from "../../../utils/emojiRender";
 import { useUnsendMessage } from "../../../hooks/chat/chatEvents";
 import { getSocket } from "../../../api/config/socketClient";
-import ProcessLoader from "../../../components/Loader/ProcessLoader";
 import { TbCopy } from "react-icons/tb";
-import { FiEdit2 } from "react-icons/fi";
 import { LiaReplySolid } from "react-icons/lia";
 import { useTimeAgo } from "../../../utils/timecoverter";
 import { HiMiniArrowPath } from "react-icons/hi2";
@@ -18,6 +15,8 @@ import { setReplyMessage } from "../../../store/slices/messages/replyMessage";
 import { optimizeUrl } from "../../../utils/imageOptimize";
 import { useAppSelector } from "../../../store/hooks";
 import MediaGrid from "./MediaGrid";
+import Loader from "../../../components/Loader/Loader";
+import { TbPencil } from "react-icons/tb";
 
 interface IBubble {
   message: Message;
@@ -25,14 +24,6 @@ interface IBubble {
   nextMessage?: Message;
   onMediaLoaded?: () => void;
 }
-
-/**
- * Performance notes:
- * - Avoid inline style contain/lots of nested wrappers.
- * - Provide width/height on images to reduce layout shift.
- * - Memoize subcomponents to avoid re-renders during virtualization.
- * - Use will-change only on the interactive media element.
- */
 
 const Avatar: React.FC<{ src?: string; show: boolean }> = React.memo(
   ({ src, show }) => {
@@ -60,14 +51,14 @@ const ReplyPreview: React.FC<{ replyTo: any; isSender: boolean }> = React.memo(
 
     return (
       <span
-        className={`text-xs bg-transparent w-20 h-fit w-full flex ${isSender ? "flex-row-reverse" : ""} items-start justify-start gap-1`}
+        className={`text-xs bg-transparent w-20  h-fit w-full flex ${isSender ? "flex-row-reverse" : ""} items-start justify-start gap-1`}
       >
         {!isMediaReply && <div className="border-3 rounded-full theme-border h-full" />}
         <span>
           <LiaReplySolid size={20} />
         </span>
         <span className={`w-fit ${isMediaReply ? "" : "bg-zinc-500/50 rounded-2xl px-2"} backdrop-blur-lg`}>
-          {!isMediaReply && <div className="p-2">{replyTo?.content}</div>}
+          {!isMediaReply && <div className="text-[12px] p-1 ">{replyTo?.content}</div>}
           {isMediaReply && (
             <div className="rounded-xl overflow-hidden">
               <LazyLoadImage
@@ -82,6 +73,13 @@ const ReplyPreview: React.FC<{ replyTo: any; isSender: boolean }> = React.memo(
             </div>
           )}
         </span>
+        {
+          <img
+            className="object-cover w-5 h-5 rounded-full theme-border-secondary"
+            src={optimizeUrl(replyTo?.sender?.profilePic || '', 150) || '/profile.png'}
+            loading="lazy"
+          />
+        }
       </span>
     );
   }
@@ -99,19 +97,8 @@ const ActionsPanel: React.FC<{
     <>
       {showMenu && (
         <div
-          className="
-            absolute bottom-10
-            flex items-center theme-bg-secondary shadow-sm justify-between gap-1
-            px-2 py-1
-            backdrop-blur-md
-            theme-bg-secondary/50 
-            rounded-xl
-            theme-border border
-          "
+          className="flex absolute bottom-6 theme-border border rounded-sm theme-bg-secondary animate-fadeIn duration-150"
         >
-          {/* Left small indicator */}
-          <div className="w-2 h-2 rounded-full theme-bg-primary" />
-
           {/* EDIT BUTTON */}
           {hasText && (
             <button
@@ -126,7 +113,7 @@ const ActionsPanel: React.FC<{
               "
               aria-label="edit"
             >
-              <FiEdit2 size={16} />
+              <TbPencil size={16} />
             </button>
           )}
 
@@ -183,17 +170,40 @@ const MessageBubble: React.FC<IBubble> = ({
   const [messageInfo, setMessageInfo] = useState(false);
   const { user: loggedInUser } = useAppSelector((state) => state.auth)
 
-  const isSender = message?.sender?._id === loggedInUser?._id;
+  const isSender = message.sender?._id === loggedInUser?._id;
   const hasMedia = (message.media?.length ?? 0) > 0;
   const hasText = !!message.content?.trim();
-  const sameAsPrev = prevMessage && prevMessage.sender._id === message.sender._id;
-  const sameAsNext = nextMessage && nextMessage.sender._id === message.sender._id;
+  const sameAsPrev =
+    prevMessage?.sender?._id === message?.sender?._id;
 
+  const sameAsNext =
+    nextMessage?.sender?._id === message?.sender?._id;
+
+  const { activeRoom } = useAppSelector(state => state.chat)
   const bubbleShape = useMemo(() => {
+    const isSingle = !sameAsPrev && !sameAsNext;
+
+    // 🟢 Single message → fully rounded
+    if (isSingle) {
+      return "rounded-full";
+    }
+
+    // 🟢 Grouped messages
     return isSender
-      ? `${sameAsNext ? "rounded-br-sm" : "rounded-br-xl"} ${sameAsPrev ? "rounded-tr-sm" : "rounded-tr-xl"} rounded-tl-xl rounded-bl-xl`
-      : `${sameAsNext ? "rounded-bl-sm" : "rounded-bl-xl"} ${sameAsPrev ? "rounded-tl-sm" : "rounded-tl-xl"} rounded-tr-xl rounded-br-xl`;
+      ? `
+        rounded-tl-2xl
+        rounded-bl-2xl
+        ${sameAsPrev ? "rounded-tr-sm" : "rounded-tr-2xl"}
+        ${sameAsNext ? "rounded-br-sm" : "rounded-br-2xl"}
+      `
+      : `
+        rounded-tr-2xl
+        rounded-br-2xl
+        ${sameAsPrev ? "rounded-tl-sm" : "rounded-tl-2xl"}
+        ${sameAsNext ? "rounded-bl-sm" : "rounded-bl-2xl"}
+      `;
   }, [isSender, sameAsNext, sameAsPrev]);
+  const showStatus = isSender && !sameAsNext;
 
   const bubbleColor = isSender ? "active-theme-button theme-text-primary" : "bg-zinc-700 theme-text-primary";
 
@@ -210,7 +220,7 @@ const MessageBubble: React.FC<IBubble> = ({
     dispatch(setEditMessage({ messageId: message._id, currentContent: message.content || "" }));
   }, [dispatch, message._id, message.content]);
 
-  const { unsendMessage } = useUnsendMessage(message.roomId, message._id, loggedInUser?._id!);
+  const { unsendMessage } = useUnsendMessage(activeRoom?._id!, message._id, loggedInUser?._id!);
 
   const handleUnsend = useCallback(() => {
     unsendMessage();
@@ -237,17 +247,24 @@ const MessageBubble: React.FC<IBubble> = ({
 
   const timestamp = useTimeAgo(message.createdAt);
 
-  const handleReply = useCallback(() => {
-    dispatch(
-      setReplyMessage({
-        messageId: message._id,
-        openReply: true,
-        isSender,
-        replyingUser: message?.sender?.fullName,
-        content: message.content ? message.content : "media",
-      })
-    );
-  }, [dispatch, isSender, message._id, message.content, message?.sender?.fullName]);
+const handleReply = useCallback(() => {
+  dispatch(
+    setReplyMessage({
+      messageId: message._id,
+      openReply: true,
+      isSender,
+      // Ab hum sirf string nahi, poora object bhej rahe hain
+      replyingUser: {
+        _id: message.sender?._id,
+        fullName: message.sender?.fullName,
+        username: message.sender?.username,
+        profilePic: message.sender?.profilePic,
+      },
+      content: message.content, 
+      media: message.media || [], // Media array ko bhi pass karein
+    })
+  );
+}, [dispatch, isSender, message]);
 
   // onMediaLoaded wrapper - called by MediaGrid/image on load
   const handleMediaLoadedWrapper = useCallback(() => {
@@ -258,7 +275,7 @@ const MessageBubble: React.FC<IBubble> = ({
 
   return (
     <div
-      className={`relative flex w-full ${isSender ? "justify-start flex-row-reverse" : "justify-start"} px-2 mb-1 ${sameAsPrev ? "mt-[1px]" : "mt-3"}`}
+      className={`relative flex w-full ${isSender ? "justify-start flex-row-reverse" : "justify-start"} py-[1px] ${sameAsPrev ? "mt-0" : "mt-1"}`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => {
         setShowActions(false);
@@ -266,26 +283,37 @@ const MessageBubble: React.FC<IBubble> = ({
       }}
     >
       {/* Avatar for receiver */}
-      {!isSender && (
-        <div className="flex items-end gap-1 mr-2">
-          {!sameAsNext ? <Avatar src={message?.sender?.profilePic} show={!sameAsNext} /> : <div className="w-8" />}
+      {!isSender && message?.content && !sameAsNext && (
+        <div className="flex items-end gap-1 mr-2 animate-fadeIn">
+          {!sameAsNext ? (
+            <Avatar
+              src={message?.sender?.profilePic}
+              show={!sameAsNext}
+            />
+          ) : (
+            <div className="w-8" />
+          )}
         </div>
       )}
 
-      <main className={`gap-1 max-w-[50%] flex flex-col justify-center ${isSender ? "items-end" : "items-start"}`}>
+
+      <main className={`gap-1 max-w-[50%]  flex flex-col justify-center ${isSender ? "items-end" : "items-start"}`}>
 
         {message.replyTo != null && <ReplyPreview replyTo={message.replyTo} isSender={isSender} />}
 
 
         {hasMedia && (
-          <div className={`relative w-full rounded-2xl overflow-hidden ${loader ? "opacity-80" : "opacity-100"}`}>
+          <div className={`relative w-full rounded-2xl overflow-hidden`}>
+            {(message?.status == "pending" && isSender) &&
+              <div className="absolute top-[45%] left-0 z-[888] w-full z-[9999]">
 
-            {(loader && hasMedia) && <div className="z-80 w-full h-full absolute opacity-100 bg-zinc-500/30 backdrop-blur-xs top-0 left-0 flex items-center justify-center">
-              <ProcessLoader size={50} color="var(--accent-primary)" thickness="3px" />
-            </div>}
+                <Loader />
+              </div>
+            }
+            <section className={`  ${(message?.status == "pending" && isSender) ? "opacity-70" : "opacity-100"}`}>
 
-
-            <MediaGrid media={message.media} onMediaLoaded={handleMediaLoadedWrapper} />
+              <MediaGrid media={message.media} onMediaLoaded={handleMediaLoadedWrapper} />
+            </section>
           </div>
         )}
 
@@ -300,54 +328,54 @@ const MessageBubble: React.FC<IBubble> = ({
             setMessageInfo(false);
             setShowMenu(false);
           }}
-          className={`relative w-fit emoji-input flex flex-col hover:cursor-pointer ${isEmojiOnly ? "" : "shadow-sm"} overflow-hidden ${isSender ? "items-end" : "items-start"}
-            ${isEmojiOnly ? "[&_img]:inline [&_img]:h-[1.2em] [&_img]:w-[1.3em]" : message?.isDeleted ? "bg-zinc-100/40" : bubbleColor}
-            ${bubbleShape} ${hasMedia ? "" : "px-2 py-2"} relative`}
+          className={`relative  w-fit emoji-input ${message.isDeleted && 'px-5'} flex flex-col hover:cursor-pointer ${isEmojiOnly ? "" : "shadow-sm"} overflow-hidden ${isSender ? "items-end" : "items-start animate-fadeIn"}
+            ${isEmojiOnly ? "[&_img]:inline [&_img]:h-[1.2em] [&_img]:w-[1.3em]" : message?.isDeleted ? "bg-zinc-500" : bubbleColor}
+            ${bubbleShape} ${hasMedia ? "" : "px-3 py-1"}`}
         >
           {/* Deleted placeholder */}
-          {message.isDeleted && message?.content === "This message was removed or is no longer accessible." ? (
-            <div className="w-full flex items-center justify-start">
-              <span className="text-sm text-zinc-200">Message unavailable</span>
-            </div>
-          ) : null}
+          {(message.isDeleted && message.type !== "text") && <span className="text-xs font-semibold theme-text-primary">Message unavailable</span>}
 
           {/* Text */}
           {hasText && (
-            <div className="flex items-center gap-1 justify-start">
-              {message.isEdited && <HiMiniArrowPath size={15} />}
-              <section>
+            <span className="flex items-center gap-1 justify-start ">
+              {message.isEdited && <TbPencil size={15} className="theme-text-muted"/>}
+              <span>
+                
                 <span
-                  className={`text-[12px] ${!isSender && !message.isDeleted ? "text-zinc-100" : ""} ${isEmojiOnly && !message?.isDeleted ? "text-[30px]" : !message.isDeleted ? "text-[16px]" : ""
-                    } whitespace-pre-line leading-snug ${hasMedia ? "px-4 py-1" : ""} ${message.isDeleted ? "italic text-gray-800 text-zinc-100/50" : ""}`}
-                  // renderWithEmoji output may be large; keep content in its own span
+                  className={`${message.isDeleted ?'text-[10px]':'text-[16px]'} ${!isSender && !message.isDeleted ? "text-zinc-100" : ""} ${isEmojiOnly && "text-[25px]"}
+                   whitespace-pre-line leading-snug ${hasMedia ? "px-4 py-2" : ""} ${message.isDeleted ? "italic text-gray-800 text-zinc-100/50" : ""}`}
                   dangerouslySetInnerHTML={renderWithEmoji(message.content || "")}
                 />
-              </section>
-            </div>
+              </span>
+            </span>
           )}
         </div>
+        {(showStatus && !message?.isDeleted) && (
+          <div className="top-1 right-0 text-[10px] theme-text-muted font-semibold">
+            {message.status === "pending" && "sending…"}
+            {message.status === "send" && "Send"}
+            {message.status === "seen" && "seen"}
+          </div>
+        )}
       </main>
 
       {/* Right-side actions for sender */}
       {showActions && !message.isDeleted && isSender && (
-        <div className="relative flex flex-col text-gray-300 items-end justify-end mr-1 gap-2 ">
+        <div className="relative flex flex-col  items-end theme-text-muted justify-end mr-1 gap-2 ">
           <ActionsPanel showMenu={showMenu} onCopy={handleCopy} onEdit={handleEdit} onUnsend={handleUnsend} hasText={hasText} />
 
-          <section className="flex items-center justify-between theme-bg-secondary backdrop-blur-md border theme-border p-1 rounded-xl gap-2">
-            <button title="Reply" className="hover:text-white py-1 hover:cursor-pointer rounded-full" onClick={handleReply}>
+          <section className="flex items-center justify-between rounded-xl gap-2">
+            <button title="Reply" className="hover:text-white  hover:cursor-pointer rounded-full" onClick={handleReply}>
               <LiaReplySolid size={18} />
             </button>
 
-            <button title="React" className="hover:text-white py-1 rounded-full hover:cursor-pointer" onClick={() => console.log("React", message._id)}>
+            <button title="React" className="hover:text-white  rounded-full hover:cursor-pointer" onClick={() => console.log("React", message._id)}>
               <Smile size={18} />
             </button>
 
-            <button title="More" className="hover:text-white py-1 rounded-full hover:cursor-pointer" onClick={() => setShowMenu((p) => !p)}>
+            <button title="More" className="hover:text-white  rounded-full hover:cursor-pointer" onClick={() => setShowMenu((p) => !p)}>
               <EllipsisVertical size={18} />
             </button>
-            {(isSender) && <span>
-              {message.status}
-            </span>}
           </section>
         </div>
       )}
@@ -355,13 +383,13 @@ const MessageBubble: React.FC<IBubble> = ({
       {/* Left-side actions for receiver */}
       {showActions && !isSender && (
         <section className="flex flex-col items-center justify-end w-fit ml-2">
-          <div className="flex items-end justify-center gap-1 w-fit theme-bg-secondary rounded-xl backdrop-blur-sm border p-1 theme-border">
+          <div className="flex items-end justify-center gap-1 w-fit ">
             {hasText && !message?.isDeleted && (
-              <button className="hover:text-white text-zinc-200 hover:cursor-pointer hover:scale-110 p-1 rounded-full" onClick={handleCopy}>
+              <button className="hover:text-white text-zinc-200 hover:cursor-pointer hover:scale-110 rounded-full" onClick={handleCopy}>
                 <TbCopy size={16} />
               </button>
             )}
-            <button className="hover:text-white text-zinc-200 hover:cursor-pointer hover:scale-110 p-1 rounded-full" onClick={handleReply}>
+            <button className="hover:text-white text-zinc-200 hover:cursor-pointer hover:scale-110 rounded-full" onClick={handleReply}>
               <LiaReplySolid size={18} />
             </button>
             <span className="text-xs theme-text-muted p-1">{timestamp}</span>
@@ -375,11 +403,11 @@ const MessageBubble: React.FC<IBubble> = ({
           <section className="text-xs px-2 w-fit h-fit flex items-center justify-center gap-1">
             <div className="border-3 rounded-full h-full theme-border" />
             {isSender && (
-              <div className={`text-xs ${message.status === "seen" ? "text-lime-600" : "text-zinc-500"} ${message.status === "failed" ? "text-red-700" : ""}`}>
+              <div>
                 {message.status}
               </div>
             )}
-            <div className="text-xs">{timestamp}</div>
+            {/* <div className="text-xs">{timestamp}</div> */}
           </section>
         </div>
       )}

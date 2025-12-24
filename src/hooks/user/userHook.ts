@@ -136,7 +136,8 @@ export const useFindUser = (query: string) => {
     queryKey: ["findUser", query],
     queryFn: async () => {
       try {
-        return await UserApi.findUser(query);
+        const result = await UserApi.findUser(query);
+        return result?.data
       } catch (error: any) {
         const message =
           error?.message || error?.response?.data?.message || "Failed to fetch user.";

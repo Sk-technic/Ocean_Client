@@ -1,107 +1,124 @@
 import { store } from "../../store";
 import { getSocket } from "../../api/config/socketClient";
-import { updateUserPresence, setBulkPresence } from "../../store/slices/chatList";
+import {
+  updateUserPresence,
+  setBulkPresence,
+} from "../../store/slices/chatList";
+import type { IParticipant } from "../../types/chat";
 
-let presenceListenerAttached = false;
-let lastSyncDone = false;
+/**
+ * Used to avoid unnecessary bulk re-sync
+ */
+let lastPresenceIdsKey = "";
 
-export const setupPresenceListener = () => {
-  if (presenceListenerAttached) return;
-  presenceListenerAttached = true;
+/**
+ * Stable handler references (VERY IMPORTANT)
+ */
+const handlePresenceUpdate = (payload: {
+  userId: string;
+  status: "online" | "offline";
+  lastActive?: number;
+}) => {
 
-  const socket = getSocket();
-  if (!socket) {
-    console.warn("⚠️ Socket not initialized yet");
-    return;
-  }
+    console.log("🟡 PRESENCE EVENT RECEIVED:", payload); // 👈 ADD THIS
 
-  // console.log("⚙️ Presence listener attached ✅");
+  const { userId, status, lastActive } = payload;
 
-  socket.on("user:status:update", (payload) => {
-    const { userId, status, lastActive } = payload;
-    // console.log("📡 PRESENCE UPDATE RECEIVED:", payload);
-
-    store.dispatch(
-      updateUserPresence({
-        userId,
-        isOnline: status === "online",
-        lastActive: typeof lastActive === "number" ? lastActive : Date.now(),
-      })
-    );
-  });
-
-  // 🔹 When socket connects (e.g. after refresh or reconnect)
-  socket.on("connect", () => {
-    // console.log(`🟢 Presence socket connected: ${socket.id}`);
-    trySyncPresence();
-  });
-
-  // 🔹 Also re-sync when Redux chat list updates
-  const unsubscribe = store.subscribe(() => {
-    const state = store.getState();
-    const chatRooms = state.chat.list;
-    const socketReady = socket.connected;
-
-    if (!lastSyncDone && socketReady && chatRooms.length > 0) {
-      console.log("🔁 Redux chat list updated — syncing presence now");
-      lastSyncDone = true;
-      trySyncPresence();
-    }
-  });
-
-  socket.on("disconnect", (reason) => {
-    console.log("❌ Presence socket disconnected:", reason);
-    lastSyncDone = false; // reset for next reconnect
-  });
-
-  // 🔹 Heartbeat to keep connection alive
-  setInterval(() => {
-    if (socket.connected) socket.emit("user:heartbeat");
-  }, 60000);
-
-  window.addEventListener("beforeunload", unsubscribe);
+  store.dispatch(
+    updateUserPresence({
+      userId,
+      isOnline: status === "online",
+      lastActive,
+    })
+  );
 };
 
-// 🔸 Emit fresh online status request
+const handleReconnect = () => {
+  lastPresenceIdsKey = "";
+  trySyncPresence();
+};
+
+/**
+ * Call ONCE after socket is connected
+ * (eg. after login / app bootstrap)
+ */
+export const setupPresenceListener = () => {
+  const socket = getSocket();
+  if (!socket) return;
+
+  // 🔥 attach with stable refs
+  socket.off("user:status:update", handlePresenceUpdate);
+  socket.on("user:status:update", handlePresenceUpdate);
+
+  socket.off("connect", handleReconnect);
+  socket.on("connect", handleReconnect);
+};
+
+/**
+ * Cleanup on logout / app destroy
+ */
+export const cleanupPresenceListener = () => {
+  const socket = getSocket();
+  if (!socket) return;
+
+  socket.off("user:status:update", handlePresenceUpdate);
+  socket.off("connect", handleReconnect);
+
+  lastPresenceIdsKey = "";
+};
+
+/**
+ * One-time or reconnect bulk presence sync
+ * (reads from Redis via socket)
+ */
 const trySyncPresence = () => {
   const socket = getSocket();
+  if (!socket || !socket.connected) return;
+
   const state = store.getState();
   const chatRooms = state.chat.list;
+  const selfId = state.auth.user?._id;
 
-  if (!socket?.connected) {
-    console.warn("⚠️ Socket not connected, skipping presence fetch");
-    return;
-  }
+  if (!chatRooms?.length) return;
 
-  if (!chatRooms || chatRooms.length === 0) {
-    console.warn("⚠️ No chat rooms found yet, waiting for data...");
-    return;
-  }
-
-  const allIds = chatRooms.flatMap((room) =>
-    room.participants.map((p) => p._id)
+  const userIds = Array.from(
+    new Set(
+      chatRooms
+        .flatMap((r) => r.participants?.map((p: IParticipant) => p._id))
+        .filter((id) => id && id !== selfId)
+    )
   );
 
-  // console.log("📡 Requesting online statuses for:", allIds);
+  if (!userIds.length) return;
+
+  // prevent unnecessary re-fetch
+  const key = userIds.slice().sort().join(",");
+  if (key === lastPresenceIdsKey) return;
+
+  lastPresenceIdsKey = key;
 
   socket.emit(
     "user:get_online_users",
-    allIds,
-    (statuses: { userId: string; isOnline: boolean; lastActive?: number | null }[]) => {
-      // console.log("📨 Received statuses from backend:", statuses);
+    userIds,
+    (statuses: Array<{
+      userId: string;
+      isOnline: boolean;
+      lastActive?: number;
+    }>) => {
+      if (!Array.isArray(statuses)) return;
 
-      if (Array.isArray(statuses) && statuses.length > 0) {
-        const sanitized = statuses.map((s) => ({
-          userId: s.userId,
-          isOnline: s.isOnline,
-          lastActive: typeof s.lastActive === "number" ? s.lastActive : Date.now(),
-        }));
-
-        store.dispatch(setBulkPresence(sanitized));
-        // console.log("✅ Presence synced successfully after refresh/reconnect");
-      } else {
-        console.warn("⚠️ Invalid or empty statuses response:", statuses);
-      }
+      store.dispatch(
+        setBulkPresence(
+          statuses.map((s) => ({
+            userId: s.userId,
+            isOnline: s.isOnline,
+            lastActive:
+              typeof s.lastActive === "number"
+                ? s.lastActive
+                : undefined,
+          }))
+        )
+      );
     }
   );
 };

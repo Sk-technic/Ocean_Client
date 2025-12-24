@@ -14,8 +14,8 @@ const {initialfetch} = useGetBlockedUsers()
   }, [])
 
   return (
-    <div className='w-full h-full flex items-center justify-between p-3'>
-      <main className='rounded-lg theme-border shadow-ld bg-transparent backdrop-blur-md w-full border h-full flex items-center justify-between p-3 gap-2'>
+    <div className='w-full  h-full flex items-center justify-between md:pl-[110px]'>
+      <main className='bg-transparent backdrop-blur-md w-full border-l-2 theme-border h-full flex items-center justify-between p-3 gap-2'>
         <section className='h-full'>
           <SettingNavigation />
         </section>

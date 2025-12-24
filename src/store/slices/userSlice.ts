@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { queryUser } from "../../types";
+import type { queryUser, User } from "../../types";
 
 interface UserPresence {
   status: "online" | "away" | "offline";
@@ -7,7 +7,7 @@ interface UserPresence {
 }
 
 interface UserState {
-  user: queryUser | null;
+  user: queryUser | User | null;
   isLoading: boolean;
   roomId: string | null;
   presences: Record<string, UserPresence>;
@@ -24,7 +24,7 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setqueryUser: (state, action: PayloadAction<queryUser>) => {
+    setqueryUser: (state, action: PayloadAction<queryUser|User>) => {
       state.user = action.payload;
       state.isLoading = false;
     },

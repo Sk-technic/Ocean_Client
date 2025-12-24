@@ -40,7 +40,7 @@ const NavButton: React.FC<NavButtonProps> = ({
     flex items-center rounded-xl w-full relative
     transition-all duration-300 ease-in-out p-2
     font-medium select-none group
-    ${collapsed ? "justify-center" : "justify-center md:justify-start gap-3"}
+    ${collapsed ? "justify-center" : "justify-center md:justify-start gap-3 pr-10 "}
     ${isActive
           ? "active-theme-button"
           : "theme-text-primary theme-hover-effect"}

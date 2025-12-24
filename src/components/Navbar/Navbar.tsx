@@ -24,7 +24,7 @@ const Sidebar: React.FC<{
 }> = ({ setmenu }) => {
   const [showSearchBox, setShowSearchBox] = useState(false);
   const [notificationbox, setShowNotification] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const searchWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -71,7 +71,7 @@ const handlecontrol = (label:string) => {
   const {theme} = useTheme()
   return (
     <aside
-      className={`relative z-[900] h-fit md:h-full ${collapsed && 'md:px-2'} flex md:flex-col md:justify-between theme-text-primary transition-all duration-300 ease-in-out`}
+      className={`relative z-[999] h-fit md:h-full ${collapsed && 'md:px-2'} flex md:flex-col md:justify-between border-r-2 theme-border theme-text-primary transition-all duration-300 ease-in-out`}
     >
 
               {/* ─────── slides ─────── */}
@@ -80,9 +80,9 @@ const handlecontrol = (label:string) => {
         ref={searchWrapperRef}
         className={`
           absolute flex flex-col overflow-hidden
-          transition-all duration-500 ease-out
+          transition-all duration-300 ease-out
           ${showSearchBox
-            ? "opacity-100 border-r-2 theme-border duration-500 rounded-xl translate-x-[0px]"
+            ? "opacity-100 border-r-5 theme-border translate-x-[0px]"
             : "opacity-0 -translate-x-30 pointer-events-none"
           }
         `}
@@ -100,8 +100,8 @@ const handlecontrol = (label:string) => {
       <div
         ref={NotificationWrapperRef}
         className={`
-          absolute flex flex-col overflow-hidden duration-1000 shadow-md
-          transition-all duration-500 ease-out
+          absolute flex flex-col overflow-hidden  shadow-md
+          transition-all duration-300 ease-out
           ${notificationbox
             ? "opacity-100 translate-x-[0px]"
             : "opacity-0 -translate-x-30 pointer-events-none"
@@ -131,12 +131,12 @@ const handlecontrol = (label:string) => {
         <div
           className={`flex md:flex-col justify-center gap-3 p-3 `}
         >
-          {navItems.map((item) => {
+          {navItems.map((item,index) => {
             const isRouteActive = item.to ? location.pathname === item.to : false;
             const isActive = activeKey === item.key || (isRouteActive && activeKey === null);
 
             return (
-              <div className="w-full" onClick={()=>handlecontrol(item.label)}>
+              <div key={index} className="w-full" onClick={()=>handlecontrol(item.label)}>
 
               <NavButton
                 key={item.key || item.label}

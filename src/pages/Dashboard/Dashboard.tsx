@@ -11,9 +11,9 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* Vertical navigation */}
-      <section className="pr-4 h-full flex flex-col items-center justify-center">
+      {/* <section className="pr-4 h-full flex flex-col items-center justify-center">
         <ProfileVerticalNav />
-      </section>
+      </section> */}
     </main>
   );
 };

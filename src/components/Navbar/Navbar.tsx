@@ -71,7 +71,7 @@ const handlecontrol = (label:string) => {
   const {theme} = useTheme()
   return (
     <aside
-      className={`relative z-[999] h-fit md:h-full ${collapsed && 'md:px-2'} flex md:flex-col md:justify-between border-r-2 theme-border theme-text-primary transition-all duration-300 ease-in-out`}
+      className={`relative z-[999] px-1 h-fit md:h-full flex md:flex-col md:justify-between border-r-5 theme-border theme-text-primary transition-all duration-300 ease-in-out`}
     >
 
               {/* ─────── slides ─────── */}
@@ -100,7 +100,7 @@ const handlecontrol = (label:string) => {
       <div
         ref={NotificationWrapperRef}
         className={`
-          absolute flex flex-col overflow-hidden  shadow-md
+          absolute flex flex-col overflow-hidden shadow-md
           transition-all duration-300 ease-out
           ${notificationbox
             ? "opacity-100 translate-x-[0px]"
@@ -129,7 +129,7 @@ const handlecontrol = (label:string) => {
         </div>
         {/* ─────── Nav Buttons ─────── */}
         <div
-          className={`flex md:flex-col justify-center gap-3 p-3 `}
+          className={`flex md:flex-col justify-center gap-1`}
         >
           {navItems.map((item,index) => {
             const isRouteActive = item.to ? location.pathname === item.to : false;
@@ -157,12 +157,12 @@ const handlecontrol = (label:string) => {
 
       {/* ─────── Bottom Menu ─────── */}
       <div
-        className="relative p-2 hidden md:flex  items-center"
+        className="relative mb-1 hidden md:flex  items-center"
       >
         <div ref={menuRef} className="relative theme-text-primary w-full">
           <button
             onClick={() => setmenu((p) => !p)}
-            className={`flex items-center ${collapsed?"justify-center p-2":"p-2 gap-3"} rounded-xl w-full transition-all`}
+            className={`flex items-center ${collapsed?"justify-center p-3":"p-3 gap-3"} rounded-xl w-full transition-all`}
             style={{ backgroundColor: "transparent" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = "var(--accent-secondary-hover)")
@@ -171,7 +171,7 @@ const handlecontrol = (label:string) => {
               (e.currentTarget.style.backgroundColor = "transparent")
             }
           >
-            <TbMenu4 size={25} strokeWidth={2} />
+            <TbMenu4 size={20} strokeWidth={2} />
             {!collapsed && <span className="text-sm hidden md:flex">Menu</span>}
           </button>
         </div>

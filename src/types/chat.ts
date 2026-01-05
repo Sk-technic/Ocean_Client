@@ -70,11 +70,15 @@ export interface ChatRoom {
   membersHash?:string;
   type: "dm"|"group";
   groupAdmin?: string[];
+  admins?:string[];
   lastMessageMeta?: LastMessageMeta;
   participants: IParticipant[];
   status:string;
   createdBy?:string;
   blockedMe?:boolean;
+  unreadCount?: number;
+  isMuted: boolean;
+
 }
 
 
@@ -89,6 +93,8 @@ export interface IParticipant {
   lastActive?: number | Date;
   unreadCount?: number;
   isMuted?: boolean;
+    status:string;
+type?:"dm"|"group";
   isArchived?: boolean;
   roomId?:string;
   isBlocked?:boolean;

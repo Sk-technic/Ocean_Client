@@ -77,7 +77,6 @@ const MessageList: React.FC = () => {
     }
   }, [allMessages.length, isMe, isAtBottom, scrollToBottom]);
 
-  // 🔑 CONDITION AB YAHAN AAYEGI (Sare hooks ke niche)
   if (allMessages.length === 0 && isLoading) {
     return <div className="flex-1 flex items-center justify-center text-gray-400">Loading messages...</div>;
   }
@@ -112,11 +111,18 @@ const MessageList: React.FC = () => {
       />
      
      {/* Typing Indicator UI */}
-     { typingUsers.length > 0 &&
-      <div className="border-3 ml-5 w-fit theme-bg-primary theme-border rounded-r-xl rounded-tl-xl">
+     {/* { typingUsers &&
+     <main className="w-fit ml-5 flex items-end justify-start gap-1 rounded-r-xl rounded-tl-xl overflow-hidden">
+
+      <div className="w-full ">
         <TypingIndicator/>
       </div>
-     }
+
+     </main>
+     } */}
+     {/* {
+       <span>{typingNames()}</span>
+     } */}
 
       {/* Manual Scroll Button */}
       {!isAtBottom && !isMe && allMessages.length > 0 && (
@@ -135,156 +141,3 @@ const MessageList: React.FC = () => {
 };
 
 export default MessageList;
-
-// import {
-//   addMessage,
-//   clearRoomMessages,
-//   setMessages,
-//   updateMessage,
-//   updateSeen,
-// } from "../../../store/slices/messages/messages";
-// import {
-//   clearLastMessage,
-//   setActiveRoom,
-//   updateLastMessage,
-// } from "../../../store/slices/chatList";
-// import Loader from "../../../components/Loader/Loader";
-// initialTopMostItemIndex={messages.length}
-// followOutput={false}
-// increaseViewportBy={0}
-// startReached={loadMore}
-// overscan={0}
-// atBottomStateChange={(bottom) => setIsAtBottom(bottom)}
-// computeItemKey={(index, item) => item._id}
-// rangeChanged={(range) => {
-//   for (let i = range?.startIndex; i <= range?.endIndex; i++) {
-//     const msg = messages[i];
-//     if (!msg) continue;
-//     if (msg.status != "seen") {
-//       const seenUser = msg?.seenBy?.find((u: any) =>  u?.user?._id?.toString() === loggedInUser?._id?.toString());
-//       console.log(seenUser);
-
-//       if (!seenUser) {
-//         console.log("user not found");
-
-//         socket?.emit("message:seen", {
-//           userId: loggedInUser?._id,
-//           roomId: msg.roomId,
-//           messageId: msg?._id
-//         });
-//       }
-//     }
-
-//   }
-// }}
-
-// loadOlderMessages,
-// hasMore,
-// isLoading,
-// roomId
-
-/* ------------------------------------------------------
-      LOAD OLDER MESSAGES ON SCROLL TOP
-  ------------------------------------------------------ */
-// const loadMore = async () => {
-//   if (!hasMore) return;
-//   await loadOlderMessages();
-// };
-
-/* ------------------------------------------------------
-      SOCKET EVENTS (unsend / edit / clear)
-  ------------------------------------------------------ */
-
-// useEffect(() => {
-//   if (!socket) return;
-
-//   const handleUnsend = (payload: Record<string, Message>) => {
-//     dispatch(updateMessage(payload.message));
-//   };
-
-//   const handleEdit = (payload: Record<string, Message>) => {
-//     dispatch(updateMessage(payload.message));
-//   };
-
-//   const handleClearSuccess = ({
-//     roomId,
-//     byUser,
-//   }: {
-//     roomId: string;
-//     byUser: string;
-//   }) => {
-//     if (byUser !== loggedInUser?._id) return;
-
-//     dispatch(clearRoomMessages());
-//     dispatch(clearLastMessage({ roomId }));
-//   };
-
-//   socket.on("message:unsent", handleUnsend);
-//   socket.on("message:edit:success", handleEdit);
-//   socket.on("clear:chat:success", handleClearSuccess);
-//   return () => {
-//     socket.off("message:unsent", handleUnsend);
-//     socket.off("message:edit:success", handleEdit);
-//     socket.off("clear:chat:success", handleClearSuccess);
-
-//   };
-// }, [socket, loggedInUser]);
-
-//new message
-// useEffect(() => {
-//   if (!socket) return;
-//   // const handleReadMessages = (data: { userId: string, roomId: string }) => {
-//   //   const socket = getSocket()
-//   //   socket?.emit("room:read", data)
-//   // }
-//   const handleNewMessage = (newMessage: any) => {
-//     if (activeRoom) {
-//       if (newMessage.roomId === activeRoom?._id) {
-//         dispatch(addMessage(newMessage));
-//         // handleReadMessages({ userId: loggedInUser?._id!, roomId: newMessage?.room?._id })
-//       }
-//     }
-//   };
-//   socket?.on("chat:new_message", handleNewMessage);
-//   return () => {
-//     socket?.off("chat:new_message", handleNewMessage);
-//   };
-// }, [socket, activeRoom?._id]);
-
-//new dm
-// useEffect(() => {
-//   const handleAddMessage = (data: any) => {
-//     if (dmUser) {
-//       const room = list.find((u) => u.participants.some((p) => p?._id === dmUser?._id))
-//       if (!room) {
-//         dispatch(addMessage(data?.message))
-//       }
-//     }
-//   }
-//   socket?.on("room:update", handleAddMessage)
-//   return () => {
-//     socket?.off("room:update", handleAddMessage);
-//   };
-// }, [dmUser])
-
-// useEffect(() => {
-//   if (!isAtBottom) return;
-//   requestAnimationFrame(() => {
-//     virtuosoRef.current?.scrollToIndex({
-//       index: messages.length - 1,
-//       behavior: "auto"
-//     });
-//   });
-// }, [messages.length]);
-
-// useEffect(()=>{
-//   if(!socket)return;
-//    const handleseenMessages = (message: any) => {
-//     dispatch(updateSeen(message))
-//     }
-//       socket?.on("message:seen:success", handleseenMessages);
-// return ()=>{
-//         socket?.off("message:seen:success", handleseenMessages);
-
-// }
-// },[socket])

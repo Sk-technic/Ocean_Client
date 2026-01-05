@@ -35,16 +35,16 @@ const NotificationInbox: React.FC = () => {
     })
   }
 
-const {mutateAsync:MuteFollow} = useMuteFollow()
-  const handleBlock = (data:any)=>{
-        MuteFollow(data?.actor?._id,{
-          onSuccess:()=>{
-            toast.success("user muted")
-                    dispatch(removeNotification({ notificationId: data?._id }))
+// const {mutateAsync:MuteFollow} = useMuteFollow()
+//   const handleBlock = (data:any)=>{
+//         MuteFollow(data?.actor?._id,{
+//           onSuccess:()=>{
+//             toast.success("user muted")
+//                     dispatch(removeNotification({ notificationId: data?._id }))
 
-          }
-        })
-  }
+//           }
+//         })
+//   }
 
 
 
@@ -144,7 +144,7 @@ const {mutateAsync:MuteFollow} = useMuteFollow()
                       rejected
                     </button>
                     {/* border-red-500/40 */}
-                    <button
+                    {/* <button
                     onClick={()=>handleBlock(n)}
                       className="
                           px-3 py-2 rounded-xl theme-bg-secondary  shadow-lg 
@@ -160,7 +160,7 @@ const {mutateAsync:MuteFollow} = useMuteFollow()
                       aria-label="reject"
                     >
                       block
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               )}

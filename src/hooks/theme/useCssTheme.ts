@@ -16,7 +16,7 @@ export const useCssTheme = () => {
     // Helper to check current theme
     isDark: resolvedTheme === 'dark',
     isLight: resolvedTheme === 'light',
-    isSystem: theme === 'system',
+    isSystem: theme === 'dark',
     
     // CSS variable classes
     classes: {

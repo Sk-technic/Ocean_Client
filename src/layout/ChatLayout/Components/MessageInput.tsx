@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CiImageOn } from "react-icons/ci";
 import MediaPreview from "./MediaPreview";
 import { getSocket } from "../../../api/config/socketClient";
 import type { User } from "../../../types";
-import { Smile, Heart, Mic, Divide } from "lucide-react";
+import { Smile, Heart, Mic, Divide, Cross } from "lucide-react";
 import { useTyping } from "../../../hooks/chat/chatEvents";
 import EmojiPicker, { type EmojiClickData, Theme, EmojiStyle, SkinTones } from "emoji-picker-react";
 import { useTheme } from "../../../hooks/theme/usetheme";
@@ -19,25 +19,24 @@ import { optimisticEditMessage, useSendMedia, useSendMediaOptimistic, useSendMes
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { optimizeUrl } from "../../../utils/imageOptimize";
+import { RxCross2 } from "react-icons/rx";
+import { FaCog, FaUserSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { useUnBlockUser } from "../../../hooks/user/userHook";
+import { updateUnBlockedUser } from "../../../store/slices/chatList";
 
 interface MessageInputProps {
-    // sendMessage: string;
-    // setSendMessage: React.Dispatch<React.SetStateAction<string>>;
     selectedFiles: File[];
     setSelectedFiles: React.Dispatch<React.SetStateAction<File[]>>;
     loggedInUser: User | null;
     RoomCreater: string;
     user?: User | undefined | null
-
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({
-    // sendMessage,
-    // setSendMessage,
     selectedFiles,
     setSelectedFiles,
     loggedInUser,
-    RoomCreater,
     user: dmUser
 }) => {
     const socket = getSocket();
@@ -111,15 +110,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
     };
 
     const { messageId: replymessageId, openReply, isSender, content, replyingUser, media } = useAppSelector((state) => state.replyMessage);
-
-    console.log("reply list :",
-        replymessageId,
-        openReply,
-        isSender,
-        content,
-        replyingUser,
-        media
-    );
 
     //send text message 
     const handleSend = (e: React.FormEvent<HTMLFormElement>) => {
@@ -199,22 +189,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
         dispatch(closeReplyMessage());
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     const { editingMessageId, newContent } = useAppSelector((state) => state.editMessage);
 
     useEffect(() => {
@@ -257,58 +231,87 @@ const MessageInput: React.FC<MessageInputProps> = ({
         handleremoveEditing()
     };
 
-
-    const AcceptMessageRequest = (userId: string, roomId: string, createdBy: string) => {
+    const AcceptMessageRequest = (userId: string, roomId: string, createdBy: string | undefined) => {
         if (!socket) return;
         socket?.emit("accept:message_request", { userId, roomId, createdBy })
     }
 
+    const participant = activeRoom?.participants.find((u) => u?._id !== loggedInUser?._id)
+
+    const { mutateAsync: unblock } = useUnBlockUser()
+    const handleUnblock = (id: string) => {
+        unblock(id, {
+            onSuccess: (res) => {
+                const { targetUser, status, roomId } = res.data;
+                dispatch(updateUnBlockedUser({ roomId, set: status, targetUser }))
+            }
+        })
+    }
     return (
-        (activeRoom?.status == "request" && RoomCreater != loggedInUser?._id) ?
-            (<div className="w-full px-6 py-6 mb-5  backdrop-blur-xl border-t-2 theme-border flex flex-col items-center text-center">
+        <>
+            {(activeRoom?.status == "request" && activeRoom.createdBy !== loggedInUser?._id) &&
+                (<div className="w-full px-6 py-6 mb-5  backdrop-blur-xl border-t-2 animate-fadeIn transition-all easy-in-out theme-border flex flex-col items-center text-center">
 
-                <h3 className="text-lg font-semibold theme-text-primary tracking-wide mb-1 flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
-                    Message Request
-                </h3>
+                    <h3 className="text-lg font-semibold theme-text-primary tracking-wide mb-1 flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        Message Request
+                    </h3>
 
-                <p className="text-[13px] text-gray-400 max-w-md leading-relaxed mb-4">
-                    {isSender
-                        ? "Your message request is awaiting approval. The user must Confirm it before the chat becomes active."
-                        : "This user wants to send you a message. Confirm the request to start chatting or Cancel it to hide the conversation."}
-                </p>
+                    <p className="text-[13px] text-gray-400 max-w-md leading-relaxed mb-4">
+                        {isSender
+                            ? "Your message request is awaiting approval. The user must Confirm it before the chat becomes active."
+                            : "This user wants to send you a message. Confirm the request to start chatting or Cancel it to hide the conversation."}
+                    </p>
 
-                {!isSender && (
-                    <div className="flex items-center gap-4">
-                        <PrimaryButton
-                            onClick={() => AcceptMessageRequest(loggedInUser?._id!, activeRoom?._id, RoomCreater)}
-                            fullWidth={false}
-                            width="fit px-8 py-2"
-                            label="Confirm"
+                    {!isSender && (
+                        <div className="flex items-center gap-4">
+                            <PrimaryButton
+                                onClick={() => AcceptMessageRequest(loggedInUser?._id!, activeRoom?._id!, activeRoom?.createdBy)}
+                                fullWidth={false}
+                                width="fit px-8 py-2"
+                                label="accept"
+                            />
 
-                        />
+                            <PrimaryButton
+                                cancel
+                                fullWidth={false}
+                                width="fit px-8 py-2"
+                                label="remove" />
+                        </div>
+                    )}
 
-                        <PrimaryButton
-                            cancel
-                            fullWidth={false}
-                            width="fit px-8 py-2"
-                            label="Cancel" />
-                    </div>
-                )}
+                    {/* Sender message */}
+                    {isSender && (
+                        <span className="text-[12px] text-gray-500 italic mt-2">
+                            Waiting for user to respond…
+                        </span>
+                    )}
+                </div>)}
 
-                {/* Sender message */}
-                {isSender && (
-                    <span className="text-[12px] text-gray-500 italic mt-2">
-                        Waiting for user to respond…
-                    </span>
-                )}
-            </div>)
-            :
-            (<div className="flex items-center justify-center mt-1">
+            {((activeRoom?.status == "active" && !participant?.isBlocked)||(dmUser)) && (<div className="p-2 animate-fadeIn flex flex-col items-start  justify-center mt-1">
+
+                <div className={`absolute top-22 ${showEmojiPicker ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-50'} duration-300`}>
+                    <EmojiPicker
+                        theme={theme === "dark" ? Theme.DARK : Theme.LIGHT}
+                        onEmojiClick={handleEmojiClick}
+                        emojiStyle={EmojiStyle.GOOGLE}
+                        height={350}
+                        width={500}
+                        defaultSkinTone={SkinTones.LIGHT}
+                        searchPlaceHolder="Search Emojis..."
+                        lazyLoadEmojis
+                        previewConfig={{ showPreview: false }}
+                    />
+                    {
+                        showEmojiPicker &&
+                        <span className="absolute -right-4 hover:scale-120 duration-300 cursor-pointer" onClick={handleShowEmoji}><RxCross2 /></span>
+                    }
+
+                </div>
+
                 <main
                     className={`relative w-full border-5 theme-border gap-3 dark:bg-transparent backdrop-blur-2xl duration-500 transition-all easy-in-out flex flex-col justify-center items-center relative p-3 ${(openReply || editMsgId) ? 'rounded-3xl' : 'rounded-4xl'}`}
                 >
-                    {/* rounded-full dark:bg-transparent backdrop-blur-2xl rounded-full p-3 border-5 theme-border*/}
 
                     {
                         openReply &&
@@ -345,16 +348,17 @@ const MessageInput: React.FC<MessageInputProps> = ({
                     }
 
 
-                        {selectedFiles.length > 0 && (
-                    <div className="relative w-full animate-fadeInX">
+                    {selectedFiles.length > 0 && (
+                        <div className="relative w-full animate-fadeInX">
                             <MediaPreview
                                 files={selectedFiles}
                                 onRemove={(i) =>
                                     setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i))
                                 }
                             />
-                    </div>
-                        )}
+                        </div>
+                    )}
+
                     <form
                         onSubmit={handleSend}
                         className={` rounded-full l flex gap-3 w-full
@@ -362,48 +366,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
                     >
 
 
-                        {showEmojiPicker && (
-                            <div
-                                className="absolute bottom-14 left-0 z-50 animate-slideUp transition-all duration-300"
-                            >
-                                <EmojiPicker
-                                    theme={theme === "dark" ? Theme.DARK : Theme.LIGHT}
-                                    onEmojiClick={handleEmojiClick}
-                                    emojiStyle={EmojiStyle.GOOGLE}
-                                    height={350}
-                                    width={350}
-                                    defaultSkinTone={SkinTones.LIGHT}
-                                    searchPlaceHolder="Search Emojis..."
-                                    lazyLoadEmojis
-                                    previewConfig={{ showPreview: false }}
 
-                                />
-                            </div>
-                        )}
-
-                        <button type="button">
+                        <button type="button" className="cursor-pointer">
                             <Smile onClick={handleShowEmoji} />
                         </button>
-                        {/* {editMsgId && <div className=" flex items-start justify-start gap-2 absolute bottom-13 z-90 border-t theme-border w-[50%] py-3 bg-black/30 backdrop-blur-sm text-md hover:cursor-pointer" onClick={handleremoveEditing}>
-                            <FiEdit2 size={18} title="Cancel Editing" strokeWidth={2} />
-                            <span className="text-[14px]">Edit message</span>
-                            <div className="absolute top-1 right-1" onClick={handleRemoveReply}>
-                                <IoIosClose size={25} />
-                            </div>
-                        </div>} */}
 
-                        {/* {
-                            openReply && <div className=" flex items-start justify-start gap-2 absolute bottom-13 z-90 border-t theme-border w-[35%] py-2 bg-black/30 backdrop-blur-sm text-md hover:cursor-pointer">
-                                <LiaReplySolid size={20} title="Cancel Reply" />
-                                <div className="flex flex-col items-start justify-center gap-1">
-                                    <span className="text-[11px]"><span>Reply to </span><span className="font-semibold text-[14px]">{`${isSender ? 'youself' : `${replyingUser}`}`}</span></span>
-                                    <span className="text-xs">{content && content.length > 30 ? content.slice(0, 30) + ' ...' : content ?? ''}</span>
-                                </div>
-                                <div className="absolute top-1 right-1" onClick={handleRemoveReply}>
-                                    <IoIosClose size={25} />
-                                </div>
-                            </div>
-                        } */}
                         <input
                             type="text"
                             className="w-full bg-transparent outline-none emoji-input"
@@ -439,7 +406,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                             editingMessageId && (
                                 <span
                                     onClick={handleEdit}
-                                    className="theme-text-muted hover:cursor-pointer select-none"
+                                    className="theme-text-muted cursor-pointer select-none"
                                 >
                                     Update
                                 </span>
@@ -447,7 +414,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                         }
                         {
 
-                            !editingMessageId && <button type="button">
+                            !editingMessageId && <button type="button" className="cursor-pointer">
                                 <Mic />
                             </button>
                         }
@@ -465,13 +432,67 @@ const MessageInput: React.FC<MessageInputProps> = ({
                             </label>
                         )}
 
-                        <button onClick={handleSendLove}>
+                        <button onClick={handleSendLove} className="cursor-pointer">
                             <Heart />
                         </button>
                     </form>
                 </main>
-            </div>
-            ));
+            </div>)}
+
+
+            {(participant?.isBlocked) && (
+                <div className="w-full absolute  flex items-center justify-center ">
+                    <div className="max-w-md w-full rounded-2xl border theme-border mb-5 z-[9999] mr-5 bg-opacity-70 backdrop-blur-xl p-6 text-center animate-fadeIn">
+
+                        {/* Icon */}
+                        <div className="flex justify-center mb-4">
+                            <div className="w-14 h-14 flex items-center justify-center rounded-full bg-red-500/10">
+                                <FaUserSlash className="text-red-500 text-2xl" />
+                            </div>
+                        </div>
+
+                        {/* Title */}
+                        <h2 className="text-lg font-semibold theme-text-primary mb-2">
+                            You’ve blocked {participant?.fullName || "this user"}
+                        </h2>
+
+                        {/* Description */}
+                        <p className="text-sm theme-text-muted leading-relaxed mb-6">
+                            Messaging is disabled for this conversation.
+                            You can unblock the user to resume chatting, or manage this action
+                            from your privacy settings.
+                        </p>
+
+                        {/* Actions */}
+                        <div className="flex items-center justify-center gap-4">
+                            {/* Primary */}
+
+                            <PrimaryButton
+                                label="Unblock User"
+                                fullWidth={false}
+                                width="px-6 py-2"
+                                onClick={() => handleUnblock(participant?._id)}
+                            />
+
+
+                            {/* Secondary */}
+
+                            <Link
+                                to={'/settings/privacy_settings/blocked'}
+                                className="flex items-center gap-2 px-5 py-2 text-sm rounded-2xl border-2 theme-border theme-text-muted hover:theme-text-primary hover:bg-gray-100/10 transition"
+                            >
+                                <FaCog size={14} />
+                                Manage in Settings
+                            </Link>
+
+                        </div>
+                    </div>
+                </div>
+            )
+
+            }
+        </>
+    )
 };
 
 export default MessageInput;

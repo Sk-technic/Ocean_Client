@@ -14,9 +14,9 @@ export function initMessageListner() {
 
   console.log("🔥 Message listener initialized");
 
-  socket.on("accept:message_request:success", (room:ChatRoom) => {
-    console.log("room",room);
+  socket.on("accept:message_request:success", (data:ChatRoom) => {
+    console.log("room",data);
     
-    store.dispatch(acceptMessageRequest({roomId:room?._id,status:room?.status}))
+    store.dispatch(acceptMessageRequest({roomId:data?._id,status:data?.status}))
   });
 }

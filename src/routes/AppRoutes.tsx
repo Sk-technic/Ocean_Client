@@ -6,9 +6,8 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../store";
 import NotFound from "../pages/NotFound/Notfound";
 import ChatPage from "../pages/Chat/ChatPage";
-import { AccountPrivary } from "../layout/settings/PrivacySettings/AccountPrivary";
 import VerifyOtp from "../components/ui/auth/verifyOtp/VerifyOtp";
-import ChangePasswordFlow from "../layout/settings/components/ChangePasswordFlow.tsx";
+
 const LoginPage = lazy(() => import("../pages/Login/Login"));
 const SignupPage = lazy(() => import("../pages/Signup/Signup"));
 const HomePage = lazy(() => import("../pages/Home/Home"));
@@ -16,7 +15,7 @@ const SettingsLayout = lazy(() => import("../layout/settings/SettingsLayout"))
 const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
 const ContentSection = lazy(() => import("../pages/Content/Content"));
 const ProfilePage = lazy(() => import("../layout/ProfileLayout/ProfileLayout"));
-const UserProfilePage = lazy(() => import("../pages/userProfile/userProfile"));
+const UserProfilePage = lazy(() => import("../layout/userProfileLayout/component/UserProfileComponent.tsx"));
 const ExplorePage = lazy(() => import("../pages/ExplorePage/ExplorePage"));
 const NotificationPage = lazy(() => import("../pages/Notification/Notification"));
 const AuthSuccess = lazy(() => import("../layout/AuthSuccess/AuthSuccess"))

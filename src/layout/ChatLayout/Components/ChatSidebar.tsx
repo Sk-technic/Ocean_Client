@@ -4,16 +4,17 @@ import SearchInput from "../../../components/searchHeader/SearchComponent";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { getSocket } from "../../../api/config/socketClient";
-import { ClearActiveRoom, setActiveRoom } from "../../../store/slices/chatList";
+import { addChatRoom, ClearActiveRoom, setActiveRoom, updateCount } from "../../../store/slices/chatList";
 import { optimizeUrl } from "../../../utils/imageOptimize";
-import { BiEdit } from "react-icons/bi";
+import { BiGroup } from "react-icons/bi";
 import { clearUser } from "../../../store/slices/userSlice";
 import { clearRoomMessages } from "../../../store/slices/messages/messages";
 import { Virtuoso } from "react-virtuoso";
 import '../chat.css'
-import toast from "react-hot-toast";
 import { useChatUsers } from "../../../hooks/chat/chatHook";
 import Loader from "../../../components/Loader/Loader";
+import { HiOutlineBellSlash } from "react-icons/hi2";
+
 const ChatSidebar: React.FC<{
   selectedRoomId: string | null;
   onSelectRoom: (roomId: string) => void;
@@ -21,13 +22,13 @@ const ChatSidebar: React.FC<{
   navigate: (path: string) => void;
   onSetRoomCreater: (value: string) => void;
   onSetBlockedMe: (value: boolean) => void;
-  onSetGroupSlider: (value: boolean) => void;
+  onSetGroupSlider: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({ selectedRoomId, onSetGroupSlider }) => {
 
 
 
 
-  const { list: Users } = useAppSelector((state) => state.chat);
+  const { list: Users, activeRoom } = useAppSelector((state) => state.chat);
 
   const loading = useAppSelector((state) => state.chat.loading);
   const { user: loggedInUser } = useAppSelector((state) => state.auth);
@@ -45,19 +46,25 @@ const ChatSidebar: React.FC<{
     if (!Users) return [];
     if (!debouncedSearch) return Users;
 
-    const matched = Users.filter((u) => {
-      const p = u.participants.find((p) => p._id !== loggedInUser?._id);
+    return Users.filter((u) => {
+      if (u.type === "group") {
+        return u.name
+          ?.toLowerCase()
+          .includes(debouncedSearch);
+      }
+
+      const p = u.participants.find(
+        (p) => p._id !== loggedInUser?._id
+      );
       if (!p) return false;
+
       return (
         p.fullName?.toLowerCase().includes(debouncedSearch) ||
         p.username?.toLowerCase().includes(debouncedSearch)
       );
     });
-
-
-    const unmatched = Users.filter((u) => !matched.includes(u));
-    return [...matched, ...unmatched];
   }, [Users, debouncedSearch, loggedInUser?._id]);
+
   const optimizeUrl = (url: string) => url.replace("/upload/", "/upload/w_300,q_auto,f_auto/");
   const socket = getSocket()
   const dispatch = useAppDispatch();
@@ -93,12 +100,10 @@ const ChatSidebar: React.FC<{
     dispatch(setActiveRoom(u));
   };
 
+  const [isActiveTab, setIsActiveTab] = useState<'all' | 'unread' | 'group' | 'request'>('all');
 
-
-  const [isActiveTab, setIsActiveTab] = useState<'all' | 'unread' | 'blocked' | 'request'>('all');
-
-  const handleMutedlist = () => {
-    setIsActiveTab('blocked');
+  const handleGrouplist = () => {
+    setIsActiveTab('group');
   }
   const handleAlllist = () => {
     setIsActiveTab('all');
@@ -116,6 +121,14 @@ const ChatSidebar: React.FC<{
     if (isActiveTab === "all") return filteredUsers;
 
     return filteredUsers.filter((u) => {
+    
+      if (u.type === "group") {
+        if (isActiveTab === "request") {
+          return u.status === "request";
+        }
+        return true;
+      }
+
       const participant = u.participants.find(
         (p: any) => p._id !== loggedInUser?._id
       );
@@ -125,19 +138,21 @@ const ChatSidebar: React.FC<{
 
       if (!participant) return false;
 
-      if (isActiveTab === "blocked") {
-        return participant.isBlocked === true;
-      }
 
       if (isActiveTab === "unread") {
         return (me?.unreadCount ?? 0) > 0;
       }
+
       if (isActiveTab === "request") {
-        return (u.status == "request");
+        return u.status === "request";
+      }
+  if (isActiveTab === "group") {
+        return participant.type === "group";
       }
       return true;
     });
   }, [filteredUsers, isActiveTab, loggedInUser?._id]);
+
 
   const { isConnected } = useAppSelector(state => state.socket)
   const {
@@ -147,12 +162,43 @@ const ChatSidebar: React.FC<{
   } = useChatUsers(loggedInUser?._id, isConnected);
 
 
+  useEffect(() => {
+    const handleUnreadCount = (key: boolean) => {
+      if (!key && !socket) return
+      dispatch(updateCount({ roomId: activeRoom?._id!, userId: loggedInUser?._id!, count: 0 }))
+    }
+    socket?.on("room:unread:reset", handleUnreadCount)
+
+    return () => {
+      socket?.off("room:unread:reset", handleUnreadCount)
+    }
+  }, [socket, activeRoom])
+
+  useEffect(() => {
+    const handleUnreadCount = ({ roomId, count }: { count: number, roomId: string }) => {
+      console.log(count, roomId);
+
+      dispatch(updateCount({ roomId, userId: loggedInUser?._id!, count }))
+    }
+
+    const handleNewGroup = (room: ChatRoom) => {
+      dispatch(addChatRoom(room))
+    }
+    socket?.on("room:UnreadCount", handleUnreadCount)
+    socket?.on("NEW_GROUP_CREATED", handleNewGroup)
+    return () => {
+      socket?.off("room:UnreadCount", handleUnreadCount)
+      socket?.off("NEW_GROUP_CREATED", handleNewGroup)
+
+    }
+  }, [socket, activeRoom])
+
   return (
     <aside className="w-[25vw] h-full  border-r-5 theme-border  flex flex-col overflow-hidden">
       <section className="flex flex-col justify-between h-full">
 
-        <div className="flex flex-col h-full gap-5">
-          <div className="flex w-full h-fit items-end justify-between px-3 pt-5">
+        <div className="flex flex-col h-full gap-5 ">
+          <div className="flex w-full h-fit items-end justify-between p-3 border-b-5 theme-border">
             <div className="w-fit h-fit  flex items-center gap-3 justify-center bg-transparent">
               <LazyLoadImage
                 loading="lazy"
@@ -168,8 +214,8 @@ const ChatSidebar: React.FC<{
                 <span className="text-sm text-disable">{loggedInUser?.fullName}</span>
               </div>
             </div>
-            <div className="" onClick={() => onSetGroupSlider(true)}>
-              <BiEdit size={30} />
+            <div className="duration-300 cursor-pointer theme-hover-effect p-1 rounded-full flex items-center justify-center theme-text-primary" onClick={() => onSetGroupSlider(prev => !prev)}>
+              <BiGroup size={25} />
             </div>
           </div>
 
@@ -181,29 +227,29 @@ const ChatSidebar: React.FC<{
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onClear={() => setSearch('')}
-              className="rounded-md "
+              className=""
             />
           </div>
-          <div className="w-full grid grid-cols-4 gap-5 px-3 text-sm font-semibold theme-text-secondary">
-            <span className={`group relative p-1 text-center  border border-transparent hover:cursor-pointer ${isActiveTab == "all" && 'theme-bg-secondary duration-300 theme-border rounded-lg'}`} onClick={() => handleAlllist()}>
-              all
+          <div className="w-full grid grid-cols-4 gap-5 px-3 text-sm font-light">
+            <span className={`group relative p-1 text-center cursor-pointer theme-text-muted ${isActiveTab == "all" && 'font-medium duration-500 '}`} onClick={() => handleAlllist()}>
+              All
               <div className={`absolute rounded-full w-0 duration-300 transition-all easy-in-out group-hover:w-full ${isActiveTab == "all" && 'w-full'} -bottom-2 left-0 h-[3px] bg-gradient-to-r from-blue-500 to-purple-500`}></div>
             </span>
-            <span className={`group relative p-1 text-center  border border-transparent hover:cursor-pointer ${isActiveTab == "unread" && 'theme-bg-secondary duration-300 theme-border rounded-lg'}`} onClick={() => handleUnreadlist()}>
-              unread
+            <span className={`group relative p-1 text-center cursor-pointer theme-text-muted ${isActiveTab == "unread" && 'font-medium duration-500 '}`} onClick={() => handleUnreadlist()}>
+              Unread
               <div className={`absolute rounded-full w-0 duration-300 transition-all easy-in-out group-hover:w-full ${isActiveTab == "unread" && 'w-full'} -bottom-2 left-0 h-[3px] bg-gradient-to-r from-blue-500 to-purple-500`}></div>
             </span>
-            <span className={`group relative p-1 text-center  border border-transparent hover:cursor-pointer ${isActiveTab == "request" && 'theme-bg-secondary duration-300 theme-border rounded-lg'}`} onClick={() => handleRequestlist()}>
-              request
+            <span className={`group relative p-1 text-center cursor-pointer theme-text-muted ${isActiveTab == "request" && 'font-medium duration-500 '}`} onClick={() => handleRequestlist()}>
+              Request
               <div className={`absolute rounded-full w-0 duration-300 transition-all easy-in-out group-hover:w-full ${isActiveTab == "request" && 'w-full'} -bottom-2 left-0 h-[3px] bg-gradient-to-r from-blue-500 to-purple-500`}></div>
             </span>
-            <span className={`group relative p-1 text-center  border border-transparent hover:cursor-pointer ${isActiveTab == "blocked" && 'theme-bg-secondary duration-300 theme-border rounded-lg'}`} onClick={() => handleMutedlist()}>
-              blocked
-              <div className={`absolute rounded-full w-0 duration-300 transition-all easy-in-out group-hover:w-full ${isActiveTab == "blocked" && 'w-full'} -bottom-2 left-0 h-[3px] bg-gradient-to-r from-blue-500 to-purple-500`}></div>
+            <span className={`group relative p-1 text-center cursor-pointer theme-text-muted ${isActiveTab == "group" && 'font-medium duration-500 '}`} onClick={() => handleGrouplist()}>
+              Groups
+              <div className={`absolute rounded-full w-0 duration-300 transition-all easy-in-out group-hover:w-full ${isActiveTab == "group" && 'w-full'} -bottom-2 left-0 h-[3px] bg-gradient-to-r from-blue-500 to-purple-500`}></div>
             </span>
 
           </div>
-          <div className="flex flex-col border-t-5 theme-border h-full">
+          <div className="flex flex-col h-full">
             {loading ? (
               <SidebarSkeletonLoader />
             ) : tabFilteredUsers.length > 0 ? (
@@ -228,11 +274,32 @@ const ChatSidebar: React.FC<{
                 }}
 
                 itemContent={(index, u) => {
-                  const participant = u?.participants?.find(
+                  // 🟢 GROUP
+                  if (u.type === "group") {
+                    return (
+                      <SidebarUserCard
+                        key={u._id}
+                        user={u}
+                        participant={{
+                          _id: u._id,
+                          fullName: u.name,
+                          username: u.name,
+                          profilePic: u.avatar,
+                          unreadCount: u.unreadCount ?? 0,
+                          roomId: u._id,
+                          status: u.status,
+                        } as any}
+                        selected={selectedRoomId === u._id}
+                        BlockedMe={false}
+                        searchQuery={debouncedSearch}
+                        onClick={() => handleSelectRoom(u)}
+                      />
+                    );
+                  }
+
+                  // 🟢 DM
+                  const participant = u.participants.find(
                     (p: IParticipant) => p._id !== loggedInUser?._id
-                  );
-                  const count = u?.participants?.find(
-                    (p: IParticipant) => p?._id == loggedInUser?._id
                   );
 
                   if (!participant) return null;
@@ -244,17 +311,17 @@ const ChatSidebar: React.FC<{
                       participant={{
                         ...participant,
                         roomId: u._id,
-                        unreadCount: count?.unreadCount ?? 0,
+                        unreadCount: u.unreadCount ?? 0,
+                        status: u.status,
                       }}
                       selected={selectedRoomId === u._id}
-                      BlockedMe={u?.blockedMe ?? false}
+                      BlockedMe={u.blockedMe ?? false}
                       searchQuery={debouncedSearch}
-                      onClick={() => {
-                        handleSelectRoom(u);
-                      }}
+                      onClick={() => handleSelectRoom(u)}
                     />
                   );
                 }}
+
               />
             ) : (
               <NoResults search={search} />
@@ -278,7 +345,7 @@ const SidebarUserCard = ({
   BlockedMe,
   searchQuery,
 }: {
-  user: IUserRoom;
+  user: ChatRoom;
   participant: IParticipant;
   selected: boolean;
   onClick: () => void;
@@ -288,11 +355,11 @@ const SidebarUserCard = ({
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { user: loggedInUser } = useAppSelector((state) => state.auth)
-  const {activeRoom} = useAppSelector(state=>state.chat)
-  // console.log(activeRoom?.lastMessageMeta?.text);
-  
-  const preview = user.lastMessageMeta?.text || "";
-  
+  const { activeRoom } = useAppSelector(state => state.chat)
+
+  const preview =
+    user.lastMessageMeta?.text ||
+    (user.type === "group" ? user.description || "" : "");
   const highlightText = (text: string, query: string) => {
     if (!query) return text;
 
@@ -310,25 +377,36 @@ const SidebarUserCard = ({
       )
     );
   };
+
+  const displayName =
+    user.type === "group"
+      ? user.name
+      : participant.username;
+
+
+  const displayAvatar =
+    user.type === "group"
+      ? user.avatar
+      : participant.profilePic;
   return (
     <div
       onClick={onClick}
-      className={`flex items-center justify-between px-3 py-2 ${participant?.isBlocked && 'opacity-50 '} gap-3 theme-text-primary cursor-pointer select-none 
+      className={`flex items-center justify-between animate-fadeIn px-3 py-2 ${participant?.isBlocked && 'opacity-50 '} gap-3 theme-text-primary cursor-pointer select-none 
         transition-colors duration-150 ease-in-out
         ${selected ? "bg-[var(--text-disabled)] text-primary" : "hover:bg-zinc-500/40"}
       `}
     >
-      <section className="w-full flex items-center h-full justify-start gap-3">
+      <section className="w-full flex items-center justify-between h-full justify-start gap-3">
 
         <div className="relative w-13 h-13 rounded-full flex-shrink-0">
           {(!loaded) && <div className="absolute inset-0 rounded-full overflow-hidden bg-gradient-to-r from-zinc-700 to-gray-700 animate-pulse" />}
           <LazyLoadImage
             loading="lazy"
-            src={optimizeUrl(participant?.profilePic || '', 200) || "/profile.png"}
-            alt={participant.fullName}
+            src={optimizeUrl(displayAvatar || '', 200) || "/profile.png"}
+            alt={displayName}
             referrerPolicy="no-referrer"
             onLoad={() => {
-              if (participant?.profilePic == '' || null) {
+              if (displayAvatar == '' || null) {
                 setLoaded(false)
               }
               setLoaded(true)
@@ -336,20 +414,20 @@ const SidebarUserCard = ({
             className={`w-12 h-12 rounded-full overflow-hidden object-cover ${loaded ? "opacity-100" : "opacity-0"
               } transition-opacity duration-200`}
           />
-          {(!BlockedMe && participant?.isOnline) &&
-           <span className={`w-4 h-4 absolute bottom-1 right-[2px] p-[1.8px] theme-bg-primary flex items-center justify-center rounded-full`}>
-            <div className="w-full h-full bg-lime-500 rounded-full"/>
+          {(!BlockedMe && participant?.isOnline && participant?.status == "active") &&
+            <span className={`w-4 h-4 absolute bottom-1 right-[2px] p-[1.8px] theme-bg-primary flex items-center justify-center rounded-full`}>
+              <div className="w-full h-full bg-lime-500 rounded-full" />
             </span>
           }
         </div>
 
         <div className="flex flex-col min-w-0">
-          <h1 className={`text-[14px] truncate font-medium`}>{highlightText(participant.fullName || "", searchQuery)}</h1>
+          <h1 className={`text-[14px] truncate font-normal`}>{highlightText(displayName || '', searchQuery)}</h1>
           <span className={` flex items-center justify-start gap-1`}>
             {
               (user.lastMessageMeta?.sender?.toString() == loggedInUser?._id.toString()) ?
                 <span className="text-xs text-disable ">{preview !== "" ? 'you' : `${participant?.username}`}</span>
-                :null
+                : null
             }
             <span className="theme-text-muted truncate flex text-[12px]">
               {preview.length > 23 ? preview.slice(0, 25) + "..." : preview}
@@ -357,11 +435,12 @@ const SidebarUserCard = ({
 
           </span>
         </div>
-      </section>
+</section>
+          { (participant?.isMuted && !participant?.isBlocked)&&<HiOutlineBellSlash size={20} strokeWidth={2}/>}      
 
       {(participant?.unreadCount != 0) && (
-        <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400   rounded-full flex items-center justify-center text-xs">
-          {/* <span className="text-zinc-800">{participant?.unreadCount ?? 0}</span> */}
+        <div className="w-5 h-5 theme-bg-secondary rounded-full flex items-center justify-center text-xs">
+          <span className="theme-text-primary">{participant?.unreadCount ?? 0}</span>
         </div>
       )}
     </div>

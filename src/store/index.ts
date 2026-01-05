@@ -10,6 +10,7 @@ import messagesReducer from "./slices/messages/messages"
 import notificationReducer from "./slices/notification/notificationSlice"
 import mutedUsers from "./slices/blockedUsers/muteUserSlice"
 import blockedUsers from "./slices/blockedUsers/blockedSlice"
+import activeCall from './slices/activeCallSlice'
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -23,6 +24,8 @@ export const store = configureStore({
     notification: notificationReducer,
     muteUser: mutedUsers,
     blockedUser: blockedUsers,
+    activeCall,
+    
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

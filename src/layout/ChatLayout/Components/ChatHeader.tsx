@@ -7,24 +7,51 @@ import { getSocket } from "../../../api/config/socketClient";
 import TypingIndicator from "../../../utils/TypingWave";
 import { TbMenu4 } from "react-icons/tb";
 import { optimizeUrl } from "../../../utils/imageOptimize";
+import { useCallSignaling } from "../../../hooks/call/useCallSignaling";
+
+/* ================= TYPES ================= */
+
+export interface StartCallPayload {
+  roomId: string;
+  roomType: "dm" | "group";
+  callType: "audio" | "video";
+
+  caller: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+
+  receiver: {
+    id?: string; // dm only
+    name: string;
+    avatar?: string;
+  };
+}
 
 interface ChatHeaderProps {
   onSetSlide: React.Dispatch<React.SetStateAction<boolean>>;
+  onStartCall: (payload: StartCallPayload) => void;
 }
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ onSetSlide }) => {
+/* ================= COMPONENT ================= */
+
+const ChatHeader: React.FC<ChatHeaderProps> = ({
+  onSetSlide,
+  onStartCall,
+}) => {
   const socket = getSocket();
   const [imageLoaded, setImageLoaded] = useState(true);
 
-  const { user: loggedInUser } = useAppSelector((state) => state.auth);
-  const { activeRoom, list } = useAppSelector((state) => state.chat);
-  const { user: dmUser } = useAppSelector((state) => state.user);
-
+  const { activeRoom, list } = useAppSelector((s) => s.chat);
+  const { user: dmUser } = useAppSelector((s) => s.user);
+  const {user:loggedInUser} = useAppSelector(state=>state.auth)
   const [typingUsers, setTypingUsers] = useState<
     { id: string; name: string }[]
   >([]);
 
-  /* ---------------- Typing Indicator ---------------- */
+  /* ================= Typing Indicator ================= */
+
   useEffect(() => {
     if (!socket || !activeRoom?._id) return;
 
@@ -39,12 +66,11 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onSetSlide }) => {
     };
 
     socket.on("typing:update", handler);
-    return () => {
-      socket.off("typing:update", handler)
-    };
+    return () => {socket.off("typing:update", handler)};
   }, [socket, activeRoom?._id, loggedInUser?._id]);
 
-  /* ---------------- Active Chat User (DM only) ---------------- */
+  /* ================= Active Chat (DM only) ================= */
+
   const activeChat: IParticipant | null = useMemo(() => {
     if (!activeRoom || activeRoom.type !== "dm" || !loggedInUser?._id) {
       return null;
@@ -60,83 +86,137 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onSetSlide }) => {
     );
   }, [activeRoom, list, loggedInUser?._id]);
 
-  const lastActiveText = useTimeAgo(activeChat?.lastActive)
-  /* ---------------- Avatar Source ---------------- */
-  const avatarSrc = optimizeUrl(
-    activeChat?.profilePic || activeRoom?.avatar || dmUser?.profilePic || "",
-    200
-  ) || "/profile-dummy.png";
+  const lastActiveText = useTimeAgo(activeChat?.lastActive);
+
+  const participant = activeRoom?.participants?.find(
+    (u) => u?._id !== loggedInUser?._id
+  );
+
+  /* ================= Avatar ================= */
+
+  const avatarSrc =
+    optimizeUrl(
+      activeRoom?.type === "dm"
+        ? activeChat?.profilePic || dmUser?.profilePic ||''
+        : activeRoom?.avatar||'',
+      200
+    ) || "/profile-dummy.png";
+
+  /* ================= CALL HANDLER (SINGLE SOURCE) ================= */
+  const {startCall} = useCallSignaling()
+  const handleCall = (callType: "audio" | "video") => {
+  if (!activeRoom || !loggedInUser) return;
+
+  const participant = activeRoom.participants?.find(
+    (u) => u._id !== loggedInUser._id
+  );
+
+  const payload: StartCallPayload = {
+    roomId: activeRoom._id,
+    roomType: activeRoom.type,
+    callType,
+
+    caller: {
+      id: loggedInUser._id,
+      name: loggedInUser.username || loggedInUser.fullName || "User",
+      avatar: loggedInUser.profilePic,
+    },
+
+    receiver:
+      activeRoom.type === "dm"
+        ? {
+            id: participant?._id,
+            name: participant?.username || participant?.fullName || "User",
+            avatar: participant?.profilePic,
+          }
+        : {
+            name: activeRoom.name || "Group Call",
+            avatar: activeRoom.avatar,
+          },
+  };
+  startCall(payload)
+  onStartCall(payload);
+};
+
+
+  /* ================= UI ================= */
 
   return (
-    <header className=" w-[99%] bg-transparent  backdrop-blur-3xl shadow-sm rounded-full border-5 theme-border flex items-center p-[1px] justify-between">
-      <main className="relative  flex w-full items-center justify-between rounded-full">
+    <header className="w-[99%] backdrop-blur-3xl shadow-sm rounded-full border theme-border flex items-center p-[1px] justify-between">
+      <main className="flex w-full items-center justify-between rounded-full">
 
-        <div className="flex items-center gap-2 hover:cursor-pointer">
-          {/* Avatar */}
-          <div className="relative rounded-full flex items-center justify-center p-1">
+        {/* LEFT */}
+        <div className="flex items-center gap-2 cursor-pointer">
+          <div className="relative rounded-full p-1">
             {imageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-r from-zinc-700 via-zinc-600 to-zinc-700 animate-pulse rounded-full" />
+              <div className="absolute inset-0 bg-zinc-700 animate-pulse rounded-full" />
             )}
-
             <img
               src={avatarSrc}
               onLoad={() => setImageLoaded(false)}
-              alt="User avatar"
-              loading="lazy"
-              className={`rounded-full border theme-border md:w-12 md:h-12 w-8 h-8 object-cover transition-opacity duration-300 ${imageLoaded ? "opacity-0" : "opacity-100"
-                }`}
+              className={`rounded-full md:w-12 md:h-12 w-8 h-8 object-cover ${
+                imageLoaded ? "opacity-0" : "opacity-100"
+              }`}
+              alt="avatar"
             />
           </div>
 
-          {/* Name & Status */}
-          <div className="flex flex-col justify-center">
-            {(!activeRoom && !dmUser) ? (
-              <>
-                <div className="h-3 w-32 bg-gradient-to-r from-zinc-700 via-zinc-600 to-zinc-700 animate-pulse rounded mb-1" />
-                <div className="h-2 w-16 bg-gradient-to-r from-zinc-700 via-zinc-600 to-zinc-700 animate-pulse rounded" />
-              </>
-            ) : (
-              <>
-                <h2 className="text-[14px] font-semibold">
-                  {activeRoom?.type === "dm"
-                    ? activeChat?.username || dmUser?.username
-                    : activeRoom?.name || dmUser?.username}
-                </h2>
+          <div className="flex flex-col">
+            <h2 className="text-sm font-normal">
+              {activeRoom?.type === "dm"
+                ? activeChat?.username || dmUser?.username
+                : activeRoom?.name}
+            </h2>
 
-                {!activeRoom?.blockedMe ? (
-                  typingUsers.length > 1 ? (
-                    <TypingIndicator />
-                  ) : (activeChat?.isOnline) ? (
-                    <p className="text-[12px] text-disable">online</p>
-                  ) : (
-                    <p className="text-[12px] font-semibold text-disable">
-                      {dmUser ? dmUser.fullName : lastActiveText}
-                    </p>
-                  )
+            {/* STATUS */}
+            {typingUsers.length > 0 ? (
+              <span className="text-[10px] flex items-center gap-1">
+                <TypingIndicator />
+                {typingUsers.length <= 3 ? (
+                  <>
+                    {typingUsers.map((u, i) => (
+                      <span key={i}>
+                        {u.name}
+                        {i < typingUsers.length - 1 && ","}
+                      </span>
+                    ))}
+                    <span>
+                      {typingUsers.length === 1
+                        ? " is typing..."
+                        : " are typing..."}
+                    </span>
+                  </>
                 ) : (
-                  <p className="theme-text-muted text-[12px] font-medium">
-                    You blocked this user
-                  </p>
+                  <span>multiple users are typing...</span>
                 )}
-              </>
+              </span>
+            ) : activeChat?.isOnline ? (
+              <span className="text-xs text-lime-500">online</span>
+            ) : (
+              <span className="text-xs theme-text-muted">
+                {lastActiveText}
+              </span>
             )}
           </div>
         </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-3 theme-text-muted mr-10">
-          <div className="rounded-xl p-1 theme-hover-effect cursor-pointer">
-            <CiPhone size={25} />
-          </div>
-          <div className="rounded-xl p-1 theme-hover-effect cursor-pointer">
-            <CiVideoOn size={25} />
-          </div>
-          <div
-            onClick={() => onSetSlide((prev) => !prev)}
-            className="rounded-xl p-1 theme-hover-effect cursor-pointer"
-          >
-            <TbMenu4 size={25} />
-          </div>
+        {/* RIGHT ACTIONS */}
+        <div className="flex items-center gap-3 mr-6">
+          <CiPhone
+            size={25}
+            className="cursor-pointer"
+            onClick={() => handleCall("audio")}
+          />
+          <CiVideoOn
+            size={25}
+            className="cursor-pointer"
+            onClick={() => handleCall("video")}
+          />
+          <TbMenu4
+            size={25}
+            className="cursor-pointer"
+            onClick={() => onSetSlide((p) => !p)}
+          />
         </div>
       </main>
     </header>

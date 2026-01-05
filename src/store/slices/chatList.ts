@@ -23,15 +23,30 @@ const chatListSlice = createSlice({
       const incomingRooms = action.payload;
 
       state.list = incomingRooms.map((newRoom) => {
-        const existingRoom = state.list.find(r => r._id === newRoom._id);
+        const existingRoom = state.list.find(
+          (r) => r._id === newRoom._id
+        );
 
-        if (!existingRoom) return newRoom;
+        if (!existingRoom) {
+          return newRoom;
+        }
+
+        if (newRoom.type === "group") {
+          return {
+            ...existingRoom,
+            ...newRoom,
+            participants: [], // always empty for group
+          };
+        }
 
         return {
+          ...existingRoom,
           ...newRoom,
           participants: newRoom.participants.map((p) => {
             const existingParticipant =
-              existingRoom.participants.find(ep => ep._id === p._id);
+              existingRoom.participants.find(
+                (ep) => ep._id === p._id
+              );
 
             return existingParticipant
               ? {
@@ -48,52 +63,62 @@ const chatListSlice = createSlice({
       state.error = null;
     },
 
-
     updateBlockedUser: (
       state,
-      action: PayloadAction<{ roomId: string; loggedInUser: string }>
+      action: PayloadAction<{
+        roomId: string;
+        targetUser: string;
+        set: "blocked" | "muted";
+      }>
     ) => {
-      const { roomId, loggedInUser } = action.payload;
+      const { roomId, targetUser, set } = action.payload;
 
       const room = state.list.find((r) => r._id === roomId);
-      if (!room) return;
+      if (!room || room.type !== "dm") return;
 
-      room.participants.forEach((participant) => {
-        if (participant._id !== loggedInUser) {
+      const updateParticipant = (participant: any) => {
+        if (participant._id !== targetUser) return;
+
+        if (participant.isBlocked && set === "muted") return;
+
+        if (set === "blocked") {
           participant.isBlocked = true;
+          participant.isMuted = false;
         }
-      });
 
+        if (set === "muted") {
+          participant.isMuted = true;
+        }
+      };
+      room.participants.forEach(updateParticipant);
       if (state.activeRoom?._id === roomId) {
-        state.activeRoom.participants.forEach((p) => {
-          if (p._id !== loggedInUser) {
-            p.isBlocked = true;
-          }
-        });
+        state.activeRoom.participants.forEach(updateParticipant);
       }
     },
 
     updateUnBlockedUser: (
       state,
-      action: PayloadAction<{ roomId: string; loggedInUser: string }>
+      action: PayloadAction<{
+        roomId: string;
+        targetUser: string;
+        set: "blocked" | "muted";
+      }>
     ) => {
-      const { roomId, loggedInUser } = action.payload;
-
+      const { roomId, targetUser, set } = action.payload;
       const room = state.list.find((r) => r._id === roomId);
-      if (!room) return;
-
-      room.participants.forEach((participant) => {
-        if (participant._id !== loggedInUser) {
+      if (!room || room.type !== "dm") return;
+      const updateParticipant = (participant: any) => {
+        if (participant._id !== targetUser) return;
+        if (set === "blocked") {
           participant.isBlocked = false;
         }
-      });
-
+        if (set === "muted") {
+          participant.isMuted = false;
+        }
+      };
+      room.participants.forEach(updateParticipant);
       if (state.activeRoom?._id === roomId) {
-        state.activeRoom.participants.forEach((p) => {
-          if (p._id !== loggedInUser) {
-            p.isBlocked = false;
-          }
-        });
+        state.activeRoom.participants.forEach(updateParticipant);
       }
     },
 
@@ -104,32 +129,33 @@ const chatListSlice = createSlice({
       }
     },
 
-    acceptMessageRequest: (state, action: PayloadAction<{ roomId: String, status: string }>) => {
+    acceptMessageRequest: (
+      state,
+      action: PayloadAction<{ roomId: string; status: string }>
+    ) => {
       const index = state.list.findIndex(
-        n => n._id === action.payload.roomId.toString()
+        n => n._id === action.payload.roomId
       );
-      console.log(JSON.parse(JSON.stringify(index)));
-
       if (index !== -1) {
-        state.list[index] = {
-          ...state.list[index],
-          status: action.payload.status
-        };
-
-        state.list = [...state.list];
+        state.list[index].status = action.payload.status;
+        if (state.activeRoom?._id === action.payload.roomId) {
+          state.activeRoom.status = action.payload.status;
+        }
       }
     },
+
 
     updateCount: (
       state,
       action: PayloadAction<{ roomId: string; userId: string; count: number }>
     ) => {
       const { roomId, userId, count } = action.payload;
-      const room = state.list.find(r => r._id === roomId);
+      let room = state.list.find(r => r._id === roomId);
       if (room) {
         const participant = room?.participants?.find(p => p?._id == userId);
         if (participant) {
           participant.unreadCount = typeof count === "number" ? count : 0;
+          room.unreadCount = typeof count === "number" ? count : 0;
         }
       }
     },
@@ -162,11 +188,11 @@ const chatListSlice = createSlice({
         roomId: string;
         message?: Message;
         shouldUpdateLastMessage?: boolean;
-        room?:ChatRoom
+        room?: ChatRoom
       }>
     ) => {
-      const { roomId, message, shouldUpdateLastMessage,room:LastRoomMessage } = action.payload;
-      
+      const { roomId, message, shouldUpdateLastMessage, room: LastRoomMessage } = action.payload;
+
       const index = state.list.findIndex((r) => r._id === roomId);
       if (index === -1 || !message) return;
 
@@ -182,7 +208,7 @@ const chatListSlice = createSlice({
       }
 
       if ((shouldUpdateLastMessage && message?.isDeleted) || (shouldUpdateLastMessage && message?.isEdited)) {
-        
+
         if (room.lastMessageMeta) {
           room.lastMessageMeta.text = LastRoomMessage?.lastMessageMeta?.text || '';
         }
@@ -293,7 +319,7 @@ export const {
   acceptMessageRequest,
   setActiveRoom,
   updateBlockedUser,
-  updateUnBlockedUser
+  updateUnBlockedUser,
 } = chatListSlice.actions;
 
 export default chatListSlice.reducer;

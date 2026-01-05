@@ -4,20 +4,26 @@ import { setChatList, updateLastMessage } from "../../store/slices/chatList";
 import type { ChatRoom, IParticipant, Message } from "../../types/chat";
 import type { AxiosError } from "axios";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { store } from "../../store";
-import { queryClient } from "../../api/config/queryClient";
 import { messageKeyMap } from "./chatMessageMap";
+import toast from "react-hot-toast";
 
 const state = store.getState();
 
+interface RoomMember {
+  _id: string;
+  username: string;
+  fullName: string;
+  email?: string;
+  profilePic?: string;
+}
 
-// interface ChatMessagesPage {
-//   messages: Message[];
-//   nextCursor: string | null;
-//   hasMore: boolean;
-//   noMoreMessages: boolean;
-// }
+interface MembersResponse {
+  data: RoomMember[];
+  nextCursor: string | null;
+  hasNext: boolean;
+}
 
 export const useChatMessages = (roomId: string, limit = 50) => {
   const queryClient = useQueryClient();
@@ -145,11 +151,6 @@ export const useSendMedia = () => {
   });
 };
 
-
-
-
-
-// 1. Send Message Hook (Thoda clean kiya gaya)
 export const useSendMessage = ({ socket, loggedInUser }: { socket: any; loggedInUser: any }) => {
   const queryClient = useQueryClient();
 
@@ -272,7 +273,9 @@ export const useIncomingMessages = (socket: any, loggedInUserId: string) => {
           };
         }
 
+        // store?.dispatch(addCount({roomId,userId:loggedInUserId}))
         return { ...old, pages: updatedPages };
+
       });
     };
 
@@ -280,25 +283,6 @@ export const useIncomingMessages = (socket: any, loggedInUserId: string) => {
     return () => socket.off("chat:new_message", handleNewMessage);
   }, [socket, queryClient, loggedInUserId]);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const useSendMediaOptimistic = (loggedInUser: any) => {
   const queryClient = useQueryClient();
@@ -716,11 +700,191 @@ export const useMessageEditListener = (socket: any, queryClient: any) => {
   }, [socket, queryClient, dispatch]);
 };
 
+export const createGroup = () => {
+  return useMutation({
+    mutationFn: (data: FormData) => chatApi.createGroup(data),
+  })
+}
+
+export const useRoomMembers = (roomId?: string) => {
+  type MemberCursor = {
+    joinedAt: string;
+    _id: string;
+  };
+
+  const query = useInfiniteQuery<
+    {
+      data: any[];
+      nextCursor: MemberCursor | null;
+      hasNext: boolean;
+      totalUsers?: number;
+    },
+    AxiosError
+  >({
+    queryKey: ["roomMembers", roomId],
+    enabled: !!roomId,
+    initialPageParam: null,
+
+    queryFn: async ({ pageParam }) => {
+      if (!roomId) throw new Error("roomId is required");
+
+      return chatApi.getMembers(
+        roomId,
+        pageParam ? JSON.stringify(pageParam) : null
+      );
+    },
+
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? lastPage.nextCursor : undefined,
+
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  const normalizedPages = React.useMemo(() => {
+    if (!query.data?.pages) return [];
+
+    const adminMap = new Map<string, any>();
+    const cleanedPages = query.data.pages.map(page => {
+      const remaining = page.data.filter((m: any) => {
+        if (m.role === "admin") {
+          adminMap.set(m.id, m);
+          return false; // remove admin from page
+        }
+        return true;
+      });
+
+      return { ...page, data: remaining };
+    });
+
+    if (adminMap.size === 0) return cleanedPages;
+
+    cleanedPages[0] = {
+      ...cleanedPages[0],
+      data: [
+        ...Array.from(adminMap.values()),
+        ...cleanedPages[0].data,
+      ],
+    };
+
+    return cleanedPages;
+  }, [query.data]);
+
+  const members =
+    normalizedPages.flatMap(page => page.data) ?? [];
+
+  const totalCount =
+    query.data?.pages?.[0]?.totalUsers ?? 0;
+
+  return {
+    ...query,
+    data: query.data
+      ? { ...query.data, pages: normalizedPages }
+      : query.data,
+    members,
+    totalCount,
+  };
+};
+
+export const useAddAdmin = (roomId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => {
+      return chatApi.addAdmin(roomId, userId);
+    },
+
+    onSuccess: (_, userId) => {
+      queryClient.setQueryData(
+        ["roomMembers", roomId],
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          let promotedUser: any = null;
+
+          const cleanedPages = oldData.pages.map((page: any) => {
+            const found = page.data.find((m: any) => m.id === userId);
+
+            if (found) {
+              promotedUser = { ...found, role: "admin" };
+            }
+
+            return {
+              ...page,
+              data: page.data.filter((m: any) => m.id !== userId),
+            };
+          });
+
+          if (!promotedUser) return oldData;
+
+          cleanedPages[0] = {
+            ...cleanedPages[0],
+            data: [
+              promotedUser,
+              ...cleanedPages[0].data,
+            ],
+          };
+
+          return {
+            ...oldData,
+            pages: cleanedPages,
+          };
+        }
+      );
+
+      toast.success("User promoted to admin");
+    },
 
 
 
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to add admin");
+    },
+  });
+};
 
+export const useRemoveAdmin = (roomId: string) => {
+  const queryClient = useQueryClient();
 
+  return useMutation({
+    mutationFn: (userId: string) => {
+      return chatApi.removeAdmin(roomId, userId);
+    },
+
+    onSuccess: (_, userId) => {
+      queryClient.setQueryData(
+        ["roomMembers", roomId],
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          const updatedPages = oldData.pages.map((page: any) => ({
+            ...page,
+            data: page.data.map((m: any) =>
+              m.id === userId
+                ? { ...m, role: "member" } 
+                : m
+            ),
+          }));
+
+          return {
+            ...oldData,
+            pages: updatedPages,
+          };
+        }
+      );
+
+      toast.success("Admin role removed");
+    },
+
+    onError: (err: any) => {
+      toast.error(
+        err?.response?.data?.message || "Failed to remove admin"
+      );
+    },
+  });
+};
 
 
 

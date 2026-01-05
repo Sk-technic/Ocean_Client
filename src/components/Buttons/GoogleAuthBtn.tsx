@@ -17,7 +17,7 @@ const text = mode =="login"?'login with google':"signup with goog le"
 
       <button
         onClick={handleClick}
-        className={`flex items-center justify-center gap-2 border theme-border px-5 py-2 hover:cursor-pointer theme-bg-primary hover:scale-105 duration-500 easy-in-out  shadow-lg rounded-2xl`}>
+        className={`flex items-center justify-center gap-2 border theme-border px-5 py-2 cursor-pointer theme-bg-primary hover:scale-105 duration-500 easy-in-out  shadow-lg rounded-2xl`}>
         <FcGoogle size={22} />
         <span className="text-sm theme-text-primary">{text}</span>
       </button>

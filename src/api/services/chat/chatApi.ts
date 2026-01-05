@@ -32,8 +32,6 @@ export const GetMessages = async (
   
 };
 
-
-
 export const GetChatUsers = async (
   id: string,
   cursor?: string | null
@@ -74,10 +72,58 @@ const sendMediaFiles = async (data: FormData) => {
   }
 };
 
+const createGroup = async (data: FormData) => {
+  try {
+    const result = await api.post(`/chat/room`, data);
+    return result.data;
+  } catch (error: any) {
+    throw error.response?.data?.message || "Failed to create group";
+  }
+};
 
+const getMembers = async (
+  roomId: string,
+  cursor?: string | null
+) => {
+  const res = await api.get(
+    `/chat/room/${roomId}`,
+    {
+      params: { cursor: cursor ?? undefined },
+    }
+  );
+
+  const payload = res.data?.data;
+  
+
+  return {
+    data: payload.data ?? [],
+    hasNext: payload.hasNext ?? false,
+    nextCursor: payload.nextCursor ?? null,
+    totalUsers:payload.totalUsers ?? null
+  };
+};
+
+const addAdmin = (roomId: string, userId: string) => {
+  return api.post("/chat/addAdmin", {
+    roomId,
+    user: userId,
+  });
+};
+
+
+const removeAdmin = (roomId: string, userId: string) => {
+  return api.post("/chat/removeAdmin", {
+    roomId,
+    user: userId,
+  });
+};
 export const chatApi = {
     GetMessages,
     GetChatUsers,
     GetRoomDetails,
-    sendMediaFiles
+    sendMediaFiles,
+    createGroup,
+    getMembers,
+    addAdmin,
+    removeAdmin
 }

@@ -31,7 +31,7 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
       disabled={disabled || loading}
       className={clsx(
         `
-        hover:cursor-pointer
+        cursor-pointer
         text-sm shadow-md
         relative overflow-hidden
         flex items-center justify-center gap-2 

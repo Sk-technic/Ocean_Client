@@ -65,7 +65,7 @@ const UserLinksDialog: React.FC<UserLinksDialogProps> = ({
       >
         <button
           onClick={onClose}
-          className="absolute theme-bg-primary rounded-full p-[1px] hover:cursor-pointer -top-3 -right-3"
+          className="absolute theme-bg-primary rounded-full p-[1px] cursor-pointer -top-3 -right-3"
         >
           <RxCross2 size={13} color="theme-text-primary"/>
         </button>

@@ -157,7 +157,7 @@ const VerifyOtp: React.FC = () => {
         type="submit" 
           onClick={handleSubmit}
           disabled={otp.length !== 6}
-          className={`w-full p-3 rounded-xl text-white ${otp.length===6 && 'hover:cursor-pointer'} flex items-center justify-center gap-2 font-semibold text-sm transition-all
+          className={`w-full p-3 rounded-xl text-white ${otp.length===6 && 'cursor-pointer'} flex items-center justify-center gap-2 font-semibold text-sm transition-all
             ${
               otp.length === 6
                 ? "active-theme-button"
@@ -170,7 +170,7 @@ const VerifyOtp: React.FC = () => {
         <button
         type="submit"
           onClick={() => navigate(-1)}
-          className="w-full p-3 rounded-xl text-purple-600 hover:cursor-pointer border border-purple-300
+          className="w-full p-3 rounded-xl text-purple-600 cursor-pointer border border-purple-300
           font-medium text-sm hover:bg-purple-50 transition"
         >
           Cancel

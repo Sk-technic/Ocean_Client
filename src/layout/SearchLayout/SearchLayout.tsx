@@ -57,7 +57,7 @@ const SearchLayout: React.FC = () => {
           userList.map((user: any) => (
             <div
               key={user._id}
-              className="flex items-center duration-500 theme-hover-effect justify-between hover:cursor-pointer px-10 py-2 duration-300  transition"
+              className="flex items-center duration-500 theme-hover-effect justify-between cursor-pointer px-10 py-2 duration-300  transition"
             >
               {/* --- Left: Profile Info --- */}
               <div className="flex items-center gap-4" onClick={() => handleUserProfile(user)}>

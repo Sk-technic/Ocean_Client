@@ -52,9 +52,10 @@ const InputField: React.FC<InputFieldProps> = ({
       {/* === Input Container === */}
       <div
         className={clsx(
-          "relative group rounded-xl overflow-hidden transition-all p-1",
+          "relative group rounded-md overflow-hidden transition-all",
           "theme-bg-primary shadow-md border theme-border",
           "hover:border-[var(--accent-primary-hover)]/30 focus-within:border-[var(--accent-primary)]/20",
+          
           // "rounded-t-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_0_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.04),0_0_10px_rgba(255,255,255,0.05)]",
           // "focus-within:shadow-[0_0_15px_rgba(123,47,247,0.25)] dark:focus-within:shadow-[0_0_12px_rgba(168,85,247,0.35)]"
         )}

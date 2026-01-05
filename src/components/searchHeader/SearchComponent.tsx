@@ -56,8 +56,8 @@ const SearchInput: React.FC<SearchInputProps> = ({
       <form onSubmit={handleSubmit} className="relative bg-transparent">
         <div
           className={`
-            relative group  theme-bg-primary overflow-hidden transition-all
-             border  theme-border shadow-md
+            relative group border rounded-md theme-border theme-bg-primary overflow-hidden transition-all
+              shadow-md
             backdrop-blur-md bg-transparent
             ${className}`
           }
@@ -87,7 +87,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
             required={required}
             autoFocus={autoFocus}
             className={clsx(
-              `w-full px-10 py-2 text-[16px] outline-none`,
+              `w-full px-10 py-1 text-[16px] outline-none`,
               "bg-transparent text-[var(--input-text)] placeholder:text-zinc-400",
               "transition-all duration-300 ease-in-out font-Lucero placeholder:font-Lucero",
               "selection:bg-transparent selection:text-inherit"

@@ -76,7 +76,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ onClose, user }) => {
       }`}
       >
       
-      <span onClick={onClose} className="absolute -end-5 -top-5 p-1 dark:bg-zinc-200 hover:cursor-pointer hover:scale-90 duration-300 dark:text-black shadow-md  rounded-full"><X size={15}/></span>
+      <span onClick={onClose} className="absolute -end-5 -top-5 p-1 dark:bg-zinc-200 cursor-pointer hover:scale-90 duration-300 dark:text-black shadow-md  rounded-full"><X size={15}/></span>
       {/* Profile Info */}
       <section className="mb-6">
         <h3 className="text-lg font-semibold mb-4 border-b border-[var(--border-primary)] pb-2">

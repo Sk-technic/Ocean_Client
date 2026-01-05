@@ -47,17 +47,21 @@ export function initRoomListener() {
     );
 
     const loggedInUser = store.getState().auth.user;
+    const activeroom = store.getState().chat.activeRoom
+    const lists = store.getState().chat.list
 
-    const myState = room?.participants?.find(
-      (p: any) => p.user === loggedInUser?._id
-    );
+    let myState = lists.find((u)=>u?._id == data?.room?._id)
 
-    store.dispatch(
-      updateCount({
-        roomId: room?._id,
-        userId: loggedInUser?._id || "",
-        count: myState?.unreadCount ?? 0,
-      })
-    );
+    let newCount = Number(myState?.unreadCount)+1
+if(activeroom?._id !== data?.roomId){
+
+  store.dispatch(
+    updateCount({
+      roomId: room?._id,
+      userId: loggedInUser?._id!,
+      count: newCount,
+    })
+  );
+}
   });
 }

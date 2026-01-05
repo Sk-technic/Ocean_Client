@@ -4,17 +4,51 @@
 @tailwind utilities;
 @custom-variant dark (&:where(.dark, .dark *));
 
+
 @font-face {
   font-family: "Ocean";
-  src: url("/font/Comfortaa/static/Comfortaa-Regular.ttf") format("truetype");
+  src: url("../public/font/SF-Pro/SF-Pro-Text-Thin.otf") format("opentype");
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
-/* Apply the font globally */
+@font-face {
+  font-family: "Ocean";
+  src: url("../public/font/SF-Pro/SF-Pro-Text-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ocean";
+  src: url("../public/font/SF-Pro/SF-Pro-Text-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ocean";
+  src: url("../public/font/SF-Pro/SF-Pro-Text-Semibold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ocean";
+  src: url("../public/font/SF-Pro/SF-Pro-Text-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 @layer base {
   html {
-    font-family: "Ocean", sans-serif !important;
+    font-family: "Ocean", system-ui, sans-serif;
   }
 }
 
@@ -22,10 +56,12 @@
   /* Brand gradient colors (unchanged) */
    --color-primary: #92beff;
   --color-secondary: #e3acff;
-  --brand-gradient: linear-gradient(135deg, #92beff, #e3acff);
-  /* =============================
-     🌞 LIGHT THEME (Premium Zinc)
-     ============================= */
+--brand-gradient: linear-gradient(
+  210deg,
+  #9fddff 0%,
+  #c7b9ff 50%,
+  #dbb1ff 100%
+);
   --bg-primary: #fafafa;       /* zinc-50 */
   --bg-secondary: #f4f4f5;     /* zinc-100 */
   --bg-card: #ffffff;          /* classic card */
@@ -63,13 +99,16 @@
   --story-ring: linear-gradient(135deg, #7b2ff7, #f107a3);
 }
 
-/* ================================================
-   🌚 DARK THEME — Premium Zinc Shades
-   ================================================ */
+
 [data-theme="dark"] {
    --color-primary: #92beff;
   --color-secondary: #e3acff;
-  --brand-gradient: linear-gradient(135deg, #92beff, #e3acff);
+--brand-gradient: linear-gradient(
+  210deg,
+  #9fddff 0%,
+  #c7b9ff 50%,
+  #dbb1ff 100%
+);
   --story-ring: linear-gradient(135deg, #2f9df7, #f107a3);
 
   /* DARK ZINC SET */
@@ -101,10 +140,6 @@
   isolation: auto;
 }
 
-
-/* =========================================================
-   ✨ BASE + UTILITY CLASSES
-   ========================================================= */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);

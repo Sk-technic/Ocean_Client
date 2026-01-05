@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ProfileCard from '../../ui/dashboard/profile';
 import { useAuthInit } from '../../hooks/auth/authHooks';
-import ProfileMenu from './ProfileMenu/ProfileMenu';
+import { LuLayoutGrid } from "react-icons/lu";
+import { BsFilePlay } from "react-icons/bs";
+import { IoBookmarkOutline } from "react-icons/io5";
+import FriendsListing from '../Listing/FriendsListing';
 
 const ProfilePage: React.FC = () => {
 
   const { data } = useAuthInit();
-
+  const [followerList, setFollowers] = useState<boolean>(false)
+  const [followingList, setFollowing] = useState<boolean>(false)
   return (
-    <main className="relative theme-bg-primary min-h-screen flex flex-col gap-5">
-      <section className="w-full max-w-8xl mb-6 ">
+    <main className="relative theme-bg-primary min-h-screen flex flex-col">
+      <section className="w-full max-w-8xl flex items-center justify-center">
 
         <ProfileCard
           user={{
@@ -29,13 +33,31 @@ const ProfilePage: React.FC = () => {
             subscribersCount: data?.data?.subscribedCount || 0,
             coverImage: data?.data?.coverImage || '',
             socialLinks: data?.data?.socialLinks || null,
-            isPrivate:data?.data?.isPrivate,
-            status:data?.data?.status
+            isPrivate: data?.data?.isPrivate,
+            status: data?.data?.status
           }}
+
+          setFollowers={setFollowers}
+          setFollowing={setFollowing}
         />
       </section>
-      <section>
-        <ProfileMenu />
+      {(followerList || followingList) && <div className={`w-full flex items-center justify-center h-full absolute dark:bg-white/10 top-0 `}>
+        <FriendsListing followers={followerList} following={followingList} setFollowers={setFollowers} setFollowing={setFollowing} />
+      </div>}
+
+      <section className="w-full max-w-8xl flex flex-col items-center justify-center">
+        <div className='w-full max-w-5xl flex p-2 items-center justify-around theme-text-muted relative border-b-3 theme-border'>
+          <div className='p-2 theme-hover-effect duration-300 theme-border rounded-full'>
+            <LuLayoutGrid size={20} />
+          </div>
+          <div className='p-2 theme-hover-effect duration-300 theme-border rounded-full'>
+            <BsFilePlay size={20} />
+          </div>
+          <div className='p-2 theme-hover-effect duration-300 theme-border rounded-full'>
+            <IoBookmarkOutline size={20} />
+          </div>
+        </div>
+
       </section>
     </main>
 

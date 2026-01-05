@@ -48,14 +48,12 @@ const AccountMenu: React.FC<{ onSetMenu: (value: boolean) => void }> = ({ onSetM
   return (
     <main
       className="
-        w-60 rounded-2xl border theme-border  overflow-hidden
-        theme-bg-card 
-        shadow-md  backdrop-blur-lg
+        w-60 rounded-2xl border theme-border theme-bg-card overflow-hidden shadow-md  
       "
     >
 
       {/* TOP ITEMS */}
-      <div className="p-2 space-y-1">
+      <div className="p-1 space-y-1">
         <MenuItem icon={Settings} label="Settings" onClick={() => { Navigate('/settings'); onSetMenu(false) }} />
         <MenuItem icon={MessageCircle} label="Your activity" />
         <MenuItem icon={Bookmark} label="Saved" />
@@ -67,7 +65,7 @@ const AccountMenu: React.FC<{ onSetMenu: (value: boolean) => void }> = ({ onSetM
       <div className="w-full h-[1px] bg-[var(--border-primary)] my-1"></div>
 
       {/* SWITCH ACCOUNTS */}
-      <div className="p-2 space-y-1">
+      <div className="p-1 space-y-1">
 
         <button
           className="

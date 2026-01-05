@@ -8,10 +8,20 @@ const Notify = () => {
       position="top-center"
       gutter={8}
        containerStyle={{
-        zIndex: 999999,  // higher than your modal (9999)
+        zIndex: 999999,  
       }}
+      
 
       toastOptions={{
+        custom: {
+          duration: 5000,
+          style: {
+            background: theme === "dark" ? "#222" : "#fff",
+            color: theme === "dark" ? "#fff" : "#000",
+            borderRadius: "12px",
+            padding: "0px", 
+          },
+        },
         success: {
           style: {
             borderRadius: "20px",

@@ -297,7 +297,7 @@ const handleReply = useCallback(() => {
       )}
 
 
-      <main className={`gap-1 max-w-[50%]  flex flex-col justify-center ${isSender ? "items-end" : "items-start"}`}>
+      <main className={`gap-1 max-w-[50%]  font-light flex flex-col justify-center ${isSender ? "items-end" : "items-start"}`}>
 
         {message.replyTo != null && <ReplyPreview replyTo={message.replyTo} isSender={isSender} />}
 
@@ -305,7 +305,7 @@ const handleReply = useCallback(() => {
         {hasMedia && (
           <div className={`relative w-full rounded-2xl overflow-hidden`}>
             {(message?.status == "pending" && isSender) &&
-              <div className="absolute top-[45%] left-0 z-[888] w-full z-[9999]">
+              <div className="absolute top-[45%] left-0 z-[888] w-full">
 
                 <Loader />
               </div>
@@ -328,7 +328,7 @@ const handleReply = useCallback(() => {
             setMessageInfo(false);
             setShowMenu(false);
           }}
-          className={`relative  w-fit emoji-input ${message.isDeleted && 'px-5'} flex flex-col hover:cursor-pointer ${isEmojiOnly ? "" : "shadow-sm"} overflow-hidden ${isSender ? "items-end" : "items-start animate-fadeIn"}
+          className={`relative  w-fit emoji-input ${message.isDeleted && 'px-5'} flex flex-col cursor-pointer ${isEmojiOnly ? "" : "shadow-sm"} overflow-hidden ${isSender ? "items-end" : "items-start animate-fadeIn"}
             ${isEmojiOnly ? "[&_img]:inline [&_img]:h-[1.2em] [&_img]:w-[1.3em]" : message?.isDeleted ? "bg-zinc-500" : bubbleColor}
             ${bubbleShape} ${hasMedia ? "" : "px-3 py-1"}`}
         >
@@ -337,13 +337,13 @@ const handleReply = useCallback(() => {
 
           {/* Text */}
           {hasText && (
-            <span className="flex items-center gap-1 justify-start ">
+            <span className="flex items-center gap-1 justify-start">
               {message.isEdited && <TbPencil size={15} className="theme-text-muted"/>}
               <span>
                 
                 <span
-                  className={`${message.isDeleted ?'text-[10px]':'text-[16px]'} ${!isSender && !message.isDeleted ? "text-zinc-100" : ""} ${isEmojiOnly && "text-[25px]"}
-                   whitespace-pre-line leading-snug ${hasMedia ? "px-4 py-2" : ""} ${message.isDeleted ? "italic text-gray-800 text-zinc-100/50" : ""}`}
+                  className={` ${message.isDeleted ?'text-[10px]':'text-[15px]'} ${!isSender && !message.isDeleted ? "text-zinc-100" : ""} ${isEmojiOnly && "text-[25px]"}
+                    ${hasMedia ? "px-4 py-2" : ""} ${message.isDeleted ? "italic text-gray-800 text-zinc-100/50" : ""}`}
                   dangerouslySetInnerHTML={renderWithEmoji(message.content || "")}
                 />
               </span>
@@ -365,15 +365,15 @@ const handleReply = useCallback(() => {
           <ActionsPanel showMenu={showMenu} onCopy={handleCopy} onEdit={handleEdit} onUnsend={handleUnsend} hasText={hasText} />
 
           <section className="flex items-center justify-between rounded-xl gap-2">
-            <button title="Reply" className="hover:text-white  hover:cursor-pointer rounded-full" onClick={handleReply}>
+            <button title="Reply" className="hover:text-white  cursor-pointer rounded-full" onClick={handleReply}>
               <LiaReplySolid size={18} />
             </button>
 
-            <button title="React" className="hover:text-white  rounded-full hover:cursor-pointer" onClick={() => console.log("React", message._id)}>
+            <button title="React" className="hover:text-white  rounded-full cursor-pointer" onClick={() => console.log("React", message._id)}>
               <Smile size={18} />
             </button>
 
-            <button title="More" className="hover:text-white  rounded-full hover:cursor-pointer" onClick={() => setShowMenu((p) => !p)}>
+            <button title="More" className="hover:text-white  rounded-full cursor-pointer" onClick={() => setShowMenu((p) => !p)}>
               <EllipsisVertical size={18} />
             </button>
           </section>
@@ -385,11 +385,11 @@ const handleReply = useCallback(() => {
         <section className="flex flex-col items-center justify-end w-fit ml-2">
           <div className="flex items-end justify-center gap-1 w-fit ">
             {hasText && !message?.isDeleted && (
-              <button className="hover:text-white text-zinc-200 hover:cursor-pointer hover:scale-110 rounded-full" onClick={handleCopy}>
+              <button className="hover:text-white text-zinc-200 cursor-pointer hover:scale-110 rounded-full" onClick={handleCopy}>
                 <TbCopy size={16} />
               </button>
             )}
-            <button className="hover:text-white text-zinc-200 hover:cursor-pointer hover:scale-110 rounded-full" onClick={handleReply}>
+            <button className="hover:text-white text-zinc-200 cursor-pointer hover:scale-110 rounded-full" onClick={handleReply}>
               <LiaReplySolid size={18} />
             </button>
             <span className="text-xs theme-text-muted p-1">{timestamp}</span>

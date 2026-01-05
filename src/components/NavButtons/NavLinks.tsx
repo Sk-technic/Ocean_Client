@@ -37,10 +37,10 @@ const NavButton: React.FC<NavButtonProps> = ({
     <button
       onClick={handleClick}
       className={`
-    flex items-center rounded-xl w-full relative
-    transition-all duration-300 ease-in-out p-2
+    flex items-center rounded-xl cursor-pointer w-full relative
+    transition-all duration-300 ease-in-out p-3
     font-medium select-none group
-    ${collapsed ? "justify-center" : "justify-center md:justify-start gap-3 pr-10 "}
+    ${collapsed ? "justify-center" : "justify-center md:justify-start gap-3 pr-10"}
     ${isActive
           ? "active-theme-button"
           : "theme-text-primary theme-hover-effect"}
@@ -55,7 +55,7 @@ const NavButton: React.FC<NavButtonProps> = ({
       {/* Icon */}
       <Icon
         strokeWidth={2}
-        size={25}
+        size={20}
         className="z-10 shrink-0"
         style={{
           color: isActive ? "var(--bg-primary)" : "var(--text-primary)",

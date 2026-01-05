@@ -92,9 +92,12 @@ const updatePrivacy = async (userId: string, key: string) => {
   }
 };
 
-const blockUser = async (blockedUser:string) => {
+const blockUser = async (data:{user:string,roomId:string|null,set:string}) => {
  try {
-    const response = await api.post(`user/block_user/${blockedUser}`);
+    const response = await api.post(`user/block_user/${data?.user}`,{
+      roomId:data?.roomId,
+      set:data?.set
+    });
     return response.data;
   } catch (error: any) {
     throw error.response?.data || error;
@@ -119,6 +122,28 @@ const UnblockUser = async (blockedUser:string) => {
     }
  };
 
+const getFriendsList = async (data: {
+  userId: string;
+  viewerId: string;
+  type: "followers" | "following";
+  cursor?: string;
+}) => {
+  try {
+    const result = await api.get("user/followersList", {
+      params: {
+        userId: data.userId,
+        viewerId: data.viewerId,
+        type: data.type,
+        cursor: data.cursor,
+      },
+    });
+
+    return result.data;
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+};
+
 
 export const UserApi = {
   updateCoverImage,
@@ -131,5 +156,6 @@ export const UserApi = {
   updatePrivacy,
   blockUser,
   GetBlockedUsers,
-  UnblockUser
+  UnblockUser,
+  getFriendsList
 };

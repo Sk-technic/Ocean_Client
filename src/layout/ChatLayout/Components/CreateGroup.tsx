@@ -12,9 +12,9 @@ import { useFindUser } from "../../../hooks/user/userHook";
 import type { User } from "../../../types";
 import Loader from "../../../components/Loader/Loader";
 import toast from "react-hot-toast";
-import { UploadProfile } from "../../../components/Inputs/UploadProfile";
 import MediaInput from "../../../components/Inputs/MediaInput";
 import InputField from "../../../components/Inputs/Input";
+import { createGroup } from "../../../hooks/chat/chatHook";
 
 type SelectableUser = {
     _id: string;
@@ -22,7 +22,6 @@ type SelectableUser = {
     fullName: string;
     profilePic?: string;
 };
-
 
 const CreateGroupSlider: React.FC<{
     groupSlider: boolean;
@@ -39,7 +38,7 @@ const CreateGroupSlider: React.FC<{
         const map = new Map<string, IParticipant>();
 
         rooms.forEach((room) => {
-            room?.participants?.forEach((p:IParticipant) => {
+            room?.participants?.forEach((p: IParticipant) => {
                 if (p._id !== loggedInUserId) {
                     map.set(p._id, p);
                 }
@@ -96,26 +95,52 @@ const CreateGroupSlider: React.FC<{
         setStep(2)
     }
 
-    const handleCreateGroup = (e: React.FormEvent) => {
-        e.preventDefault()
-        const payload = {
-            name: groupName,
-            description,
-            avatar,
-            isGroup: true,
-            createdBy: loggedInUser!._id,
-            groupAdmin: [loggedInUser!._id],
-            participants: selectedUsers.map((u) => ({
-                user: u._id,
-                unreadCount: 0,
-                isMuted: false,
-                isArchived: false,
-                lastSeenAt: new Date().toISOString(),
-            })),
+    const { mutateAsync: createChatGroup, isPending } = createGroup()
+    const handleCreateGroup = async(e: React.FormEvent) => {
+        e.preventDefault();
 
-        };
-        console.log("CREATE GROUP: ", payload);
+        const formData = new FormData();
 
+        formData.append("name", groupName);
+        if (description) {
+            formData.append("description", description);
+        }
+
+        formData.append("createdBy", loggedInUser!._id);
+
+        // admins (array)
+        formData.append(
+            "admins",
+            JSON.stringify([loggedInUser!._id])
+        );
+
+        // participants (array of string IDs)
+        const participantIds = selectedUsers.map(u => u._id);
+        formData.append(
+            "participants",
+            JSON.stringify(participantIds)
+        );
+
+        // avatar (file)
+        if (avatar instanceof File) {
+            formData.append("avatar", avatar);
+        }
+
+        console.log("CREATE GROUP FORM DATA", [...formData.entries()]);
+        await createChatGroup(formData, {
+            onSuccess: () => {
+                toast.success("group created")
+            }
+        })
+        setAvatar(null)
+        setGroupSlider(false);
+        setStep(1);
+        setSelectedUsers([]);
+
+    };
+
+    if (isPending) {
+        return <Loader fullScreen message="Creating group..." />;
     }
 
 
@@ -124,9 +149,9 @@ const CreateGroupSlider: React.FC<{
     };
     return (
         <div
-            className={`absolute top-0 z-[888] left-20 theme-bg-primary flex flex-col
-      border-l-2 border-r-5 theme-border w-110 h-full duration-300 transition-all ease-in-out
-      ${groupSlider ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0 pointer-events-none"}`}
+            className={`absolute top-0 z-[888] right-0 theme-bg-primary flex flex-col
+       border-l-5 theme-border w-110 h-full duration-300 transition-all ease-in-out
+      ${groupSlider ? "translate-x-0 opacity-100" : "translate-x-30 opacity-0 pointer-events-none"}`}
         >
             <div className="flex items-center justify-between p-3 text-xl theme-border">
                 <h3 className="font-semibold">
@@ -135,9 +160,9 @@ const CreateGroupSlider: React.FC<{
                 <XCircleIcon
                     className="cursor-pointer"
                     onClick={() => {
-                        setGroupSlider(false);
-                        setStep(1);
                         setSelectedUsers([]);
+                        setStep(1);
+                        setGroupSlider(false);
                     }}
                 />
             </div>
@@ -152,13 +177,13 @@ const CreateGroupSlider: React.FC<{
                             onClear={() => setSearchValue("")}
                             value={searchValue}
                             onChange={(e) => setSearchValue(e.target.value)}
-                            className="rounded-md "
+                            className=""
                             width="fit"
                         />
                         <PrimaryButton
                             fullWidth={false}
                             label="Next"
-                            width="w-fit px-4 h-full rounded-md"
+                            width="w-fit px-4 py-[6px] rounded-full"
                             onClick={() => handleNext()}
                             disabled={selectedUsers.length == 0}
                         />
@@ -190,7 +215,7 @@ const CreateGroupSlider: React.FC<{
                                                     optimizeUrl(user?.profilePic || "", 200) ||
                                                     "/profile.png"
                                                 }
-                                                className="w-9 h-9 rounded-full"
+                                                className="w-9 h-9 rounded-full object-cover"
                                             />
                                             <div className="flex-1">
                                                 <p className="text-sm">{user.username}</p>
@@ -225,7 +250,7 @@ const CreateGroupSlider: React.FC<{
                                                 optimizeUrl(user?.profilePic || "", 200) ||
                                                 "/profile.png"
                                             }
-                                            className="w-9 h-9 rounded-full"
+                                            className="w-9 h-9 rounded-full object-cover"
                                         />
                                         <div className="flex-1">
                                             <p className="text-sm">{user.username}</p>
@@ -264,7 +289,7 @@ const CreateGroupSlider: React.FC<{
                                                     optimizeUrl(user?.profilePic || "", 200) ||
                                                     "/profile.png"
                                                 }
-                                                className="w-9 h-9 rounded-full"
+                                                className="w-9 h-9 rounded-full object-cover"
                                             />
                                             <div className="flex-1">
                                                 <p className="text-sm">{user.username}</p>
@@ -285,21 +310,38 @@ const CreateGroupSlider: React.FC<{
             )}
 
             {step === 2 && (
-                <form onSubmit={handleCreateGroup} className="flex flex-col justify-between w-full h-full">
-                    <div>
+                <form onSubmit={handleCreateGroup} className="flex flex-col h-[90vh] gap-2 w-full ">
+                    <div className="flex flex-col items-center justify-center px-2 gap-2">
+                        <div className="flex items-center ">
+                            <MediaInput value={avatar} onChange={handleAvatarChange} name="avatar" />
+                        </div>
 
-                        <div className="p-3 h-20 flex items-center ">
-                            <MediaInput accept="image" value={avatar} onChange={handleAvatarChange} name="avatar" />
+                        <div className=" flex space-x-2">
+                            <InputField className="" name="groupName" label="Name" required placeholder="group name" type="text" onChange={(e) => setGroupName(e.target.value)} />
+                            <InputField className="" name="groupDiscription" required label="Discription" placeholder="group description" type="text" onChange={(e) => setDescription(e.target.value)} />
                         </div>
-                        <div className=" p-3 space-y-2">
-                            <InputField name="groupName" label="Name" required placeholder="" type="text" onChange={(e) => setGroupName(e.target.value)} />
-                            <InputField name="groupDiscription" label="Discription" placeholder="" type="text" onChange={(e) => setDescription(e.target.value)} />
-                        </div>
-                        <p className="text-xs theme-text-muted px-3">
+                    </div>
+                    <div className="flex items-center justify-between px-2">
+                        <p className="text-xs theme-text-muted">
                             Members: {selectedUsers.length + 1}
                         </p>
+                          <div className="flex gap-2">
+                        <PrimaryButton
+                            onClick={() => setStep(1)}
+                            fullWidth={false}
+                            cancel
+                            label="Cancel"
+                            width="w-fit px-2 py-1 "
+                        />
+                        <PrimaryButton
+                            fullWidth={false}
+                            label="Create Group"
+                            width="w-fit px-2 py-1"
+                        />
                     </div>
-                    <div className="h-full overflow-y-scroll custom-scrollbar px-1 border-t-2 theme-border">
+                    </div>
+                    
+                    <div className=" overflow-y-scroll custom-scrollbar border px-1 border-t-2 theme-border">
                         {
                             selectedUsers.map((u) => (
                                 <div className="w-full flex p-2 theme-hover-effect items-center justify-start gap-3">
@@ -311,20 +353,6 @@ const CreateGroupSlider: React.FC<{
                                 </div>
                             ))
                         }
-                    </div>
-                    <div className="p-3 gap-5 border-t-5 theme-border flex justify-end">
-                        <PrimaryButton
-                            onClick={() => setStep(1)}
-                            fullWidth={false}
-                            cancel
-                            label="Cancel"
-                            width="fit px-3 py-1 rounded-md"
-                        />
-                        <PrimaryButton
-                            fullWidth={false}
-                            label="Create Group"
-                            width="w-fit px-3 rounded-md"
-                        />
                     </div>
                 </form>
 

@@ -8,6 +8,8 @@ import Loader from "../../../components/Loader/Loader";
 import ProfileCard from "../../../ui/dashboard/profile";
 import NotFound from "../../../pages/NotFound/Notfound";
 import type { queryUser, User } from "../../../types";
+import ProfileHeader from "../../../ui/dashboard/profile";
+import FriendsListing from "../../Listing/FriendsListing";
 
 const UserProfileComponent = () => {
   const navigate = useNavigate();
@@ -41,7 +43,8 @@ const UserProfileComponent = () => {
 
     setQueryUserData(null);
   }, [username, storedUser, data, dispatch]);
-
+  const [followerList, setFollowers] = useState<boolean>(false)
+  const [followingList, setFollowing] = useState<boolean>(false)
   if (isLoading) {
     return <Loader />;
   }
@@ -56,8 +59,10 @@ const UserProfileComponent = () => {
 
   return (
     <main>
-      <ProfileCard user={queryUserData} />
-    </main>
+      <ProfileHeader user={queryUserData}  setFollowers={setFollowers}  setFollowing={setFollowing}/>
+  {(followerList || followingList) && <div className={`w-full flex items-center justify-center h-full absolute dark:bg-white/10 top-0 `}>
+        <FriendsListing followers={followerList} following={followingList} setFollowers={setFollowers} setFollowing={setFollowing} />
+      </div>}    </main>
   );
 };
 

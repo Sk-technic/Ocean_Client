@@ -161,7 +161,7 @@ const [callWindow ,setCallWindow] = useState<boolean>(false)
         <section className={`relative w-full relative flex-1 flex flex-col justify-end h-full overflow-hidden`}>
           {participant?.isBlocked && <div className="absolute w-full h-full bg-black/50 z-50"></div>}
 
-          <div className="absolute inset-0 pointer-events-none">
+          {/* <div className="absolute inset-0 pointer-events-none">
             <img
               src="/chatbg/bg1.jpg"
               alt="chat background"
@@ -170,7 +170,7 @@ const [callWindow ,setCallWindow] = useState<boolean>(false)
             <div
               className="absolute inset-0 bg-white/30 dark:bg-black/50 backdrop-blur-[0px]"
             />
-          </div>
+          </div> */}
 
           <section className={`w-full z-100 rounded-xl p-2`}>
             <ChatHeader

@@ -5,7 +5,6 @@ import {
   updateCount,
   updateLastMessage,
 } from "../../store/slices/chatList";
-import { queryClient } from "../../api/config/queryClient";
 
 let initialized = false;
 

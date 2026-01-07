@@ -1,4 +1,4 @@
-import { MdCallEnd, MdMic, MdMicOff, MdVideocam, MdVideocamOff } from "react-icons/md";
+import { MdCallEnd, MdMic, MdVideocam } from "react-icons/md";
 import { useCallSignaling } from "../../../hooks/call/useCallSignaling";
 import { useAppSelector } from "../../../store/hooks";
 import React, { useState } from "react";
@@ -40,7 +40,7 @@ const CallControls: React.FC<{
         {maxScreen ? <BsBoxArrowInUpLeft size={20} /> : <BsBoxArrowDownRight size={20} />}
       </button>
       <button onClick={() => { setxlScreen(prev => !prev); setlargeScreen(prev=>!prev) }} className="w-14 h-14 hover:bg-zinc-700/60 hover:border-0 border-2 theme-border rounded-full text-white flex items-center justify-center">
-        {maxScreen ? <CgMaximize size={20} /> : <CgMinimize size={20} />}
+        {xl ? <CgMaximize size={20} /> : <CgMinimize size={20} />}
       </button>
     </div>
   );

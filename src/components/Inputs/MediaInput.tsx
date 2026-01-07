@@ -12,7 +12,6 @@ interface MediaInputProps {
 
 const MediaInput: React.FC<MediaInputProps> = ({
   name,
-  value,
   onChange,
   className,
 }) => {

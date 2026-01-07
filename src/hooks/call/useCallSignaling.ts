@@ -1,9 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { getSocket } from "../../api/config/socketClient";
 import type { StartCallPayload } from "../../layout/ChatLayout/Components/ChatHeader";
-import { useNavigate } from "react-router-dom";
 import type { ICallingUser } from "../../layout/ChatLayout/ChatLayout";
-import { useAppSelector } from "../../store/hooks";
 
 
 interface AcceptedData {

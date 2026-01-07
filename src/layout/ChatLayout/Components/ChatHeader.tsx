@@ -88,9 +88,9 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 
   const lastActiveText = useTimeAgo(activeChat?.lastActive);
 
-  const participant = activeRoom?.participants?.find(
-    (u) => u?._id !== loggedInUser?._id
-  );
+  // const participant = activeRoom?.participants?.find(
+  //   (u) => u?._id !== loggedInUser?._id
+  // );
 
   /* ================= Avatar ================= */
 

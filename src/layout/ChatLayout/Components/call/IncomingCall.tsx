@@ -1,10 +1,10 @@
 import React from "react";
-import { CiVideoOn, CiPhone } from "react-icons/ci";
+// import { CiVideoOn, CiPhone } from "react-icons/ci";
 import { MdCallEnd, MdCall } from "react-icons/md"; // Better call icons
-import { getSocket } from "../../../../api/config/socketClient";
+// import { getSocket } from "../../../../api/config/socketClient";
 import { optimizeUrl } from "../../../../utils/imageOptimize";
 import { useCallSignaling } from "../../../../hooks/call/useCallSignaling";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 interface IncomingCallModalProps {
   data: {

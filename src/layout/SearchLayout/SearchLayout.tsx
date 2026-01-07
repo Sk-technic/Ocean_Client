@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import type { queryUser } from "../../types";
 import { useDispatch } from "react-redux";
 import { setqueryUser } from "../../store/slices/userSlice";
-import { useTheme } from "../../hooks/theme/usetheme";
 const SearchLayout: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedValue = useDebounce(searchQuery, 1500);
@@ -32,7 +31,6 @@ const SearchLayout: React.FC = () => {
     navigate(`/${user.username}`)
   }
 
-  const {theme} = useTheme()
   return (
     <main className={`w-100 max-w-full border-l-2 theme-border h-full flex flex-col justify-start items-center gap-5 hide-scrollbar theme-bg-primary`}>
       <div className=" w-full px-5 pt-5 text-2xl font-bold">

@@ -1,10 +1,9 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { Bell } from "lucide-react";
-import { useAcceptRequest, useMuteFollow, useRejectRequest } from "../../../hooks/follow/followHook";
+import { useAcceptRequest, useRejectRequest } from "../../../hooks/follow/followHook";
 import { optimizeUrl } from "../../../utils/imageOptimize";
 import { removeNotification, updateNotification } from "../../../store/slices/notification/notificationSlice";
-import toast from "react-hot-toast";
 
 const NotificationInbox: React.FC = () => {
   const { notifications } = useAppSelector(

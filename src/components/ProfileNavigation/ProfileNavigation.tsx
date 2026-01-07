@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { RiVideoLine, RiClapperboardLine } from "react-icons/ri";
 import { useTheme } from "../../hooks/theme/usetheme";
-import { DollarSign, ChartNoAxesCombined,Clapperboard, Group, Captions, ListMusic, UserRound } from "lucide-react";
+import { DollarSign, ChartNoAxesCombined,Clapperboard, Captions, ListMusic, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { GrGroup } from "react-icons/gr";
 

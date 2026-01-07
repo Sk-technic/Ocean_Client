@@ -8,7 +8,6 @@ import { getSocket } from "../../../api/config/socketClient";
 import { TbCopy } from "react-icons/tb";
 import { LiaReplySolid } from "react-icons/lia";
 import { useTimeAgo } from "../../../utils/timecoverter";
-import { HiMiniArrowPath } from "react-icons/hi2";
 import { useDispatch } from "react-redux";
 import { setEditMessage } from "../../../store/slices/messages/editMessage";
 import { setReplyMessage } from "../../../store/slices/messages/replyMessage";
@@ -166,7 +165,7 @@ const MessageBubble: React.FC<IBubble> = ({
 }) => {
   const [showActions, setShowActions] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [loader, setLoader] = useState(false);
+  // const [loader, setLoader] = useState(false);
   const [messageInfo, setMessageInfo] = useState(false);
   const { user: loggedInUser } = useAppSelector((state) => state.auth)
 
@@ -183,12 +182,10 @@ const MessageBubble: React.FC<IBubble> = ({
   const bubbleShape = useMemo(() => {
     const isSingle = !sameAsPrev && !sameAsNext;
 
-    // 🟢 Single message → fully rounded
     if (isSingle) {
       return "rounded-full";
     }
 
-    // 🟢 Grouped messages
     return isSender
       ? `
         rounded-tl-2xl
@@ -225,7 +222,7 @@ const MessageBubble: React.FC<IBubble> = ({
   const handleUnsend = useCallback(() => {
     unsendMessage();
     setShowMenu(false);
-    setLoader(true);
+    // setLoader(true);
   }, [unsendMessage]);
 
   const isEmojiOnly = useMemo(() => {
@@ -241,7 +238,7 @@ const MessageBubble: React.FC<IBubble> = ({
   const socket = getSocket();
   useEffect(() => {
     if (message.isDeleted) {
-      setLoader(false);
+      // setLoader(false);
     }
   }, [socket, message.isDeleted]);
 

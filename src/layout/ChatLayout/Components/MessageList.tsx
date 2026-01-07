@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState, useLayoutEffect, useEffect } from "react";
+import React, { useCallback, useMemo, useRef, useState, useLayoutEffect } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 
 import MessageBubble from "./MesssageBubble";
@@ -11,7 +11,7 @@ import {
   useMessageEditListener
 } from "../../../hooks/chat/chatHook";
 import { getSocket } from "../../../api/config/socketClient";
-import TypingIndicator from "../../../utils/TypingWave";
+// import TypingIndicator from "../../../utils/TypingWave";
 import { queryClient } from "../../../api/config/queryClient";
 
 const MessageList: React.FC = () => {
@@ -26,27 +26,27 @@ const MessageList: React.FC = () => {
 
     const { messages, isLoading } = useChatMessages(effectiveRoomId!);
   // Typing Indicator State (Sabse upar le aaye)
-  const [typingUsers, setTypingUsers] = useState<{ id: string; name: string }[]>([]);
+  // const [typingUsers, setTypingUsers] = useState<{ id: string; name: string }[]>([]);
 
   useMessageDelivery(socket);
   useIncomingMessages(socket, loggedInUser?._id!);
   useIncomingMessageDelete(socket)
   useMessageEditListener(socket,queryClient)
   /* Typing Indicator Hook (Sabse upar le aaye) */
-  useEffect(() => {
-    if (!socket || !activeRoom?._id) return;
+  // useEffect(() => {
+  //   if (!socket || !activeRoom?._id) return;
 
-    const handler = ({ roomId, typingUsers }: any) => {
-      if (roomId === activeRoom._id) {
-        setTypingUsers(
-          typingUsers.filter((u: { id: string }) => u.id !== loggedInUser?._id)
-        );
-      }
-    };
+  //   const handler = ({ roomId, typingUsers }: any) => {
+  //     if (roomId === activeRoom._id) {
+  //       setTypingUsers(
+  //         typingUsers.filter((u: { id: string }) => u.id !== loggedInUser?._id)
+  //       );
+  //     }
+  //   };
 
-    socket.on("typing:update", handler);
-    return () => { socket.off("typing:update", handler) };
-  }, [socket, activeRoom?._id, loggedInUser?._id]);
+  //   socket.on("typing:update", handler);
+  //   return () => { socket.off("typing:update", handler) };
+  // }, [socket, activeRoom?._id, loggedInUser?._id]);
 
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);

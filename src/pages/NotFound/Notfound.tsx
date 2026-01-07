@@ -1,5 +1,4 @@
 import React from "react";
-import {Frown} from 'lucide-react'
 import { Link } from "react-router-dom";
 const NotFound: React.FC = () => {
   return (

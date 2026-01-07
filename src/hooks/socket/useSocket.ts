@@ -1,10 +1,10 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { setSocket, setConnected } from "../../store/slices/socketSclice";
 import { useAppDispatch } from "../../store/hooks";
 import {
   connectSocket,
   disconnectSocket,
-  reconnectSocket,
+  // reconnectSocket,
   getSocket,
 } from "../../api/config/socketClient";
 
@@ -28,7 +28,7 @@ export const useSocket = (token: string, userId?: string) => {
       dispatch(setConnected(true));
     };
 
-    const handleDisconnect = (reason: string) => {
+    const handleDisconnect = () => {
       // console.warn("🔴 [useSocket] Disconnected:", reason);
       dispatch(setConnected(false));
     };
@@ -62,13 +62,13 @@ export const useSocket = (token: string, userId?: string) => {
     };
   }, [token, userId, dispatch]);
 
-  const reconnect = useCallback(
-    (newToken?: string) => {
-      console.log("♻️ [useSocket] Manual reconnect...");
-      reconnectSocket(newToken ?? token, userId);
-    },
-    [token, userId]
-  );
+  // const reconnect = useCallback(
+  //   (newToken?: string) => {
+  //     console.log("♻️ [useSocket] Manual reconnect...");
+  //     reconnectSocket(newToken ?? token, userId);
+  //   },
+  //   [token, userId]
+  // );
 
   return { socket: getSocket() };
 };

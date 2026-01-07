@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Ban, MapPin,Lock,UserRound, MessageCircle, AtSign, MessageSquare, Share2, Shield, EyeOff, SlidersHorizontal, Heart } from "lucide-react";
+import { Ban, MapPin,Lock, MessageCircle, AtSign, MessageSquare, Share2, Shield, EyeOff, SlidersHorizontal, Heart } from "lucide-react";
 import type React from "react";
 import { RiUserLine } from "react-icons/ri";
 import { HiOutlineShieldCheck } from "react-icons/hi2";

@@ -17,7 +17,6 @@ const ContentSection = lazy(() => import("../pages/Content/Content"));
 const ProfilePage = lazy(() => import("../layout/ProfileLayout/ProfileLayout"));
 const UserProfilePage = lazy(() => import("../layout/userProfileLayout/component/UserProfileComponent.tsx"));
 const ExplorePage = lazy(() => import("../pages/ExplorePage/ExplorePage"));
-const NotificationPage = lazy(() => import("../pages/Notification/Notification"));
 const AuthSuccess = lazy(() => import("../layout/AuthSuccess/AuthSuccess"))
 const PrivacySettings = lazy(() => import("../layout/settings/PrivacySettings/index.tsx"))
 

@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFindUser } from "../../../hooks/user/userHook";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setqueryUser } from "../../../store/slices/userSlice";
 import Loader from "../../../components/Loader/Loader";
-import ProfileCard from "../../../ui/dashboard/profile";
 import NotFound from "../../../pages/NotFound/Notfound";
 import type { queryUser, User } from "../../../types";
 import ProfileHeader from "../../../ui/dashboard/profile";

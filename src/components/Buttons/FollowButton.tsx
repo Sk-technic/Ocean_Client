@@ -15,7 +15,6 @@ type FollowState = "not-following" | "requested" | "accepted";
 
 const FollowButton: React.FC<FollowButtonProps> = ({
   userId,
-  isPrivate,
   state,
   setcount,
 }) => {

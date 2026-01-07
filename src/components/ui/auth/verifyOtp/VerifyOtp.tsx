@@ -51,7 +51,7 @@ const VerifyOtp: React.FC = () => {
         console.log(i);
         
         resendOTP(i,{
-            onSuccess:(data)=>{
+            onSuccess:()=>{
                 setTimer(30)
             },
             onError:(data:any)=>{
@@ -116,7 +116,7 @@ const VerifyOtp: React.FC = () => {
           />
         ))}
       </div>
-
+        <span className="theme-text-muted text-xs">{message}</span>
       <div className="flex items-center justify-center">
             <p className="text-center theme-text-muted text-xs w-90">
               Please enter the 6-digit code sent to your registered email or phone number

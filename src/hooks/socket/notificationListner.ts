@@ -1,8 +1,6 @@
-import toast from "react-hot-toast";
 import { getSocket } from "../../api/config/socketClient";
 import { store } from "../../store";
 import { addNotification } from "../../store/slices/notification/notificationSlice";
-import { optimizeUrl } from "../../utils/imageOptimize";
 
 let initialized = false;
 

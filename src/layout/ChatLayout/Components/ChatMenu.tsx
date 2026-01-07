@@ -1,5 +1,4 @@
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import PrimaryButton from "../../../components/Buttons/PrimaryButoon";
 import ToggleSwitch from "../../../components/Buttons/ToggleSwitch";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import toast from "react-hot-toast";
@@ -101,7 +100,7 @@ const ChatMenu: React.FC = () => {
         })
     };
 
-    const handleRemove = (userId: string) => {
+    const handleRemove = () => {
         toast.success("User removed from group");
         setMenuUserId(null);
     };
@@ -232,7 +231,7 @@ const ChatMenu: React.FC = () => {
 
                         return (
                             <div
-                                key={member.id}
+                                key={`${member.id}-${index}`}
                                 onClick={() => {
                                     setSelectedUserId(member.id);
                                     setMenuUserId(null);
@@ -331,7 +330,7 @@ const ChatMenu: React.FC = () => {
                                                 <MenuItem
                                                     label="Remove from group"
 
-                                                    onClick={() => handleRemove(member.id)}
+                                                    onClick={() => handleRemove()}
                                                 />
                                             </>
                                         )}
@@ -391,10 +390,6 @@ const MenuItem = ({
     >
         {label}
     </div>
-);
-
-const Divider = () => (
-    <div className="my-1 h-px bg-[var(--theme-border)]" />
 );
 
 export default ChatMenu;

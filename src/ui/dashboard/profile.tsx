@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ShieldCheckIcon, ShieldPlus } from "lucide-react";
+import { ShieldPlus } from "lucide-react";
 import type { User } from "../../types";
 import { toast } from "react-hot-toast";
 import Loader from "../../components/Loader/Loader";
@@ -21,10 +21,8 @@ import {
 import { SiThreads } from "react-icons/si";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useNavigate } from "react-router-dom";
-import { getSocket } from "../../api/config/socketClient";
-import { setqueryUser, setRoomId } from "../../store/slices/userSlice";
+import { setqueryUser } from "../../store/slices/userSlice";
 import { optimizeUrl } from "../../utils/imageOptimize";
-import { addChatRoom } from "../../store/slices/chatList";
 import FollowButton from "../../components/Buttons/FollowButton";
 import { FcGoogle } from "react-icons/fc";
 
@@ -43,7 +41,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   setFollowers: setFollowerList,
   setFollowing: setFollowingList
 }) => {
-  const socket = getSocket()
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const profileInputRef = useRef<HTMLInputElement | null>(null);
 

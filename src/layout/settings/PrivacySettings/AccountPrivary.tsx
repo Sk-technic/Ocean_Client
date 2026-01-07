@@ -1,6 +1,5 @@
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { useAccountPrivacy } from '../../../hooks/user/userHook';
-import { useParams } from 'react-router-dom';
 import ToggleSwitch from '../../../components/Buttons/ToggleSwitch';
 import { updateAccountPrivacy } from '../../../store/slices/authSlice';
 import { useState } from 'react';

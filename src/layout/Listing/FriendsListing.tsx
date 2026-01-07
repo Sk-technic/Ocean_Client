@@ -145,7 +145,7 @@ const FriendsListing: React.FC<Props> = ({
               }}
 
               itemContent={(index, user) => (
-                <FriendRow key={user._id} user={user} />
+                <FriendRow key={`${user._id}-${index}`} user={user} />
               )}
             />
           )}

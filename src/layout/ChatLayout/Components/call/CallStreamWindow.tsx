@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import CallControls from "../CallControls";
 import { optimizeUrl } from "../../../../utils/imageOptimize";
-import { useCallSignaling } from "../../../../hooks/call/useCallSignaling";
-import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
-import { getSocket } from "../../../../api/config/socketClient";
-import { clearActiveCall } from "../../../../store/slices/activeCallSlice";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { Fullscreen } from "lucide-react";
+// import { useCallSignaling } from "../../../../hooks/call/useCallSignaling";
+import { useAppSelector } from "../../../../store/hooks";
+// import { getSocket } from "../../../../api/config/socketClient";
+// import { clearActiveCall } from "../../../../store/slices/activeCallSlice";
+// import { useNavigate } from "react-router-dom";
+// import toast from "react-hot-toast";
+// import { Fullscreen } from "lucide-react";
 import Draggable from 'react-draggable'
 import { sfuState } from "../../../../hooks/sfu";
 const CallStreamWindow: React.FC<
@@ -39,10 +39,10 @@ const CallStreamWindow: React.FC<
     }
   }, [remoteStream]);
 
-  const socket = getSocket()
+  // const socket = getSocket()
   const { remoteUser } = useAppSelector(state => state.activeCall)
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  // const dispatch = useAppDispatch()
+  // const navigate = useNavigate()
   const nodeRef = useRef(null);
   // useEffect(() => {
   //     if (!socket) return
@@ -70,6 +70,8 @@ const CallStreamWindow: React.FC<
 
   const handleDrag = (e: any, data: any) => {
     setPosition({ x: data.x, y: data.y });
+    console.log(e);
+    
   };
   return (
     <Draggable

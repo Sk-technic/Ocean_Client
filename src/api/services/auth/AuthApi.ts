@@ -1,4 +1,4 @@
-import type { ApiError, ILogin, ILoginResponse, IsignupData } from "../../../types";
+import type { ILogin, ILoginResponse } from "../../../types";
 import api from "../../config/axiosconfig";
 
 

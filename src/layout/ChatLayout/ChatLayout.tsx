@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { getSocket } from "../../api/config/socketClient";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useAppSelector } from "../../store/hooks";
+// import { getSocket } from "../../api/config/socketClient";
+import { useNavigate } from "react-router-dom";
 import ChatSidebar from "./Components/ChatSidebar";
 import ChatHeader, { type StartCallPayload } from "./Components/ChatHeader";
 import MessageList from "./Components/MessageList";
@@ -24,25 +24,25 @@ import CreateGroupSlider from "./Components/CreateGroup";
 // import { updateBlockedUser } from "../../store/slices/chatList";
 import ChatMenu from "./Components/ChatMenu";
 // import CallStreamWindow from "./Components/call/CallStreamWindow";
-import IncomingCallModal from "./Components/call/IncomingCall";
+// import IncomingCallModal from "./Components/call/IncomingCall";
 // import { consumeMedia, consumeSingleProducer, joinSFURoom, leaveSFURoom, produceMedia, sfuState } from "../../services/sfu";
 // import { createRecvTransport } from "../../services/sfu/sfuDevice";
 import OutgoingCallModal from "./Components/call/OutGoing";
 import { useCallSignaling } from "../../hooks/call/useCallSignaling";
-import { clearActiveCall, setActiveCall } from "../../store/slices/activeCallSlice";
-import CallStreamWindow from "./Components/call/CallStreamWindow";
+// import { setActiveCall } from "../../store/slices/activeCallSlice";
+// import CallStreamWindow from "./Components/call/CallStreamWindow";
 
-interface ActiveCall {
-  roomId: string;
-  roomType: "dm" | "group";
-  callType: "audio" | "video";
+// interface ActiveCall {
+//   roomId: string;
+//   roomType: "dm" | "group";
+//   callType: "audio" | "video";
 
-  remoteUser?: {
-    id?: string | undefined;
-    name: string;
-    avatar?: string | undefined;
-  };
-}
+//   remoteUser?: {
+//     id?: string | undefined;
+//     name: string;
+//     avatar?: string | undefined;
+//   };
+// }
 
 export interface ICallingUser {
   id?: string | undefined,
@@ -55,7 +55,7 @@ const ChatLayout = () => {
   const [selectedRoomId, setSelectedRoomId] = useState<string>("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [RoomCreater, setRoomCreater] = useState<string>("");
-  const [blockedMe, setblockedMe] = useState<boolean>(false);
+  // const [blockedMe, setblockedMe] = useState<boolean>(false);
   const [openslide, setOpenslide] = useState<boolean>(false)
   const { user: dmUser } = useAppSelector((state) => state.user)
   const { activeRoom } = useAppSelector((state) => state.chat)
@@ -64,9 +64,9 @@ const ChatLayout = () => {
   const participant = filtering?.find((u) => u?._id !== loggedInUser?._id)
 
   const [outGoingCall, setOutGoingCall] = useState<StartCallPayload | null>(null);
-const[fullScreen,setFullScreen] = useState<boolean>(false);
-const [callWindow ,setCallWindow] = useState<boolean>(false)
-  const dispatch = useAppDispatch()
+// const[fullScreen,setFullScreen] = useState<boolean>(false);
+// const [callWindow ,setCallWindow] = useState<boolean>(false)
+  // const dispatch = useAppDispatch()
 
   const handleStartCall = (payload: StartCallPayload) => {
     setOutGoingCall(payload);   // outgoing modal open
@@ -78,7 +78,7 @@ const [callWindow ,setCallWindow] = useState<boolean>(false)
     // });
   };
 
-  const socket = getSocket();
+  // const socket = getSocket();
 
   useCallSignaling({
     // onIncomingCall(payload) {
@@ -100,19 +100,19 @@ const [callWindow ,setCallWindow] = useState<boolean>(false)
       setOutGoingCall(null)
       // setIncomingCall(null)
     },
-    onhandleAccepted(payload: { roomId: string, acceptedBy: ICallingUser }) {
-      console.log("------------------Accept Call : ", payload,);
+    // onhandleAccepted(payload: { roomId: string, acceptedBy: ICallingUser }) {
+    //   console.log("------------------Accept Call : ", payload,);
 
-      if (payload) {
-        dispatch(setActiveCall({
-          roomId: payload?.roomId,
-          roomType: "dm",
-          remoteUser: payload.acceptedBy
-        }))
-        setCallWindow(true)
-        setOutGoingCall(null)
-      }
-    },
+    //   if (payload) {
+    //     dispatch(setActiveCall({
+    //       roomId: payload?.roomId,
+    //       roomType: "dm",
+    //       remoteUser: payload.acceptedBy
+    //     }))
+    //     setCallWindow(true)
+    //     setOutGoingCall(null)
+    //   }
+    // },
   
   })
 
@@ -133,14 +133,13 @@ const [callWindow ,setCallWindow] = useState<boolean>(false)
 
   return (
     <main className="w-full flex h-full">
-     {!fullScreen && <ChatSidebar
+   <ChatSidebar
         selectedRoomId={selectedRoomId}
         onSelectRoom={setSelectedRoomId}
         navigate={navigate}
         onSetRoomCreater={setRoomCreater}
-        onSetBlockedMe={setblockedMe}
         onSetGroupSlider={setGroupSlider}
-      />}
+      />
 
 
       {/* {incomingCall && (

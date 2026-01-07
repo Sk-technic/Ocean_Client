@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CiImageOn } from "react-icons/ci";
 import MediaPreview from "./MediaPreview";
 import { getSocket } from "../../../api/config/socketClient";
 import type { User } from "../../../types";
-import { Smile, Heart, Mic, Divide, Cross } from "lucide-react";
+import { Smile, Heart, Mic } from "lucide-react";
 import { useTyping } from "../../../hooks/chat/chatEvents";
 import EmojiPicker, { type EmojiClickData, Theme, EmojiStyle, SkinTones } from "emoji-picker-react";
 import { useTheme } from "../../../hooks/theme/usetheme";
@@ -109,7 +109,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         dispatch(closeReplyMessage());
     };
 
-    const { messageId: replymessageId, openReply, isSender, content, replyingUser, media } = useAppSelector((state) => state.replyMessage);
+    const { messageId: replymessageId, openReply, isSender, content, replyingUser } = useAppSelector((state) => state.replyMessage);
 
     //send text message 
     const handleSend = (e: React.FormEvent<HTMLFormElement>) => {

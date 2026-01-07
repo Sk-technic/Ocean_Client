@@ -1,33 +1,16 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { chatApi } from "../../api/services/chat/chatApi";
 import { setChatList, updateLastMessage } from "../../store/slices/chatList";
-import type { ChatRoom, IParticipant, Message } from "../../types/chat";
+import type { ChatRoom } from "../../types/chat";
 import type { AxiosError } from "axios";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import React, { useEffect, useMemo, useRef } from "react";
-import { store } from "../../store";
 import { messageKeyMap } from "./chatMessageMap";
 import toast from "react-hot-toast";
 
-const state = store.getState();
 
-interface RoomMember {
-  _id: string;
-  username: string;
-  fullName: string;
-  email?: string;
-  profilePic?: string;
-}
-
-interface MembersResponse {
-  data: RoomMember[];
-  nextCursor: string | null;
-  hasNext: boolean;
-}
 
 export const useChatMessages = (roomId: string, limit = 50) => {
-  const queryClient = useQueryClient();
-
   // 1. Strict Check: Room tabhi fetch hoga jab wo 'temp-' se start NA ho
   const isTemp = !roomId || roomId.startsWith("temp-");
 
@@ -93,7 +76,6 @@ export const useChatMessages = (roomId: string, limit = 50) => {
 
 export const useChatUsers = (
   userId?: string,
-  isConnected = false
 ) => {
   const dispatch = useAppDispatch();
 

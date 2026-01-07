@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import type { ChatRoom, IParticipant, IUserRoom } from "../../../types/chat";
+import type { ChatRoom, IParticipant } from "../../../types/chat";
 import SearchInput from "../../../components/searchHeader/SearchComponent";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { LazyLoadImage } from "react-lazy-load-image-component";
@@ -21,7 +21,6 @@ const ChatSidebar: React.FC<{
 
   navigate: (path: string) => void;
   onSetRoomCreater: (value: string) => void;
-  onSetBlockedMe: (value: boolean) => void;
   onSetGroupSlider: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({ selectedRoomId, onSetGroupSlider }) => {
 
@@ -154,12 +153,12 @@ const ChatSidebar: React.FC<{
   }, [filteredUsers, isActiveTab, loggedInUser?._id]);
 
 
-  const { isConnected } = useAppSelector(state => state.socket)
+  // const { isConnected } = useAppSelector(state => state.socket)
   const {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useChatUsers(loggedInUser?._id, isConnected);
+  } = useChatUsers(loggedInUser?._id);
 
 
   useEffect(() => {
@@ -278,7 +277,7 @@ const ChatSidebar: React.FC<{
                   if (u.type === "group") {
                     return (
                       <SidebarUserCard
-                        key={u._id}
+                        key={`${u._id}-${index}`}
                         user={u}
                         participant={{
                           _id: u._id,
@@ -355,7 +354,7 @@ const SidebarUserCard = ({
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { user: loggedInUser } = useAppSelector((state) => state.auth)
-  const { activeRoom } = useAppSelector(state => state.chat)
+  // const { activeRoom } = useAppSelector(state => state.chat)
 
   const preview =
     user.lastMessageMeta?.text ||

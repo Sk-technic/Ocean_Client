@@ -1,6 +1,5 @@
-import React, { useRef } from "react";
+import React from "react";
 import { FcGoogle } from "react-icons/fc";
-import { useGoogleAuth } from "../../hooks/auth/authHooks";
 interface GoogleAuthButtonProps {
   mode?: "login" | "signup";
 }

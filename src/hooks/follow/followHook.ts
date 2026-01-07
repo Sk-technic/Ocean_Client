@@ -1,8 +1,7 @@
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {  useMutation} from "@tanstack/react-query";
 import { followApi } from "../../api/services/follow/followApi";
 import { toast } from "react-hot-toast";
 import type { ApiError } from "../../types";
-import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../store/hooks";
 import { addMutedUsers, setMutedUsers } from "../../store/slices/blockedUsers/muteUserSlice";
 

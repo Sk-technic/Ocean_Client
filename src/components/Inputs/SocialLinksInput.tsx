@@ -14,7 +14,6 @@ import {
 import { TbCopy } from "react-icons/tb";
 
 import { SiThreads } from "react-icons/si";
-import { FiClipboard } from "react-icons/fi";
 
 interface SocialLinksInputProps {
   value: Record<string, string>;

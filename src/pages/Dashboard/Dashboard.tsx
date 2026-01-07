@@ -1,4 +1,3 @@
-import ProfileVerticalNav from '../../components/ProfileNavigation/ProfileNavigation';
 import { Outlet } from 'react-router-dom';
 import './Dashboard.css'; // add this CSS file
 

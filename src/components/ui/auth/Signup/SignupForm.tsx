@@ -7,8 +7,6 @@ import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import GoogleAuthButton from "../../../Buttons/GoogleAuthBtn";
 import { useSignup } from "../../../../hooks/auth/authHooks";
-import MetaButoon from "../../../Buttons/MetaButoon";
-import LinkedinAuthBtn from "../../../Buttons/LinkedinAuthBtn";
 
 const SignupForm: React.FC = () => {
 

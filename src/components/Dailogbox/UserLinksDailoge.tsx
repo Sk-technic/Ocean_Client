@@ -12,7 +12,6 @@ import {
   FaTelegram,
 } from "react-icons/fa";
 import { SiThreads } from "react-icons/si";
-import { TbArrowsCross, TbCross } from "react-icons/tb";
 
 interface UserLinksDialogProps {
   open: boolean;

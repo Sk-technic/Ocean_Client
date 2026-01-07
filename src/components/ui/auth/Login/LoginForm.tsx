@@ -27,7 +27,7 @@ const LoginForm: React.FC = () => {
 
   const { mutate: login, isPending } = useLogin();
   const { mutateAsync: sendOtp, isPending: sendOtpPending } = authHooks.useSendVerificationMail();
-  const { mutateAsync: verifyOTP, isPending: verifyPending } = useOTPVerify();
+  const { mutateAsync: verifyOTP } = useOTPVerify();
   const { mutateAsync: resetPassword, isPending: resetPending } = useResetPassword();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

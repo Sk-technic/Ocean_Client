@@ -1,13 +1,10 @@
-import { useMutation, useQueryClient, useQuery, Mutation, useInfiniteQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { UserApi } from "../../api/services";
-import { setUser, updateAccountPrivacy } from "../../store/slices/authSlice"; // assuming you have this
+import { setUser } from "../../store/slices/authSlice"; // assuming you have this
 import { toast } from "react-hot-toast";
-import { store } from "../../store";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { use } from "react";
-import { set } from "zod";
-import { addBlockedUsers, removeBlockedUser, setBlockedUsers } from "../../store/slices/blockedUsers/blockedSlice";
+import { useAppDispatch } from "../../store/hooks";
+
 import { updateBlockedUser, updateUnBlockedUser } from "../../store/slices/chatList";
 
 const useUpdateCoverImage = () => {
@@ -185,7 +182,6 @@ export const useAccountPrivacy = () => {
 export const useBlockUser = () => {
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch()
-  const activeRoom = useAppSelector(state => state.chat.activeRoom)
   return useMutation({
     mutationFn: async (data: {
       user: string;
@@ -330,10 +326,7 @@ export const useUnBlockUser = () => {
 
 type FollowType = "followers" | "following";
 
-type Cursor = {
-  createdAt: string;
-  _id: string;
-} | null;
+
 
 type UseFriendsListParams = {
   userId: string;

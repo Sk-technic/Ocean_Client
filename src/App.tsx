@@ -19,7 +19,7 @@ import { useGetNotification } from "./hooks/notifications/notifications";
 import { useTheme } from "./hooks/theme/usetheme";
 import { useCallSignaling } from "./hooks/call/useCallSignaling";
 import IncomingCallModal from "./layout/ChatLayout/Components/call/IncomingCall";
-import type { StartCallPayload } from "./layout/ChatLayout/Components/ChatHeader";
+// import type { StartCallPayload } from "./layout/ChatLayout/Components/ChatHeader";
 import CallStreamWindow from "./layout/ChatLayout/Components/call/CallStreamWindow";
 import { clearActiveCall, setActiveCall } from "./store/slices/activeCallSlice";
 import type { ICallingUser } from "./layout/ChatLayout/ChatLayout";
@@ -72,7 +72,10 @@ const App = () => {
   /**
    *  Load chat users after socket + auth ready
    */
-  useChatUsers(loggedInUser?._id, isConnected && isAuthenticated);
+  // useChatUsers(loggedInUser?._id, isConnected && isAuthenticated);
+  useChatUsers(loggedInUser?._id);
+
+  
 
   /**
    *  Notifications
@@ -94,7 +97,7 @@ const App = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const [outGoingCall, setOutGoingCall] = useState<StartCallPayload | null>(null);
+  // const [outGoingCall, setOutGoingCall] = useState<StartCallPayload | null>(null);
   const [incomingCall, setIncomingCall] = useState<any>(null);
   const [fullScreen, setFullScreen] = useState<boolean>(true);
   const [maxScreen, setMaxScreen] = useState<boolean>(false);
@@ -122,7 +125,7 @@ const App = () => {
       setIncomingGroupCall(null)
     },
     onCallRejected() {
-      setOutGoingCall(null)
+      // setOutGoingCall(null)
       setIncomingCall(null)
     },
     onhandleAccepted(payload: { roomId: string, acceptedBy: ICallingUser }) {
@@ -135,7 +138,7 @@ const App = () => {
           remoteUser: payload.acceptedBy
         }))
         setCallWindow(true)
-        setOutGoingCall(null)
+        // setOutGoingCall(null)
       }
     },
   })

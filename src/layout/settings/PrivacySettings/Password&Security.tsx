@@ -4,14 +4,12 @@ import { CgPassword } from "react-icons/cg";
 import { LuShieldAlert } from "react-icons/lu";
 import ChangePasswordFlow from "../components/ChangePasswordFlow";
 import ToggleSwitch from "../../../components/Buttons/ToggleSwitch";
-import { useAppSelector } from "../../../store/hooks";
 
 const Password_Security = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const[phishing,setAlert] = useState<boolean>(false);
   const[TwoFA,setTowFA]=useState<boolean>(true)
 
-  const {user:loggedInUser} = useAppSelector((state)=>state.auth)
   const handleTwoFactorAuth = ()=>{
     setTowFA((prev)=>!prev)
   }

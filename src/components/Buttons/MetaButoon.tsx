@@ -1,9 +1,6 @@
-import React from 'react'
 import { FaMeta } from "react-icons/fa6";
-import { useTheme } from '../../hooks/theme/usetheme';
 
 const MetaButoon = () => {
-    const {theme} = useTheme()
   return (
       <main className="flex flex-col items-center justify-center gap-1">
 

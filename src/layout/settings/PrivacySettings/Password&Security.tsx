@@ -82,7 +82,7 @@ const Password_Security = () => {
                             </div>
                         </div>
 
-                        <ToggleSwitch value={phishing} onclick={()=>setPhishingAlert()} />
+                        <ToggleSwitch value={phishing} onClick={setPhishingAlert} />
                     </div>
                 </div>
 

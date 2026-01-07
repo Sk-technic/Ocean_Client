@@ -15,7 +15,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={()=>onClick}
       className={`
         relative w-14 h-8 rounded-full p-1 flex items-center
         transition-all duration-300 shadow-md

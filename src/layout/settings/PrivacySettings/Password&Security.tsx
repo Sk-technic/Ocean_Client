@@ -65,7 +65,7 @@ const Password_Security = () => {
                             </div>
                         </div>
 
-                        <ToggleSwitch value={TwoFA} onclick={()=>handleTwoFactorAuth()}/>
+                        <ToggleSwitch value={TwoFA} onClick={handleTwoFactorAuth}/>
                     </div>
 
                     <div className="p-5 rounded-lg border theme-border shadow-md flex items-center opacity-40 justify-between">

@@ -25,6 +25,7 @@ import { setqueryUser } from "../../store/slices/userSlice";
 import { optimizeUrl } from "../../utils/imageOptimize";
 import FollowButton from "../../components/Buttons/FollowButton";
 import { FcGoogle } from "react-icons/fc";
+import { FaXTwitter } from "react-icons/fa6";
 
 interface ProfileHeaderProps {
   user: User;
@@ -156,6 +157,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   const [followers, setFollowers] = useState<boolean>(false)
 
+ console.log("------",user);
  
   return (
     <main className="w-full max-w-5xl h-fit">
@@ -226,9 +228,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         </div>
 
         {/* Profile + Info Section */}
-        <div className="relative w-full mx-auto flex justify-start">
+        <div className="relative w-full mx-auto flex  gap-15 justify-center md:justify-end">
           {/* Profile Image */}
-          <div className="relative -top-15 left-5 w-32 h-32 md:w-40 md:h-40 group rounded-[50px]  p-[10px] bg-white/20 shadow-xl backdrop-blur-md">
+          <div className=" relative -top-15  w-32 h-32 md:w-40 md:h-40 group rounded-[50px] p-[10px] bg-white/20 shadow-xl backdrop-blur-md">
             <div className="w-full h-full rounded-[40px] overflow-hidden bg-[var(--bg-card)]">
               <img
                 src={optimizeUrl(user?.profilePic || '', 500) || "./profile-dummy.png"}
@@ -291,9 +293,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </div>
 
           {/* Info Section */}
-          <div className="flex flex-col md:flex-row justify-center gap-10 px-2 md:ml-8 md:mt-0 pb-4">
+          <div className="flex flex-col md:flex-row justify-center w-[70%]">
             {/* Left Info */}
-            <div className="h-auto w-full flex flex-col md:items-start items-center justify-between md:items-start">
+            <div className="h-auto w-full flex flex-col md:items-start  items-center justify-between md:items-start">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-semibold text-[var(--text-primary)] flex items-center tracking-wide">
                   <span>
@@ -318,7 +320,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               )}
 
               {/* Bio with toggle */}
-              <p className="text-sm text-[var(--text-secondary)] mt-2 w-130 leading-snug">
+              <p className={`text-sm text-[var(--text-secondary)] mt-2 ${bio?"w-130" :"w-0"} leading-snug`}>
                 {showFullBio ? bio : truncatedBio}{" "}
                 {bio.length > 100 && (
                   <button
@@ -342,6 +344,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       telegram: <FaTelegram size={18} />,
                       threads: <SiThreads size={18} />,
                       youtube: <FaYoutube size={18} />,
+                      twitter:<FaXTwitter size={18} />
                     };
                     return (
                       <a
@@ -401,7 +404,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   // Edit Profile Button for own profile
                   <button
                     onClick={() => setUpdateProfileDialogOpen(true)}
-                    className="px-6 py-2 w-full text-md font-medium rounded-xl border border-[var(--border-primary)] text-[var(--text-primary)] bg-[var(--accent-secondary-hover)] cursor-pointer hover:bg-[var(--accent-secondary)] transition"
+                    className="px-6 py-2 w-fit text-md font-medium rounded-xl border border-[var(--border-primary)] text-[var(--text-primary)] bg-[var(--accent-secondary-hover)] cursor-pointer hover:bg-[var(--accent-secondary)] transition"
                   >
                     Edit Profile
                   </button>

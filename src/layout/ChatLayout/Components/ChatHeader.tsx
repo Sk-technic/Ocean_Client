@@ -142,11 +142,11 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   /* ================= UI ================= */
 
   return (
-    <header className="w-[99%] backdrop-blur-3xl shadow-sm rounded-full border theme-border flex items-center p-[1px] justify-between">
+    <header className="w-[99%] backdrop-blur-3xl shadow-sm rounded-full border-3 theme-border flex items-center p-[1px] justify-between">
       <main className="flex w-full items-center justify-between rounded-full">
 
         {/* LEFT */}
-        <div className="flex items-center gap-2 cursor-pointer">
+        <div className="flex items-center gap-2  w-fit cursor-pointer">
           <div className="relative rounded-full p-1">
             {imageLoaded && (
               <div className="absolute inset-0 bg-zinc-700 animate-pulse rounded-full" />
@@ -193,15 +193,15 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             ) : activeChat?.isOnline ? (
               <span className="text-xs text-lime-500">online</span>
             ) : (
-              <span className="text-xs theme-text-muted">
-                {lastActiveText}
+              <span className="text-xs w-120  theme-text-muted">
+                {activeRoom?.description}
               </span>
             )}
           </div>
         </div>
 
         {/* RIGHT ACTIONS */}
-        <div className="flex items-center gap-3 mr-6">
+        <div className="flex items-center gap-3 mr-6 ">
           <CiPhone
             size={25}
             className="cursor-pointer"

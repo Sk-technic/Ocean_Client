@@ -51,15 +51,15 @@ const OutgoingCallModal: React.FC<OutgoingCallModalProps> = ({
     cancelCall(data.roomId, data.roomType, data.receiver.id)
     onCancel();
   };
-useEffect(() => {
-    // Timer start karo
-    const timer = setTimeout(() => {
-      console.log("Call timeout: No answer for 20s");
-      handleCancel();
-    }, 20000);
+// useEffect(() => {
+//     // Timer start karo
+//     const timer = setTimeout(() => {
+//       console.log("Call timeout: No answer for 20s");
+//       handleCancel();
+//     }, 20000);
 
-    return () => clearTimeout(timer);
-  }, [data.roomId]);
+//     return () => clearTimeout(timer);
+//   }, [data.roomId]);
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-md">

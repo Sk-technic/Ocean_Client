@@ -65,7 +65,7 @@ const SearchLayout: React.FC = () => {
                   className="w-10 h-10 rounded-full object-cover"
                   loading="lazy"
                 />
-                <div className="flex flex-col h-12   items-start justify-start">
+                <div className="flex flex-col h-12 items-start justify-center">
                   <span className="text-xs font-semibold theme-text-secondary">{user.username}</span>
                   <span className="text-[12px] theme-text-muted">{user.fullName}{}</span>
                 </div>

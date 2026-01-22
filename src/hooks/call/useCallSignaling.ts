@@ -5,16 +5,17 @@ import type { ICallingUser } from "../../layout/ChatLayout/ChatLayout";
 
 
 interface AcceptedData {
-    roomId:string;
-    acceptedBy:ICallingUser
+    roomId: string;
+    acceptedBy: ICallingUser,
+    type: "audio" | "video"
 }
 interface UseCallSignalingParams {
     onIncomingCall?: (payload: any) => void;
     onGroupCallNotify?: (payload: any) => void;
     onCallRejected?: () => void;
     onCallCancelled?: () => void;
-    onhandleAccepted?: (payload:AcceptedData)=>void;
-    onCallEnded?: (payload:any)=>void;
+    onhandleAccepted?: (payload: AcceptedData) => void;
+    onCallEnded?: (payload: any) => void;
 }
 
 
@@ -35,31 +36,31 @@ export const useCallSignaling = ({
     );
 
     const acceptCall = useCallback(
-        (roomId: string,caller:{name:string,avatar:string|null,id:string},roomType:"dm"|"group") => {
+        (roomId: string, caller: { name: string, avatar: string | null, id: string }, roomType: "dm" | "group", callType: "audio" | "video") => {
             console.log("-----------------accept call");
-            
-            socket?.emit("call:accept", { roomId ,caller,roomType});
+
+            socket?.emit("call:accept", { roomId, caller, roomType, callType });
         },
         [socket]
     );
 
     const rejectCall = useCallback(
-        (roomId: string, callerId: string,type:"dm"|"group") => {
-            socket?.emit("call:reject", { roomId, callerId,type });
+        (roomId: string, callerId: string, type: "dm" | "group") => {
+            socket?.emit("call:reject", { roomId, callerId, type });
         },
         [socket]
     );
 
     const cancelCall = useCallback(
-        (roomId: string, roomType:"dm"|"group",receiverId?: string) => {
-            socket?.emit("call:cancel", { roomId, receiverId,roomType });
+        (roomId: string, roomType: "dm" | "group", receiverId?: string) => {
+            socket?.emit("call:cancel", { roomId, receiverId, roomType });
         },
         [socket]
     );
 
     const endCall = useCallback(
-        (roomId:string,roomType:string) => {
-            socket?.emit("call:end",{roomId,roomType});
+        (roomId: string, roomType: string) => {
+            socket?.emit("call:end", { roomId, roomType });
         },
         [socket]
     );
@@ -91,8 +92,8 @@ export const useCallSignaling = ({
             socket?.on("call:cancelled", onCallCancelled);
         }
 
-        if(onCallEnded){
-            socket?.on("call:ended",onCallEnded)
+        if (onCallEnded) {
+            socket?.on("call:ended", onCallEnded)
         }
 
 
@@ -113,9 +114,9 @@ export const useCallSignaling = ({
             if (onhandleAccepted) {
                 socket?.off("call:accepted", onhandleAccepted);
             }
-            if(onCallEnded){
-            socket?.off("call:ended",onCallEnded)
-        }
+            if (onCallEnded) {
+                socket?.off("call:ended", onCallEnded)
+            }
         };
     }, [
         socket,

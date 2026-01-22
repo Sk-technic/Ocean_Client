@@ -22,7 +22,7 @@ export const connectSocket = (token?: string, userId?: string): Socket | null =>
     socket = io(SOCKET_URL, {
       transports: ["websocket","polling"],
       withCredentials: true,
-      autoConnect: false,
+      autoConnect: true,
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1500,

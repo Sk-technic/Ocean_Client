@@ -56,7 +56,7 @@ const UserProfileComponent = () => {
   }
 
   return (
-    <main>
+    <main className="w-full theme-bg-primary h-full flex flex-col justify-start items-center ">
       <ProfileHeader user={queryUserData}  setFollowers={setFollowers}  setFollowing={setFollowing}/>
   {(followerList || followingList) && <div className={`w-full flex items-center justify-center h-full absolute dark:bg-white/10 top-0 `}>
         <FriendsListing followers={followerList} following={followingList} setFollowers={setFollowers} setFollowing={setFollowing} />

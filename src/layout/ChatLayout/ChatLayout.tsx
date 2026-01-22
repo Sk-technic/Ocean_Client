@@ -100,19 +100,10 @@ const ChatLayout = () => {
       setOutGoingCall(null)
       // setIncomingCall(null)
     },
-    // onhandleAccepted(payload: { roomId: string, acceptedBy: ICallingUser }) {
-    //   console.log("------------------Accept Call : ", payload,);
+    onhandleAccepted() {
 
-    //   if (payload) {
-    //     dispatch(setActiveCall({
-    //       roomId: payload?.roomId,
-    //       roomType: "dm",
-    //       remoteUser: payload.acceptedBy
-    //     }))
-    //     setCallWindow(true)
-    //     setOutGoingCall(null)
-    //   }
-    // },
+        setOutGoingCall(null)
+      }
   
   })
 

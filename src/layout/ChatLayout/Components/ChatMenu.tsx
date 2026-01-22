@@ -173,7 +173,7 @@ const ChatMenu: React.FC = () => {
                             className="w-full h-full object-cover rounded-full" />
                     </div>
                     <h1 className="text-lg font-semibold theme-text-primary">{name}</h1>
-                    {activeRoom?.type === "group" && <span className="text-sm theme-text-muted font-normal">{activeRoom?.description}</span>}
+                    {activeRoom?.type === "group" && <span className="text-xs w-[80%] text-center theme-text-muted font-normal">{activeRoom?.description}</span>}
                 </div>
             </section>
             <div className="w-full flex items-center justify-between">

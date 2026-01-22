@@ -23,6 +23,8 @@ import IncomingCallModal from "./layout/ChatLayout/Components/call/IncomingCall"
 import CallStreamWindow from "./layout/ChatLayout/Components/call/CallStreamWindow";
 import { clearActiveCall, setActiveCall } from "./store/slices/activeCallSlice";
 import type { ICallingUser } from "./layout/ChatLayout/ChatLayout";
+import { sfuState } from "./hooks/call/sfu";
+
 
 const App = () => {
   const dispatch = useDispatch();
@@ -75,7 +77,7 @@ const App = () => {
   // useChatUsers(loggedInUser?._id, isConnected && isAuthenticated);
   useChatUsers(loggedInUser?._id);
 
-  
+
 
   /**
    *  Notifications
@@ -97,7 +99,10 @@ const App = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // const [outGoingCall, setOutGoingCall] = useState<StartCallPayload | null>(null);
+  useEffect(() => {
+    sfuState.initDevice()
+  }, [])
+
   const [incomingCall, setIncomingCall] = useState<any>(null);
   const [fullScreen, setFullScreen] = useState<boolean>(true);
   const [maxScreen, setMaxScreen] = useState<boolean>(false);
@@ -118,6 +123,7 @@ const App = () => {
       setIncomingCall({
         ...payload,
         type: "dm",
+        callType: payload.callType
       });
     },
     onCallCancelled() {
@@ -128,19 +134,48 @@ const App = () => {
       // setOutGoingCall(null)
       setIncomingCall(null)
     },
-    onhandleAccepted(payload: { roomId: string, acceptedBy: ICallingUser }) {
-      console.log("------------------Accept Call : ", payload,);
+    async onhandleAccepted(payload: {
+      roomId: string;
+      acceptedBy: ICallingUser;
+      type: "audio" | "video";
+    }) {
+      if (!payload || !socket) return;
 
-      if (payload) {
-        dispatch(setActiveCall({
-          roomId: payload?.roomId,
+      const { roomId, acceptedBy, type } = payload;
+
+      dispatch(
+        setActiveCall({
+          roomId,
           roomType: "dm",
-          remoteUser: payload.acceptedBy
-        }))
-        setCallWindow(true)
-        // setOutGoingCall(null)
-      }
-    },
+          remoteUser: acceptedBy,
+          callType: type
+        })
+      );
+
+      socket.emit("rtc:join-room", { roomId });
+
+      sfuState.roomId = roomId;
+      sfuState.initProducerListeners()
+      await sfuState.waitForDevice();
+      sfuState.createRecvTransport(roomId);
+      await sfuState.startMedia(type);
+
+      const waitForLocalStream = () =>
+        new Promise<void>(resolve => {
+          if (sfuState.localStream) return resolve();
+
+          window.addEventListener(
+            "local-stream-ready",
+            () => resolve(),
+            { once: true }
+          );
+        });
+
+      await waitForLocalStream();
+
+      setCallWindow(true);
+    }
+
   })
 
   useEffect(() => {
@@ -154,9 +189,12 @@ const App = () => {
 
     return () => {
       socket?.off("call:ended", handleCallEnded)
-
     }
   }, [socket])
+
+
+
+
 
   if (loading) {
     return (
@@ -235,11 +273,11 @@ const App = () => {
 
         <Notify />
 
-        {isAuthenticated && (
+        {/* {isAuthenticated && (
           <div className="fixed bottom-2 right-3 text-xs text-gray-400 z-[1000]">
             Socket: {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
           </div>
-        )}
+        )} */}
       </main>
     </div>
   );

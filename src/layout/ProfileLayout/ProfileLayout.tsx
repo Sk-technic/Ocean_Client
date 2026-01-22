@@ -5,6 +5,7 @@ import { LuLayoutGrid } from "react-icons/lu";
 import { BsFilePlay } from "react-icons/bs";
 import { IoBookmarkOutline } from "react-icons/io5";
 import FriendsListing from '../Listing/FriendsListing';
+import PrimaryButton from '../../components/Buttons/PrimaryButoon';
 
 const ProfilePage: React.FC = () => {
 
@@ -58,6 +59,13 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
+      </section>
+
+
+      <section className="w-full max-w-8xl h-50 flex flex-col items-center justify-center">
+        <div className='w-full max-w-5xl flex p-2 items-center justify-around theme-text-muted relative'>
+          <PrimaryButton label='add post'fullWidth={false} width='fit px-10 py-2'/>
+          </div>
       </section>
     </main>
 

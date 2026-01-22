@@ -25,7 +25,22 @@ const IncomingCallModal: React.FC<IncomingCallModalProps> = ({ data, onClose }) 
 console.log("incoming data : ",data);
 
   const handleAccept = () => {
-    acceptCall(data.roomId,data?.caller,data.type)
+    acceptCall(data.roomId,data?.caller,data.type,data.callType)
+     setTimeout(() => {
+    const audio = document.querySelector("audio") as HTMLAudioElement | null;
+    if (audio) {
+      audio.muted = false;
+      audio.volume = 1;
+      audio.play().catch(() => {});
+    }
+
+    const video = document.querySelector("video") as HTMLVideoElement | null;
+    if (video) {
+      video.muted = true; // autoplay allow
+      video.playsInline = true;
+      video.play().catch(() => {});
+    }
+  }, 0);
     onClose();
   };
 

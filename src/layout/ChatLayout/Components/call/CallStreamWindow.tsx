@@ -1,151 +1,213 @@
 import React, { useEffect, useRef, useState } from "react";
 import CallControls from "../CallControls";
 import { optimizeUrl } from "../../../../utils/imageOptimize";
-// import { useCallSignaling } from "../../../../hooks/call/useCallSignaling";
 import { useAppSelector } from "../../../../store/hooks";
-// import { getSocket } from "../../../../api/config/socketClient";
-// import { clearActiveCall } from "../../../../store/slices/activeCallSlice";
-// import { useNavigate } from "react-router-dom";
-// import toast from "react-hot-toast";
-// import { Fullscreen } from "lucide-react";
-import Draggable from 'react-draggable'
-import { sfuState } from "../../../../hooks/sfu";
-const CallStreamWindow: React.FC<
-  {
-    setFullScreen: React.Dispatch<React.SetStateAction<boolean>>
-    fullScreen: boolean
-    setMaxScreen: React.Dispatch<React.SetStateAction<boolean>>
-    maxScreen: boolean
-  }
-> = ({ setFullScreen, fullScreen, setMaxScreen, maxScreen }) => {
+import { sfuState } from "../../../../hooks/call/sfu";
+
+interface Props {
+  setFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
+  fullScreen: boolean;
+  setMaxScreen: React.Dispatch<React.SetStateAction<boolean>>;
+  maxScreen: boolean;
+}
+
+const CallStreamWindow: React.FC<Props> = ({
+  setFullScreen,
+  fullScreen,
+  setMaxScreen,
+  maxScreen,
+}) => {
+  /* ================= REFS ================= */
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  const remoteStream = sfuState.remoteStreams?.values()?.next()?.value || null;
+  /* ================= REDUX ================= */
+  const { remoteUser, callType } = useAppSelector(
+    (state) => state.activeCall
+  );
 
-  const isVideoCall = !!sfuState.localStream?.getVideoTracks().length;
+  const isVideoCall = callType === "video";
 
   /* ================= LOCAL STREAM ================= */
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+
   useEffect(() => {
-    if (localVideoRef.current && sfuState.localStream) {
-      localVideoRef.current.srcObject = sfuState.localStream;
+    const syncLocal = () => {
+      console.log("🔁 [LOCAL SYNC]", sfuState.localStream);
+      setLocalStream(sfuState.localStream || null);
+    };
+
+    syncLocal();
+    window.addEventListener("local-stream-ready", syncLocal);
+
+    return () => window.removeEventListener("local-stream-ready", syncLocal);
+  }, []);
+
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      console.log(
+        "📹 Attaching Local Video Tracks:",
+        localStream.getVideoTracks().length
+      );
+      localVideoRef.current.srcObject = localStream;
+      localVideoRef.current
+        .play()
+        .then(() => console.log("▶️ Local video playing"))
+        .catch((err) =>
+          console.error("❌ Local video play failed:", err)
+        );
     }
-  }, [sfuState.localStream]);
+  }, [localStream]);
 
   /* ================= REMOTE STREAM ================= */
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+
   useEffect(() => {
-    if (remoteVideoRef.current && remoteStream) {
+    const syncRemote = () => {
+      let targetStream: MediaStream | null = null;
+
+      if (sfuState.remotePeerId) {
+        targetStream = sfuState.remoteStreams.get(sfuState.remotePeerId) || null;
+      }
+      if (!targetStream && sfuState.remoteStreams.size > 0) {
+        targetStream = Array.from(sfuState.remoteStreams.values())[0];
+      }
+
+      if (targetStream) {
+        console.log("✅ Remote Stream Found (Sync):", targetStream);
+        setRemoteStream(targetStream);
+      } else {
+        console.log("❌ Remote Stream Not Found (Sync)");
+        setRemoteStream(null);
+      }
+    };
+
+    syncRemote();
+    window.addEventListener("remote-stream-changed", syncRemote);
+
+    return () => window.removeEventListener("remote-stream-changed", syncRemote);
+  }, []);
+
+  /* ================= ATTACH REMOTE STREAM ================= */
+  useEffect(() => {
+    if (!remoteStream) return;
+
+    console.log(
+      "🎯 Attaching remote stream:",
+      remoteStream.id,
+      "video:",
+      remoteStream.getVideoTracks().length,
+      "audio:",
+      remoteStream.getAudioTracks().length
+    );
+
+    // VIDEO
+    if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = remoteStream;
+      remoteVideoRef.current.muted = true; // prevent feedback
+      remoteVideoRef.current.playsInline = true;
+
+      remoteVideoRef.current
+        .play()
+        .then(() => console.log("▶️ Remote video playing"))
+        .catch((err) => console.error("❌ Remote video play failed", err));
+    }
+
+    // AUDIO
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = remoteStream;
+
+      remoteAudioRef.current
+        .play()
+        .then(() => console.log("▶️ Remote audio playing"))
+        .catch((err) => console.error("❌ Remote audio play failed", err));
     }
   }, [remoteStream]);
 
-  // const socket = getSocket()
-  const { remoteUser } = useAppSelector(state => state.activeCall)
-  // const dispatch = useAppDispatch()
-  // const navigate = useNavigate()
-  const nodeRef = useRef(null);
-  // useEffect(() => {
-  //     if (!socket) return
-  //     const handleCallEnded = (payload:any) => {
-  //       console.log("payload ==== call ended", payload);
-  //       dispatch(clearActiveCall())
-  //       toast('call end.')
-  //       navigate(-1)
-  //     }
-  //     socket?.on("call:ended", handleCallEnded)
-
-  //     return () => {
-  //       socket?.off("call:ended", handleCallEnded)
-
-  //     }
-  //   }, [socket])
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  // Jab fullScreen toggle ho, position reset kar dein
+  /* ================= HANDLE LATE VIDEO TRACK ================= */
   useEffect(() => {
-    if (fullScreen || maxScreen) {
-      setPosition({ x: 0, y: 0 });
-    }
-  }, [fullScreen, maxScreen]);
+    if (!remoteStream || !remoteVideoRef.current) return;
 
-  const handleDrag = (e: any, data: any) => {
-    setPosition({ x: data.x, y: data.y });
-    console.log(e);
-    
-  };
+    const onAddTrack = (event: MediaStreamTrackEvent) => {
+      console.log("🎬 Track arrived:", event.track.kind);
+
+      if (event.track.kind === "video") {
+        console.log("🎬 Video track arrived → force rebind");
+
+        remoteVideoRef.current!.srcObject = remoteStream;
+        remoteVideoRef.current!.load();
+        remoteVideoRef.current!
+          .play()
+          .then(() => console.log("▶️ Remote video playing after track"))
+          .catch((err) => console.error("❌ Video play failed:", err));
+      }
+    };
+
+    remoteStream.addEventListener("addtrack", onAddTrack);
+    return () => remoteStream.removeEventListener("addtrack", onAddTrack);
+  }, [remoteStream]);
+
+  /* ================= JSX ================= */
   return (
-    <Draggable
-      nodeRef={nodeRef}
-      bounds="parent"
-      disabled={fullScreen || maxScreen}
-      position={position} // 🔥 Controlled position
-      onDrag={handleDrag}
+    <div
+      className={`fixed inset-0 z-[500] bg-black flex items-center justify-center
+      ${fullScreen && !maxScreen ? "p-4" : ""}
+      ${maxScreen ? "p-0" : ""}`}
     >
-      {/* 🔴 Is DIV ka hona zaroori hai Draggable ke theek niche */}
-      <div ref={nodeRef} className={`p-5 fixed z-[500] pointer-events-auto rounded-2xl dark:bg-zinc-800 bg-zinc-300 flex flex-col justify-bettween  ${(fullScreen && !maxScreen) ? 'w-[80%] h-[80vh]' : ''} ${maxScreen ? "w-full h-full rounded-xs" : ""}`}>
-        {/* ================= VIDEO CALL UI ================= */}
-        {isVideoCall && (
-          <>
-            {/* 🔵 Remote video (full screen) */}
-            {remoteStream ? (
-              <video
-                ref={remoteVideoRef}
-                autoPlay
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-white text-sm opacity-60">
-                Connecting video...
-              </div>
-            )}
+      {/* REMOTE VIDEO */}
+      {isVideoCall && (
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        />
+      )}
 
-            {/* 🟢 Local preview */}
-            {sfuState.localStream && (
-              <video
-                ref={localVideoRef}
-                autoPlay
-                muted
-                playsInline
-                className="absolute bottom-28 right-4 w-32 h-44 rounded-xl border border-white/30 shadow-lg object-cover bg-black"
-              />
-            )}
-          </>
-        )}
+      {/* LOCAL VIDEO */}
+      {isVideoCall && localStream && (
+        <video
+          ref={localVideoRef}
+          autoPlay
+          muted
+          playsInline
+          className="absolute bottom-6 right-6 w-36 h-48 rounded-xl border border-white/30 shadow-lg object-cover bg-black"
+        />
+      )}
 
-        {/* ================= AUDIO CALL UI ================= */}
-        {!isVideoCall && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 text-white">
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20">
-              <img
-                src={
-                  optimizeUrl(
-                    sfuState.remoteUser?.avatar || remoteUser?.avatar || "",
-                    200
-                  ) || "/profile-dummy.png"
-                }
-                alt="user"
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <div className="text-center">
-              <h2 className="text-xl font-semibold">
-                {sfuState.remoteUser?.name || remoteUser?.name}
-              </h2>
-              <p className="text-sm text-white/60 tracking-widest mt-1">
-                Audio call connected
-              </p>
-            </div>
+      {/* AUDIO CALL UI */}
+      {!isVideoCall && (
+        <div className="flex flex-col items-center gap-6 text-white">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20">
+            <img
+              src={
+                optimizeUrl(remoteUser?.avatar || "", 200) ||
+                "/profile-dummy.png"
+              }
+              alt="user"
+              className="w-full h-full object-cover"
+            />
           </div>
-        )}
 
-        {/* ================= CONTROLS ================= */}
-        <div className="pb-6">
-          <CallControls setfullScreen={setFullScreen} setlargeScreen={setMaxScreen} />
+          <div className="text-center">
+            <h2 className="text-xl font-semibold">{remoteUser?.name}</h2>
+            <p className="text-sm text-white/60 tracking-widest mt-1">
+              Audio call connected
+            </p>
+          </div>
         </div>
+      )}
+
+      {/* HIDDEN AUDIO */}
+      <audio ref={remoteAudioRef} autoPlay playsInline />
+
+      {/* CALL CONTROLS */}
+      <div className="absolute bottom-6 w-full flex justify-center">
+        <CallControls setfullScreen={setFullScreen} setlargeScreen={setMaxScreen} />
       </div>
-    </Draggable>
+    </div>
   );
 };
 

@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { setSocket, setConnected } from "../../store/slices/socketSclice";
 import { useAppDispatch } from "../../store/hooks";
 import {
   connectSocket,
   disconnectSocket,
-  // reconnectSocket,
+  reconnectSocket,
   getSocket,
 } from "../../api/config/socketClient";
 
@@ -16,7 +16,7 @@ export const useSocket = (token: string, userId?: string) => {
     if (!token || !userId || initialized.current) return;
     initialized.current = true;
 
-    // console.log("⚙️ [useSocket] Initializing socket...");
+    console.log("⚙️ [useSocket] Initializing socket...");
 
     const socket = connectSocket(token, userId);
     if (!socket) return;
@@ -24,7 +24,7 @@ export const useSocket = (token: string, userId?: string) => {
     dispatch(setSocket(socket));
 
     const handleConnect = () => {
-      // console.log("🟢 [useSocket] Connected:", socket.id);
+      console.log("🟢 [useSocket] Connected:", socket.id);
       dispatch(setConnected(true));
     };
 
@@ -34,7 +34,7 @@ export const useSocket = (token: string, userId?: string) => {
     };
 
     const handleError = (err: any) => {
-      console.error("💥 [useSocket] Connection Error:", err?.message || err);
+      console.error("💥 [useSocket] Connection Error:", err);
       dispatch(setConnected(false));
     };
 
@@ -48,7 +48,6 @@ export const useSocket = (token: string, userId?: string) => {
       dispatch(setConnected(true));
     }
 
-    // ✅ Only disconnect when token/userId changes (logout), not on refresh
     return () => {
       if (!token || !userId) {
         console.log("🔌 [useSocket] Disconnecting due to logout or invalid token");
@@ -62,13 +61,13 @@ export const useSocket = (token: string, userId?: string) => {
     };
   }, [token, userId, dispatch]);
 
-  // const reconnect = useCallback(
-  //   (newToken?: string) => {
-  //     console.log("♻️ [useSocket] Manual reconnect...");
-  //     reconnectSocket(newToken ?? token, userId);
-  //   },
-  //   [token, userId]
-  // );
+  useCallback(
+    (newToken?: string) => {
+      console.log("♻️ [useSocket] Manual reconnect...");
+      reconnectSocket(newToken ?? token, userId);
+    },
+    [token, userId]
+  );
 
   return { socket: getSocket() };
 };

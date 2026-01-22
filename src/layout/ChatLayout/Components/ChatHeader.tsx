@@ -187,14 +187,14 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
                     </span>
                   </>
                 ) : (
-                  <span>multiple users are typing...</span>
+                  <span>users are typing...</span>
                 )}
               </span>
             ) : activeChat?.isOnline ? (
               <span className="text-xs text-lime-500">online</span>
             ) : (
               <span className="text-xs w-120  theme-text-muted">
-                {activeRoom?.description}
+                {activeRoom?.description || lastActiveText}
               </span>
             )}
           </div>
